@@ -126,7 +126,7 @@ A value not in the vocabulary is a CI failure. That is deliberate: the alternati
 - **`applies_to` must be an object.** `"applies_to": "typescript"` is rejected — a scalar has no dimensions to intersect, so the installer would treat the artifact as applying to every profile.
 - **Ids must be unique case-insensitively.** They become directory names; on Windows and default macOS `AS-0001` and `as-0001` are one directory, and one artifact silently overwrites the other.
 - **The index entry and the artifact's own `metadata.json` must agree.** The index is authoritative for matching — it is the only file a consumer holds when it decides what to fetch. **Nothing checks this agreement.** A `metadata.json` that disagrees with the index passes CI, and the index wins at install time.
-- **Never set `fixture: true`.** It is only for the `AS-SPIKE-*` transport fixtures, and it exempts an artifact from *all* matching validation. On a real artifact it would silently hide it from every install. The validator rejects it on any non-`AS-SPIKE-*` id, which is the only reason a typo here is survivable.
+- **Never set `fixture: true`.** It is only for the `AS-SPIKE-*` transport fixtures, and it exempts an artifact from *all* matching validation — though not from the [path rules](../README.md#path-rules), which apply to every entry because a broken path breaks the checkout for everyone. On a real artifact it would silently hide it from every install. The validator rejects it on any non-`AS-SPIKE-*` id, which is the only reason a typo here is survivable.
 - **One artifact is exactly one self-contained directory.** See [the subtree contract](../README.md#the-subtree-contract). Breaking it does not fail loudly — the clone succeeds and the artifact arrives incomplete.
 
 ## Worked example
@@ -310,6 +310,7 @@ Every message below is produced by [`scripts/validate-catalog.ps1`](../scripts/v
 | `Artifact <id> path '<path>' ends component '<component>' with a dot or a space. ...` | A trailing `.` or space. Checkout fails with `invalid path`. |
 | `Artifact <id> path '<path>' is <n> characters long, over the 240-character maximum. ...` | Over the conservative limit; longer needs `core.longpaths=true`. |
 | `Artifact <id> path '<a>' collides with '<b>' on a case-insensitive filesystem. ...` | Two paths differ only in case. The clone succeeds and one file disappears. |
+| `Catalog directories '<a>' and '<b>' differ only in case, so they are one directory on Windows and default macOS. ...` | Two directory spellings, even with no two files colliding. Windows merges them and a sparse checkout pulls the wrong files. |
 | `Artifact <id> declares source_path '<path>', which uses '\' separators / is absolute / contains a '.' or '..' segment.` | `source_path` is not a repository-relative `/`-separated path inside the catalog. |
 
 These three are thrown, not collected — they mean a broken invocation rather than bad catalog content, and there is nothing in the catalog to fix:

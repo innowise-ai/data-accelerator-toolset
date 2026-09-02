@@ -165,7 +165,15 @@ The case-collision rule is the dangerous one: it is the only violation that prod
 ./scripts/validate-catalog.ps1 -IndexPath ./index.json -CatalogRoot .
 ```
 
-Without `-CatalogRoot` the validator checks `index.json` alone and reports `PathCount: 0` — which is how you tell a checkout that passed from one that was never scanned.
+Without `-CatalogRoot` the validator checks `index.json` alone and reports `PathCount: 0` — which is how you tell a checkout that passed from one that was never scanned. With it, a root holding no files is an error rather than a silent pass.
+
+To check a specific set of paths instead of walking a directory — tracked files only, say — pass them with `-PathList` (the two are mutually exclusive):
+
+```powershell
+./scripts/validate-catalog.ps1 -IndexPath ./index.json -PathList (git ls-files)
+```
+
+Two details the table above leaves implicit: the rules apply to `AS-SPIKE-*` fixtures too — `fixture: true` exempts an artifact from matching validation, not from a path that breaks everyone's checkout — and two directories differing only in case are reported even when no two *files* collide, because on Windows they are one directory.
 
 ## Fetching artifacts
 

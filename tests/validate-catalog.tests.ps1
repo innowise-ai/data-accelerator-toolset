@@ -744,7 +744,10 @@ Describe 'validate-catalog.ps1' {
         It 'rejects a path over the 240-character maximum' {
             $indexPath = New-TestIndex -Name 'pathlong'
             $prefix = 'artifacts/AS-0001/'
-            $tooLong = $prefix + ('a' * (241 - $prefix.Length)) + '.md'
+            # Exactly 241: one over the limit is the boundary worth testing, and
+            # a comfortably-too-long path would pass a rule with an off-by-one.
+            $tooLong = $prefix + ('a' * (241 - $prefix.Length))
+            $tooLong.Length | Should -Be 241
 
             $result = & $validator -IndexPath $indexPath -PathList @($tooLong)
 
@@ -863,10 +866,80 @@ Describe 'validate-catalog.ps1' {
             $result.PathCount | Should -Be 1
         }
 
+        It 'rejects a name that is a device with a trailing space' {
+            # Windows ignores trailing spaces in the name part, so 'CON .md'
+            # opens the console device exactly as 'CON.md' does - and Git's own
+            # path check lets it through, so nothing downstream would catch it.
+            $indexPath = New-TestIndex -Name 'pathdevicespace'
+
+            $result = & $validator -IndexPath $indexPath -PathList @('artifacts/AS-0001/CON .md')
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'reserved device name'
+        }
+
+        It 'rejects two directories that differ only in case, once' {
+            # Different leaf names, so the paths themselves never collide - but
+            # on Windows the two directories are one, and a sparse checkout of
+            # one spelling pulls the other's files.
+            $indexPath = New-TestIndex -Name 'pathdircollision'
+
+            $result = & $validator -IndexPath $indexPath -PathList @(
+                'artifacts/AS-0001/SKILL.md'
+                'artifacts/AS-0001/metadata.json'
+                'artifacts/as-0001/notes.md'
+            )
+
+            $result.IsValid | Should -BeFalse
+
+            $directoryErrors = @($result.Errors | Where-Object { $_ -match 'differ only in case' })
+            # One fault, one message: three files under the two spellings must not
+            # produce three copies of the same complaint.
+            $directoryErrors.Count | Should -Be 1
+            $directoryErrors[0] | Should -MatchExactly 'AS-0001'
+            $directoryErrors[0] | Should -MatchExactly 'as-0001'
+        }
+
+        It 'checks a fixture artifact source_path like any other' {
+            # 'fixture: true' exempts an artifact from matching validation, which
+            # is metadata a fixture is not required to carry. It cannot exempt one
+            # from the path rules: a reserved name fails the checkout for every
+            # consumer, whoever owns the artifact.
+            $indexPath = New-TestIndex -Name 'pathfixture' -Artifacts @(
+                @{
+                    id = 'AS-SPIKE-001'; version = '1.0.0'; source_path = 'artifacts/CON'
+                    fixture = $true
+                }
+            )
+
+            $result = & $validator -IndexPath $indexPath
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'reserved device name'
+        }
+
+        It 'refuses -CatalogRoot and -PathList together' {
+            # Two answers to "which paths". Letting one win silently would leave
+            # the caller believing a checkout was walked when it was not.
+            $indexPath = New-TestIndex -Name 'pathbothinputs'
+            $treeRoot = Join-Path $TestDrive 'both-inputs'
+            [void](New-Item -ItemType Directory -Path $treeRoot -Force)
+            Set-Content -LiteralPath (Join-Path $treeRoot 'index.json') -Value '{}'
+
+            { & $validator -IndexPath $indexPath -CatalogRoot $treeRoot -PathList @('a/b.md') } |
+                Should -Throw -ExpectedMessage '*Parameter set cannot be resolved*'
+        }
+
         It 'walks a checkout given -CatalogRoot, and leaves .git out of it' {
             $indexPath = New-TestIndex -Name 'pathwalk'
             $treeRoot = Join-Path $TestDrive 'checkout'
-            foreach ($relative in @('artifacts/AS-0001/SKILL.md', 'index.json', '.git/config')) {
+            # The nested .git stands in for a submodule: the prune has to happen
+            # at every depth, not only at the root.
+            foreach ($relative in @(
+                    'artifacts/AS-0001/SKILL.md'
+                    'index.json'
+                    '.git/config'
+                    'artifacts/AS-0001/vendored/.git/config')) {
                 $filePath = Join-Path $treeRoot $relative
                 [void](New-Item -ItemType Directory -Path (Split-Path -Parent $filePath) -Force)
                 Set-Content -LiteralPath $filePath -Value 'fixture'
@@ -876,8 +949,8 @@ Describe 'validate-catalog.ps1' {
 
             $result.IsValid | Should -BeTrue
 
-            # Two, not three: .git holds objects nobody checks out, and its own
-            # contents are not the catalog's to fix.
+            # Two, not four: neither .git is the catalog's to fix, and neither
+            # holds anything a consumer checks out.
             $result.PathCount | Should -Be 2
         }
     }
@@ -1034,17 +1107,27 @@ Describe 'validate-catalog.ps1' {
             $result.ArtifactCount | Should -Be $indexed
         }
 
-        It 'validates the real checkout against the path rules' {
+        It 'validates the real catalog paths against the path rules' {
             # The rules above are a contract only if the catalog that ships
-            # satisfies them. This also proves the walk reaches something: a
-            # -CatalogRoot that silently found no files would pass every other
-            # assertion here.
-            $result = & $validator -IndexPath (Join-Path $repoRoot 'index.json') `
-                -CatalogRoot $repoRoot
+            # satisfies them.
+            #
+            # Driven from `git ls-files` rather than -CatalogRoot: the walk
+            # deliberately includes untracked files, so on a developer's machine
+            # a scratch file that happens to collide case-insensitively with a
+            # tracked one would fail this test for a reason no reviewer could
+            # guess. What ships is what is tracked. The walk itself is covered by
+            # the fixture-tree case above.
+            $tracked = @(& git -C $repoRoot ls-files)
+            if ($LASTEXITCODE -ne 0 -or $tracked.Count -eq 0) {
+                Set-ItResult -Skipped -Because 'git could not list the tracked files here'
+                return
+            }
+
+            $result = & $validator -IndexPath (Join-Path $repoRoot 'index.json') -PathList $tracked
 
             $result.Errors | Should -Be @()
             $result.IsValid | Should -BeTrue
-            $result.PathCount | Should -BeGreaterThan 0
+            $result.PathCount | Should -Be $tracked.Count
         }
     }
 }

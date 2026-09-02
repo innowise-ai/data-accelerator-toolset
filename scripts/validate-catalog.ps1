@@ -29,7 +29,10 @@
     anything at all, and a case collision is worse - the clone succeeds and one
     file silently disappears from the worktree.
 #>
-[CmdletBinding()]
+# Parameter sets so -CatalogRoot and -PathList cannot both be passed: they are
+# two answers to "which paths", and silently letting one win would leave the
+# caller believing a checkout was walked when it was not.
+[CmdletBinding(DefaultParameterSetName = 'IndexOnly')]
 param(
     [Parameter(Mandatory)]
     [string] $IndexPath,
@@ -38,6 +41,7 @@ param(
     # rules. Opt-in rather than derived from $IndexPath: the test suite writes
     # dozens of index fixtures into one directory, and a scan that switched
     # itself on would report faults about a neighbouring test's files.
+    [Parameter(ParameterSetName = 'Checkout')]
     [string] $CatalogRoot,
 
     # The same check driven from a list of paths instead of a directory. This is
@@ -45,6 +49,7 @@ param(
     # on Windows, so a fixture on disk could only ever be built on Linux - for
     # rules that exist to describe Windows. It also lets a caller narrow the scan,
     # e.g. to `git ls-files` output.
+    [Parameter(ParameterSetName = 'PathList')]
     [string[]] $PathList
 )
 
@@ -181,7 +186,11 @@ function Test-CatalogPathComponent {
         # Compared on the part before the first dot, and case-insensitively:
         # Windows resolves 'CON', 'CON.md' and 'con.txt' all to the console
         # device, while 'CONTRIBUTING.md' and 'NULL.md' are ordinary files.
-        $deviceCandidate = $component.Split('.')[0].ToUpperInvariant()
+        # TrimEnd before the lookup: Windows ignores trailing spaces and dots in
+        # the name part, so 'CON .md' resolves to the console device just as
+        # 'CON.md' does - and Git's own path check lets it through, so nothing
+        # downstream would catch it.
+        $deviceCandidate = $component.Split('.')[0].TrimEnd(@(' ', '.')).ToUpperInvariant()
         if ($ReservedDeviceNames -contains $deviceCandidate) {
             Add-CatalogError "$Label uses the Windows reserved device name '$deviceCandidate' in component '$component'. Checkout fails on Windows with 'invalid path'; rename it."
         }
@@ -217,6 +226,8 @@ function Test-CatalogPathRule {
     )
 
     $seenPaths = @{}
+    $seenDirectories = @{}
+    $reportedDirectories = @{}
     foreach ($path in ($Paths | Sort-Object)) {
         if ([string]::IsNullOrWhiteSpace($path)) { continue }
 
@@ -226,7 +237,7 @@ function Test-CatalogPathRule {
         Test-CatalogPathComponent -Path $normalized -Label $label
 
         if ($normalized.Length -gt $MaximumPathLength) {
-            Add-CatalogError "$label is $($normalized.Length) characters long, over the $MaximumPathLength-character maximum. Longer paths need core.longpaths=true, which not every developer has."
+            Add-CatalogError "$label is $($normalized.Length) characters long, over the $MaximumPathLength-character maximum. Longer paths need core.longpaths=true, which not every developer has; shorten it."
         }
 
         # Folded to upper case explicitly, the same way artifact ids are below:
@@ -234,11 +245,36 @@ function Test-CatalogPathRule {
         # leaning on a comparer that happens to be case-insensitive.
         $key = $normalized.ToUpperInvariant()
         if ($seenPaths.ContainsKey($key)) {
-            Add-CatalogError "$label collides with '$($seenPaths[$key])' on a case-insensitive filesystem. On Windows the clone succeeds and one of the two files silently disappears from the worktree."
+            Add-CatalogError "$label collides with '$($seenPaths[$key])' on a case-insensitive filesystem. On Windows the clone succeeds and one of the two files silently disappears from the worktree; rename one of them."
             continue
         }
 
         $seenPaths[$key] = $normalized
+
+        # Directory prefixes folded separately from whole paths. Two files with
+        # different leaf names under 'artifacts/AS-0001' and 'artifacts/as-0001'
+        # never collide as paths, but on Windows and default macOS the two are
+        # one directory: the worktree gets a layout the index does not describe,
+        # and a sparse checkout of one spelling pulls the other's files. The id
+        # sweep below catches this only when both spellings are declared as ids.
+        $segments = $normalized.Split('/')
+        for ($depth = 0; $depth -lt $segments.Count - 1; $depth++) {
+            $prefix = ($segments[0..$depth] -join '/')
+            $prefixKey = $prefix.ToUpperInvariant()
+
+            if (-not $seenDirectories.ContainsKey($prefixKey)) {
+                $seenDirectories[$prefixKey] = $prefix
+                continue
+            }
+
+            # Reported once per colliding directory, not once per file inside it:
+            # a directory with twenty files is one fault with one fix.
+            if ($seenDirectories[$prefixKey] -cne $prefix -and
+                -not $reportedDirectories.ContainsKey($prefixKey)) {
+                $reportedDirectories[$prefixKey] = $true
+                Add-CatalogError "Catalog directories '$($seenDirectories[$prefixKey])' and '$prefix' differ only in case, so they are one directory on Windows and default macOS. Rename one of them."
+            }
+        }
     }
 }
 
@@ -280,7 +316,7 @@ function Test-CatalogSourcePath {
     Test-CatalogPathComponent -Path $SourcePath.Replace('\', '/') -Label "Artifact $Id source_path '$SourcePath'"
 
     if ($SourcePath.Length -gt $MaximumPathLength) {
-        Add-CatalogError "Artifact $Id source_path '$SourcePath' is $($SourcePath.Length) characters long, over the $MaximumPathLength-character maximum."
+        Add-CatalogError "Artifact $Id source_path '$SourcePath' is $($SourcePath.Length) characters long, over the $MaximumPathLength-character maximum. Longer paths need core.longpaths=true, which not every developer has; shorten it."
     }
 }
 
@@ -292,8 +328,14 @@ function Get-CatalogCheckoutPath {
         The working tree is walked rather than `git ls-files` asked, so the same
         code path serves a fixture directory in the test suite and a real clone,
         and so a file that is present but untracked - the state a half-finished
-        artifact is in - is still checked. .git is skipped: its own contents are
-        not what any consumer checks out.
+        artifact is in - is still checked.
+
+        Directories are pruned as the walk descends rather than filtered out of
+        the results: '.git' at any depth is somebody's object store, a submodule
+        has one of its own, and enumerating one only to discard it is work that
+        can fail on a lock file that vanished mid-run. Links are pruned for a
+        blunter reason - a link pointing at its own ancestor would never
+        terminate.
     #>
     param(
         [Parameter(Mandatory)]
@@ -311,11 +353,37 @@ function Get-CatalogCheckoutPath {
     $resolved = (Resolve-Path -LiteralPath $Root).ProviderPath.TrimEnd(
         [System.IO.Path]::DirectorySeparatorChar)
 
-    # -Force because a dot-prefixed name is hidden to PowerShell on every
-    # platform, and .github/ is exactly the kind of directory a bad path lands in.
-    return @(Get-ChildItem -LiteralPath $resolved -Recurse -File -Force |
-        ForEach-Object { $_.FullName.Substring($resolved.Length + 1).Replace('\', '/') } |
-        Where-Object { $_ -ne '.git' -and -not $_.StartsWith('.git/') })
+    $files = [System.Collections.Generic.List[string]]::new()
+    $pending = [System.Collections.Generic.Stack[string]]::new()
+    $pending.Push($resolved)
+
+    while ($pending.Count -gt 0) {
+        $directory = $pending.Pop()
+
+        # -Force because a dot-prefixed name is hidden to PowerShell on every
+        # platform, and .github/ is exactly the kind of directory a bad path
+        # lands in. The catch turns an unreadable directory into a message
+        # naming it, rather than the raw .NET error $ErrorActionPreference
+        # would otherwise surface from the middle of a walk.
+        try {
+            $children = @(Get-ChildItem -LiteralPath $directory -Force -ErrorAction Stop)
+        } catch {
+            throw "Cannot read $directory while checking catalog paths: $($_.Exception.Message)"
+        }
+
+        foreach ($child in $children) {
+            if ($child.PSIsContainer) {
+                if ($child.Name -eq '.git') { continue }
+                if (($child.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) { continue }
+                $pending.Push($child.FullName)
+                continue
+            }
+
+            $files.Add($child.FullName.Substring($resolved.Length + 1).Replace('\', '/'))
+        }
+    }
+
+    return $files.ToArray()
 }
 
 function Test-CatalogArtifact {
@@ -585,6 +653,14 @@ for ($i = 0; $i -lt $artifacts.Count; $i++) {
 for ($i = 0; $i -lt $artifacts.Count; $i++) {
     $artifact = $artifacts[$i]
     if ($null -eq $artifact -or $artifact -is [string] -or $artifact -is [ValueType]) { continue }
+
+    # No fixture escape hatch here, unlike every check in Test-CatalogArtifact.
+    # 'fixture: true' exempts an artifact from matching validation because a
+    # fixture carries no matching metadata; it cannot exempt one from the path
+    # rules, because a reserved name or a trailing dot fails the checkout for
+    # every consumer of the catalog regardless of whose artifact it is - and the
+    # transport fixtures are the entries most likely to carry a hostile path.
+
     if ($null -eq $artifact.PSObject.Properties['source_path'] -or
         [string]::IsNullOrWhiteSpace($artifact.source_path)) {
         continue
