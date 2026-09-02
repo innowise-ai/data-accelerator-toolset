@@ -202,8 +202,13 @@ function Test-CatalogPathRule {
         Windows. The caller decides where the list came from.
     #>
     param(
+        # AllowEmptyString as well as AllowEmptyCollection: a caller narrowing the
+        # scan with `git ls-files` output passes a trailing empty element, and a
+        # parameter-binding error there names neither the caller's mistake nor
+        # this validator's rule.
         [Parameter(Mandatory)]
         [AllowEmptyCollection()]
+        [AllowEmptyString()]
         [string[]] $Paths,
 
         [Parameter(Mandatory)]
@@ -296,6 +301,10 @@ function Get-CatalogCheckoutPath {
     )
 
     if (-not (Test-Path -LiteralPath $Root -PathType Container)) {
+        if (Test-Path -LiteralPath $Root) {
+            throw "Catalog root is not a directory: $Root"
+        }
+
         throw "Catalog root not found: $Root"
     }
 
@@ -589,9 +598,23 @@ for ($i = 0; $i -lt $artifacts.Count; $i++) {
 # ran - the cost of making the checkout scan opt-in.
 $checkoutPaths = @()
 if ($PSBoundParameters.ContainsKey('PathList')) {
-    $checkoutPaths = @($PathList)
+    # Blanks dropped here rather than in the rule loop, so PathCount reports what
+    # was actually checked. `git ls-files` output arrives with a trailing empty
+    # element, and an empty string is not a path that either passed or failed.
+    $checkoutPaths = @($PathList | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
 } elseif (-not [string]::IsNullOrWhiteSpace($CatalogRoot)) {
-    $checkoutPaths = Get-CatalogCheckoutPath -Root $CatalogRoot
+    # Wrapped in @() because PowerShell unrolls an empty array on return: without
+    # it, a root holding no files hands back $null and the .Count below dies under
+    # Set-StrictMode with a message naming nothing.
+    $checkoutPaths = @(Get-CatalogCheckoutPath -Root $CatalogRoot)
+
+    # A root that exists and holds nothing is a broken invocation, not a clean
+    # catalog: the caller asked for the path rules and got no rules run. Thrown
+    # rather than collected, so `PathCount: 0` keeps its one meaning - the scan
+    # was never asked for.
+    if ($checkoutPaths.Count -eq 0) {
+        throw "Catalog root holds no files to check: $CatalogRoot"
+    }
 }
 
 if ($checkoutPaths.Count -gt 0) {

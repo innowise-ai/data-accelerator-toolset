@@ -243,9 +243,9 @@ Passing looks like this — `IsValid: True` and an empty `Errors` list:
 ```text
 IsValid       : True
 Errors        : {}
-ArtifactCount : 13
-PathCount     : 66
 ```
+
+`ArtifactCount` and `PathCount` come back alongside those two — how many artifacts the index declared, and how many checkout paths the rules were applied to. `PathCount` is `0` when `-CatalogRoot` was not passed.
 
 Failing prints each fault to the host as it is found *and* returns them in `Errors`. Every fault is collected, so one run shows you everything rather than one typo per push:
 
@@ -254,7 +254,6 @@ ERROR: Artifact TS-REVIEW-CONVENTIONS declares 'TypeScript' in dimension 'langua
 
 IsValid       : False
 Errors        : {Artifact TS-REVIEW-CONVENTIONS declares 'TypeScript' in dimension 'languages', which is not in the catalog vocabulary. Allowed: typescript, javascript, python, csharp, go.}
-ArtifactCount : 51
 ```
 
 The script returns an object; it does not set a non-zero exit code by itself. Check `IsValid`, as CI does.
@@ -277,7 +276,7 @@ Invoke-Pester -Configuration $configuration
 Passing:
 
 ```text
-Tests Passed: 34, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
+Tests Passed: <all of them>, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
 ```
 
 The run prints a wall of `ERROR:` lines. That is expected — the suite feeds deliberately broken indexes to the validator and asserts it complains. Read the final tally, not the noise.

@@ -826,6 +826,43 @@ Describe 'validate-catalog.ps1' {
             $result.PathCount | Should -Be 0
         }
 
+        It 'refuses a catalog root that holds no files' {
+            # The scan was asked for and ran no rules. Reported as a broken
+            # invocation, which is what keeps 'PathCount: 0' meaning one thing -
+            # nobody asked for the scan - rather than two.
+            $indexPath = New-TestIndex -Name 'pathemptyroot'
+            $emptyRoot = Join-Path $TestDrive 'empty-checkout'
+            [void](New-Item -ItemType Directory -Path $emptyRoot -Force)
+
+            { & $validator -IndexPath $indexPath -CatalogRoot $emptyRoot } |
+                Should -Throw -ExpectedMessage '*holds no files to check*'
+        }
+
+        It 'refuses a catalog root that is a file, and says so' {
+            # 'not found' about a path the caller can see would send them looking
+            # for a typo that is not there.
+            $indexPath = New-TestIndex -Name 'pathfileroot'
+
+            { & $validator -IndexPath $indexPath -CatalogRoot $indexPath } |
+                Should -Throw -ExpectedMessage '*is not a directory*'
+        }
+
+        It 'ignores blank entries in -PathList rather than failing to bind' {
+            # `git ls-files` output, which the parameter's own comment advertises,
+            # arrives with a trailing empty element. PathCount counts what was
+            # checked, so the blanks must not show up in it either.
+            $indexPath = New-TestIndex -Name 'pathblanks'
+
+            $result = & $validator -IndexPath $indexPath -PathList @(
+                'artifacts/AS-0001/SKILL.md'
+                ''
+                '   '
+            )
+
+            $result.IsValid | Should -BeTrue
+            $result.PathCount | Should -Be 1
+        }
+
         It 'walks a checkout given -CatalogRoot, and leaves .git out of it' {
             $indexPath = New-TestIndex -Name 'pathwalk'
             $treeRoot = Join-Path $TestDrive 'checkout'
