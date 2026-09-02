@@ -159,7 +159,13 @@ Every `source_path` and every path inside an artifact must satisfy all of the fo
 
 The case-collision rule is the dangerous one: it is the only violation that produces a successful clone with missing content.
 
-**None of these rules is machine-checked yet.** A validator in catalog CI is outstanding work — until it exists, this table is enforced by review alone.
+**Catalog CI enforces this table.** `validate-catalog.ps1 -CatalogRoot .` checks every file in the checkout and every declared `source_path`, and names the artifact, the exact path and the rule it broke. Run it locally before pushing:
+
+```powershell
+./scripts/validate-catalog.ps1 -IndexPath ./index.json -CatalogRoot .
+```
+
+Without `-CatalogRoot` the validator checks `index.json` alone and reports `PathCount: 0` — which is how you tell a checkout that passed from one that was never scanned.
 
 ## Fetching artifacts
 
