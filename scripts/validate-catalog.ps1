@@ -20,11 +20,37 @@
     understand. CI has no such constraint, and an author who fixes one typo per
     push soon stops trusting the check - so every fault is collected and
     reported together.
+
+    The second half of the contract is about paths rather than tags. TASK-001
+    measured which repository paths break a Git checkout on Windows, and those
+    findings were written into README.md as a table enforced by review alone.
+    Pass -CatalogRoot to have them enforced here instead: a reserved device name
+    or a trailing dot fails the checkout outright, so the user cannot install
+    anything at all, and a case collision is worse - the clone succeeds and one
+    file silently disappears from the worktree.
 #>
-[CmdletBinding()]
+# Parameter sets so -CatalogRoot and -PathList cannot both be passed: they are
+# two answers to "which paths", and silently letting one win would leave the
+# caller believing a checkout was walked when it was not.
+[CmdletBinding(DefaultParameterSetName = 'IndexOnly')]
 param(
     [Parameter(Mandatory)]
-    [string] $IndexPath
+    [string] $IndexPath,
+
+    # The catalog checkout whose file paths are checked against the Windows path
+    # rules. Opt-in rather than derived from $IndexPath: the test suite writes
+    # dozens of index fixtures into one directory, and a scan that switched
+    # itself on would report faults about a neighbouring test's files.
+    [Parameter(ParameterSetName = 'Checkout')]
+    [string] $CatalogRoot,
+
+    # The same check driven from a list of paths instead of a directory. This is
+    # how the rules are tested at all: 'CON.md' and 'trailing.' cannot be created
+    # on Windows, so a fixture on disk could only ever be built on Linux - for
+    # rules that exist to describe Windows. It also lets a caller narrow the scan,
+    # e.g. to `git ls-files` output.
+    [Parameter(ParameterSetName = 'PathList')]
+    [string[]] $PathList
 )
 
 Set-StrictMode -Version Latest
@@ -38,6 +64,20 @@ $ErrorActionPreference = 'Stop'
 $VocabularyDimensions = @('languages', 'frameworks', 'layout', 'agents', 'topics')
 
 $SupportedSchemaVersions = @('1', '2')
+
+# The Windows path rules, as TASK-001 measured them by cloning deliberately
+# invalid trees: a reserved device name and a trailing dot both failed the
+# checkout with 'invalid path' and exit 128, and a case collision cloned clean
+# with one file missing from the worktree.
+#
+# 240 is the spike's conservative maximum, not an observed limit: a
+# 244-character path worked there only because that machine had
+# core.longpaths=true, which must not be assumed of every developer.
+$ReservedDeviceNames = @('CON', 'PRN', 'AUX', 'NUL') +
+    (1..9 | ForEach-Object { "COM$_" }) +
+    (1..9 | ForEach-Object { "LPT$_" })
+
+$MaximumPathLength = 240
 
 $errors = [System.Collections.Generic.List[string]]::new()
 
@@ -83,6 +123,267 @@ function Get-ArtifactId {
     }
 
     return "<artifact at index $Index>"
+}
+
+function Get-CatalogPathLabel {
+    <#
+        How a path is named in a diagnostic: by the artifact that owns it where
+        one does, and as a catalog path otherwise.
+
+        The owning id is quoted as the *index* spells it rather than as the
+        directory does, because the two can differ in case - and when they do,
+        the author needs to see both spellings to understand which one to change.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string] $Path,
+
+        [Parameter(Mandatory)]
+        [AllowNull()]
+        [hashtable] $DeclaredIds
+    )
+
+    $segments = $Path.Split('/')
+    if ($segments.Count -ge 2 -and $segments[0] -eq 'artifacts') {
+        $directory = $segments[1]
+        $key = $directory.ToUpperInvariant()
+        if ($null -ne $DeclaredIds -and $DeclaredIds.ContainsKey($key)) {
+            return "Artifact $($DeclaredIds[$key]) path '$Path'"
+        }
+
+        return "Artifact directory '$directory' path '$Path'"
+    }
+
+    return "Catalog path '$Path'"
+}
+
+function Test-CatalogPathComponent {
+    <#
+        The two rules that fail a Windows checkout outright, applied to every
+        component of one path.
+
+        Both are per-component rather than per-path: 'artifacts/CON/skill.md'
+        breaks on the directory, and Git reports neither more precisely than
+        'invalid path', so the message has to name the component itself.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string] $Path,
+
+        [Parameter(Mandatory)]
+        [string] $Label
+    )
+
+    foreach ($component in $Path.Split('/')) {
+        if ([string]::IsNullOrEmpty($component)) { continue }
+
+        # '.' and '..' are dot segments, not names that happen to end in a dot.
+        # Test-CatalogSourcePath reports them as what they are; reporting them
+        # here as well would hand the author two errors for one fault, one of
+        # them naming the wrong rule.
+        if ($component -eq '.' -or $component -eq '..') { continue }
+
+        # Compared on the part before the first dot, and case-insensitively:
+        # Windows resolves 'CON', 'CON.md' and 'con.txt' all to the console
+        # device, while 'CONTRIBUTING.md' and 'NULL.md' are ordinary files.
+        # TrimEnd before the lookup: Windows ignores trailing spaces and dots in
+        # the name part, so 'CON .md' resolves to the console device just as
+        # 'CON.md' does - and Git's own path check lets it through, so nothing
+        # downstream would catch it.
+        $deviceCandidate = $component.Split('.')[0].TrimEnd(@(' ', '.')).ToUpperInvariant()
+        if ($ReservedDeviceNames -contains $deviceCandidate) {
+            Add-CatalogError "$Label uses the Windows reserved device name '$deviceCandidate' in component '$component'. Checkout fails on Windows with 'invalid path'; rename it."
+        }
+
+        if ($component -ne $component.TrimEnd(@('.', ' '))) {
+            Add-CatalogError "$Label ends component '$component' with a dot or a space. Checkout fails on Windows with 'invalid path'; rename it."
+        }
+    }
+}
+
+function Test-CatalogPathRule {
+    <#
+        The TASK-001 path rules over one list of repository-relative paths.
+
+        Paths arrive as data rather than being discovered here, for the same
+        reason the id collision check below folds ids by hand instead of asking
+        the filesystem: what is being modelled is Windows, and the runner is not
+        Windows. The caller decides where the list came from.
+    #>
+    param(
+        # AllowEmptyString as well as AllowEmptyCollection: a caller narrowing the
+        # scan with `git ls-files` output passes a trailing empty element, and a
+        # parameter-binding error there names neither the caller's mistake nor
+        # this validator's rule.
+        [Parameter(Mandatory)]
+        [AllowEmptyCollection()]
+        [AllowEmptyString()]
+        [string[]] $Paths,
+
+        [Parameter(Mandatory)]
+        [AllowNull()]
+        [hashtable] $DeclaredIds
+    )
+
+    $seenPaths = @{}
+    $seenDirectories = @{}
+    $reportedDirectories = @{}
+    foreach ($path in ($Paths | Sort-Object)) {
+        if ([string]::IsNullOrWhiteSpace($path)) { continue }
+
+        $normalized = $path.Replace('\', '/')
+        $label = Get-CatalogPathLabel -Path $normalized -DeclaredIds $DeclaredIds
+
+        Test-CatalogPathComponent -Path $normalized -Label $label
+
+        if ($normalized.Length -gt $MaximumPathLength) {
+            Add-CatalogError "$label is $($normalized.Length) characters long, over the $MaximumPathLength-character maximum. Longer paths need core.longpaths=true, which not every developer has; shorten it."
+        }
+
+        # Folded to upper case explicitly, the same way artifact ids are below:
+        # this states which filesystem behaviour is being modelled rather than
+        # leaning on a comparer that happens to be case-insensitive.
+        $key = $normalized.ToUpperInvariant()
+        if ($seenPaths.ContainsKey($key)) {
+            Add-CatalogError "$label collides with '$($seenPaths[$key])' on a case-insensitive filesystem. On Windows the clone succeeds and one of the two files silently disappears from the worktree; rename one of them."
+            continue
+        }
+
+        $seenPaths[$key] = $normalized
+
+        # Directory prefixes folded separately from whole paths. Two files with
+        # different leaf names under 'artifacts/AS-0001' and 'artifacts/as-0001'
+        # never collide as paths, but on Windows and default macOS the two are
+        # one directory: the worktree gets a layout the index does not describe,
+        # and a sparse checkout of one spelling pulls the other's files. The id
+        # sweep below catches this only when both spellings are declared as ids.
+        $segments = $normalized.Split('/')
+        for ($depth = 0; $depth -lt $segments.Count - 1; $depth++) {
+            $prefix = ($segments[0..$depth] -join '/')
+            $prefixKey = $prefix.ToUpperInvariant()
+
+            if (-not $seenDirectories.ContainsKey($prefixKey)) {
+                $seenDirectories[$prefixKey] = $prefix
+                continue
+            }
+
+            # Reported once per colliding directory, not once per file inside it:
+            # a directory with twenty files is one fault with one fix.
+            if ($seenDirectories[$prefixKey] -cne $prefix -and
+                -not $reportedDirectories.ContainsKey($prefixKey)) {
+                $reportedDirectories[$prefixKey] = $true
+                Add-CatalogError "Catalog directories '$($seenDirectories[$prefixKey])' and '$prefix' differ only in case, so they are one directory on Windows and default macOS. Rename one of them."
+            }
+        }
+    }
+}
+
+function Test-CatalogSourcePath {
+    <#
+        The same rules over a declared source_path, plus the three that only a
+        declared string can break: an absolute path, a '\' separator, and a '.'
+        or '..' segment. A path walked out of a checkout is relative and
+        '/'-separated by construction; one typed into index.json is whatever the
+        author typed.
+
+        Still not resolved against the filesystem - an artifact whose
+        source_path names a directory that does not exist remains a documented
+        gap, and closing it is a separate decision about fixtures.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string] $Id,
+
+        [Parameter(Mandatory)]
+        [string] $SourcePath
+    )
+
+    $label = "Artifact $Id declares source_path '$SourcePath', which"
+
+    if ($SourcePath.Contains('\')) {
+        Add-CatalogError "$label uses '\' separators. Catalog paths are repository-relative with '/' separators."
+    }
+
+    if ($SourcePath.StartsWith('/') -or $SourcePath -match '^[A-Za-z]:') {
+        Add-CatalogError "$label is absolute. Catalog paths are repository-relative."
+    }
+
+    $segments = $SourcePath.Replace('\', '/').Split('/')
+    if ($segments -contains '.' -or $segments -contains '..') {
+        Add-CatalogError "$label contains a '.' or '..' segment. Catalog paths may not point outside their own subtree."
+    }
+
+    Test-CatalogPathComponent -Path $SourcePath.Replace('\', '/') -Label "Artifact $Id source_path '$SourcePath'"
+
+    if ($SourcePath.Length -gt $MaximumPathLength) {
+        Add-CatalogError "Artifact $Id source_path '$SourcePath' is $($SourcePath.Length) characters long, over the $MaximumPathLength-character maximum. Longer paths need core.longpaths=true, which not every developer has; shorten it."
+    }
+}
+
+function Get-CatalogCheckoutPath {
+    <#
+        Every file under a catalog checkout, as repository-relative
+        forward-slash paths.
+
+        The working tree is walked rather than `git ls-files` asked, so the same
+        code path serves a fixture directory in the test suite and a real clone,
+        and so a file that is present but untracked - the state a half-finished
+        artifact is in - is still checked.
+
+        Directories are pruned as the walk descends rather than filtered out of
+        the results: '.git' at any depth is somebody's object store, a submodule
+        has one of its own, and enumerating one only to discard it is work that
+        can fail on a lock file that vanished mid-run. Links are pruned for a
+        blunter reason - a link pointing at its own ancestor would never
+        terminate.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string] $Root
+    )
+
+    if (-not (Test-Path -LiteralPath $Root -PathType Container)) {
+        if (Test-Path -LiteralPath $Root) {
+            throw "Catalog root is not a directory: $Root"
+        }
+
+        throw "Catalog root not found: $Root"
+    }
+
+    $resolved = (Resolve-Path -LiteralPath $Root).ProviderPath.TrimEnd(
+        [System.IO.Path]::DirectorySeparatorChar)
+
+    $files = [System.Collections.Generic.List[string]]::new()
+    $pending = [System.Collections.Generic.Stack[string]]::new()
+    $pending.Push($resolved)
+
+    while ($pending.Count -gt 0) {
+        $directory = $pending.Pop()
+
+        # -Force because a dot-prefixed name is hidden to PowerShell on every
+        # platform, and .github/ is exactly the kind of directory a bad path
+        # lands in. The catch turns an unreadable directory into a message
+        # naming it, rather than the raw .NET error $ErrorActionPreference
+        # would otherwise surface from the middle of a walk.
+        try {
+            $children = @(Get-ChildItem -LiteralPath $directory -Force -ErrorAction Stop)
+        } catch {
+            throw "Cannot read $directory while checking catalog paths: $($_.Exception.Message)"
+        }
+
+        foreach ($child in $children) {
+            if ($child.PSIsContainer) {
+                if ($child.Name -eq '.git') { continue }
+                if (($child.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) { continue }
+                $pending.Push($child.FullName)
+                continue
+            }
+
+            $files.Add($child.FullName.Substring($resolved.Length + 1).Replace('\', '/'))
+        }
+    }
+
+    return $files.ToArray()
 }
 
 function Test-CatalogArtifact {
@@ -343,8 +644,62 @@ for ($i = 0; $i -lt $artifacts.Count; $i++) {
         -SchemaVersion $schemaVersion -Index $i
 }
 
+# --------------------------------------------------------------------------
+# The TASK-001 path rules. Two inputs, because a catalog names paths in two
+# places: index.json declares a source_path per artifact, and the checkout holds
+# the files themselves. A rule enforced on one and not the other is a rule an
+# author can still break.
+# --------------------------------------------------------------------------
+for ($i = 0; $i -lt $artifacts.Count; $i++) {
+    $artifact = $artifacts[$i]
+    if ($null -eq $artifact -or $artifact -is [string] -or $artifact -is [ValueType]) { continue }
+
+    # No fixture escape hatch here, unlike every check in Test-CatalogArtifact.
+    # 'fixture: true' exempts an artifact from matching validation because a
+    # fixture carries no matching metadata; it cannot exempt one from the path
+    # rules, because a reserved name or a trailing dot fails the checkout for
+    # every consumer of the catalog regardless of whose artifact it is - and the
+    # transport fixtures are the entries most likely to carry a hostile path.
+
+    if ($null -eq $artifact.PSObject.Properties['source_path'] -or
+        [string]::IsNullOrWhiteSpace($artifact.source_path)) {
+        continue
+    }
+
+    Test-CatalogSourcePath -Id (Get-ArtifactId -Artifact $artifact -Index $i) `
+        -SourcePath ([string]$artifact.source_path)
+}
+
+# Reported so a caller can tell a scan that found nothing from a scan that never
+# ran - the cost of making the checkout scan opt-in.
+$checkoutPaths = @()
+if ($PSBoundParameters.ContainsKey('PathList')) {
+    # Blanks dropped here rather than in the rule loop, so PathCount reports what
+    # was actually checked. `git ls-files` output arrives with a trailing empty
+    # element, and an empty string is not a path that either passed or failed.
+    $checkoutPaths = @($PathList | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+} elseif (-not [string]::IsNullOrWhiteSpace($CatalogRoot)) {
+    # Wrapped in @() because PowerShell unrolls an empty array on return: without
+    # it, a root holding no files hands back $null and the .Count below dies under
+    # Set-StrictMode with a message naming nothing.
+    $checkoutPaths = @(Get-CatalogCheckoutPath -Root $CatalogRoot)
+
+    # A root that exists and holds nothing is a broken invocation, not a clean
+    # catalog: the caller asked for the path rules and got no rules run. Thrown
+    # rather than collected, so `PathCount: 0` keeps its one meaning - the scan
+    # was never asked for.
+    if ($checkoutPaths.Count -eq 0) {
+        throw "Catalog root holds no files to check: $CatalogRoot"
+    }
+}
+
+if ($checkoutPaths.Count -gt 0) {
+    Test-CatalogPathRule -Paths $checkoutPaths -DeclaredIds $seenIds
+}
+
 return [pscustomobject]@{
     IsValid       = ($errors.Count -eq 0)
     Errors        = $errors.ToArray()
     ArtifactCount = $artifacts.Count
+    PathCount     = $checkoutPaths.Count
 }

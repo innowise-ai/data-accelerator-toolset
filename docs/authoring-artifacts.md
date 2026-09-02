@@ -126,7 +126,7 @@ A value not in the vocabulary is a CI failure. That is deliberate: the alternati
 - **`applies_to` must be an object.** `"applies_to": "typescript"` is rejected — a scalar has no dimensions to intersect, so the installer would treat the artifact as applying to every profile.
 - **Ids must be unique case-insensitively.** They become directory names; on Windows and default macOS `AS-0001` and `as-0001` are one directory, and one artifact silently overwrites the other.
 - **The index entry and the artifact's own `metadata.json` must agree.** The index is authoritative for matching — it is the only file a consumer holds when it decides what to fetch. **Nothing checks this agreement.** A `metadata.json` that disagrees with the index passes CI, and the index wins at install time.
-- **Never set `fixture: true`.** It is only for the `AS-SPIKE-*` transport fixtures, and it exempts an artifact from *all* matching validation. On a real artifact it would silently hide it from every install. The validator rejects it on any non-`AS-SPIKE-*` id, which is the only reason a typo here is survivable.
+- **Never set `fixture: true`.** It is only for the `AS-SPIKE-*` transport fixtures, and it exempts an artifact from *all* matching validation — though not from the [path rules](../README.md#path-rules), which apply to every entry because a broken path breaks the checkout for everyone. On a real artifact it would silently hide it from every install. The validator rejects it on any non-`AS-SPIKE-*` id, which is the only reason a typo here is survivable.
 - **One artifact is exactly one self-contained directory.** See [the subtree contract](../README.md#the-subtree-contract). Breaking it does not fail loudly — the clone succeeds and the artifact arrives incomplete.
 
 ## Worked example
@@ -151,7 +151,7 @@ artifacts/TS-REVIEW-CONVENTIONS/
   metadata.json
 ```
 
-Nothing outside this directory, no `..` paths, no case-colliding filenames. See [path rules](../README.md#path-rules).
+Nothing outside this directory, no `..` paths, no case-colliding filenames. See [path rules](../README.md#path-rules) — CI enforces them.
 
 ### 2. `artifacts/TS-REVIEW-CONVENTIONS/SKILL.md`
 
@@ -233,16 +233,19 @@ Both commands run in CI ([`.github/workflows/validate.yml`](../.github/workflows
 ### The validator
 
 ```powershell
-./scripts/validate-catalog.ps1 -IndexPath ./index.json
+./scripts/validate-catalog.ps1 -IndexPath ./index.json -CatalogRoot .
 ```
+
+`-CatalogRoot` is what turns on the [path rules](../README.md#path-rules) over the files in your checkout; without it only `index.json` is read. CI passes it, so run it that way locally too.
 
 Passing looks like this — `IsValid: True` and an empty `Errors` list:
 
 ```text
 IsValid       : True
 Errors        : {}
-ArtifactCount : 13
 ```
+
+`ArtifactCount` and `PathCount` come back alongside those two — how many artifacts the index declared, and how many checkout paths the rules were applied to. `PathCount` is `0` when `-CatalogRoot` was not passed.
 
 Failing prints each fault to the host as it is found *and* returns them in `Errors`. Every fault is collected, so one run shows you everything rather than one typo per push:
 
@@ -251,7 +254,6 @@ ERROR: Artifact TS-REVIEW-CONVENTIONS declares 'TypeScript' in dimension 'langua
 
 IsValid       : False
 Errors        : {Artifact TS-REVIEW-CONVENTIONS declares 'TypeScript' in dimension 'languages', which is not in the catalog vocabulary. Allowed: typescript, javascript, python, csharp, go.}
-ArtifactCount : 51
 ```
 
 The script returns an object; it does not set a non-zero exit code by itself. Check `IsValid`, as CI does.
@@ -274,7 +276,7 @@ Invoke-Pester -Configuration $configuration
 Passing:
 
 ```text
-Tests Passed: 34, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
+Tests Passed: <all of them>, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
 ```
 
 The run prints a wall of `ERROR:` lines. That is expected — the suite feeds deliberately broken indexes to the validator and asserts it complains. Read the final tally, not the noise.
@@ -304,6 +306,12 @@ Every message below is produced by [`scripts/validate-catalog.ps1`](../scripts/v
 | `Catalog index schema_version '<v>' is not covered by this validator (supports '1, 2').` | The index declares a schema version this validator does not cover. |
 | `Catalog index at <path> has no vocabulary block. ...` | The `vocabulary` block is missing. Nothing can be validated without it. |
 | `Catalog index at <path> has no artifacts list. Write an empty list for a catalog with no artifacts.` | The `artifacts` key is absent. |
+| `Artifact <id> path '<path>' uses the Windows reserved device name '<name>' in component '<component>'. ...` | A path component resolves to a Windows device (`CON`, `NUL`, `COM1`…). Checkout fails with `invalid path`. |
+| `Artifact <id> path '<path>' ends component '<component>' with a dot or a space. ...` | A trailing `.` or space. Checkout fails with `invalid path`. |
+| `Artifact <id> path '<path>' is <n> characters long, over the 240-character maximum. ...` | Over the conservative limit; longer needs `core.longpaths=true`. |
+| `Artifact <id> path '<a>' collides with '<b>' on a case-insensitive filesystem. ...` | Two paths differ only in case. The clone succeeds and one file disappears. |
+| `Catalog directories '<a>' and '<b>' differ only in case, so they are one directory on Windows and default macOS. ...` | Two directory spellings, even with no two files colliding. Windows merges them and a sparse checkout pulls the wrong files. |
+| `Artifact <id> declares source_path '<path>', which uses '\' separators / is absolute / contains a '.' or '..' segment.` | `source_path` is not a repository-relative `/`-separated path inside the catalog. |
 
 These three are thrown, not collected — they mean a broken invocation rather than bad catalog content, and there is nothing in the catalog to fix:
 
@@ -322,11 +330,10 @@ Green CI does not mean a correct artifact. These are enforced by review alone.
 | **The `always` ceiling** | The validator never counts `always` artifacts. An index with 20 extra universal `always` artifacts validates clean. The ≤ 15 per profile ceiling is a review judgement with no gate behind it. |
 | **Index ↔ `metadata.json` agreement** | The validator never opens an artifact directory. A `metadata.json` saying `strength: always` under an index entry saying `on-demand` passes CI. The index wins at install time, so the artifact behaves as the index says and the file in the directory lies. |
 | **`source_path` points at anything** | Never resolved against the filesystem. An entry whose `source_path` names a directory that does not exist validates clean; the failure surfaces at install as an empty checkout. |
-| **The [path rules](../README.md#path-rules)** | Case collisions, reserved device names (`CON`, `NUL`, `COM1`…), trailing dots or spaces, `..` segments, the 240-character limit — none are machine-checked. The case-collision rule is the dangerous one: the clone *succeeds* and one file silently disappears from the worktree on Windows. |
 | **The subtree contract** | Nothing verifies an artifact is self-contained. An artifact depending on a file outside its directory clones successfully and arrives incomplete. |
 | **`SKILL.md` content** | Not read, not linted, not required to exist. |
 
-The pattern across all six: the failure is silent. Nothing errors, the install reports success, and the content is wrong or missing. That is why review is the gate here and why this list is worth re-reading before you approve someone else's artifact.
+The pattern across all five: the failure is silent. Nothing errors, the install reports success, and the content is wrong or missing. That is why review is the gate here and why this list is worth re-reading before you approve someone else's artifact.
 
 ## Checklist
 
@@ -338,4 +345,4 @@ The pattern across all six: the failure is silent. Nothing errors, the install r
 - [ ] Schema 2 `on-demand`: presentation card has a short name, truthful summary and concrete benefits
 - [ ] `metadata.json` matches the index entry field for field
 - [ ] No `fixture: true`
-- [ ] `./scripts/validate-catalog.ps1 -IndexPath ./index.json` reports `IsValid: True`
+- [ ] `./scripts/validate-catalog.ps1 -IndexPath ./index.json -CatalogRoot .` reports `IsValid: True`

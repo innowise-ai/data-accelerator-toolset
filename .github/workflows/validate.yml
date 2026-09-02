@@ -12,10 +12,12 @@ permissions:
 
 jobs:
   validate:
-    # ubuntu-latest is sufficient: this is pure JSON validation with no
-    # Windows-specific behaviour. The case-insensitive id collision check models
-    # Windows and default macOS filesystems by folding ids explicitly rather than
-    # by observing the runner's own filesystem, so it holds here too.
+    # ubuntu-latest is sufficient even though half of what is checked here is
+    # Windows behaviour. The id collision check, and the TASK-001 path rules
+    # beside it, model Windows and default macOS filesystems by folding names
+    # explicitly rather than by observing the runner's own filesystem - which is
+    # also the only way to check them at all, since 'CON.md' and 'trailing.'
+    # cannot exist on a Windows runner either.
     runs-on: ubuntu-latest
 
     steps:
@@ -29,9 +31,13 @@ jobs:
       - name: Validate the catalog index
         shell: pwsh
         run: |
-          $result = ./scripts/validate-catalog.ps1 -IndexPath ./index.json
+          # -CatalogRoot turns on the path rules over every file in the
+          # checkout. Without it the index is validated and the tree is not,
+          # which is the state this workflow was in before TASK-001's rules
+          # were enforced anywhere.
+          $result = ./scripts/validate-catalog.ps1 -IndexPath ./index.json -CatalogRoot .
 
-          Write-Host "Validated $($result.ArtifactCount) artifacts."
+          Write-Host "Validated $($result.ArtifactCount) artifacts and $($result.PathCount) checkout paths."
 
           if (-not $result.IsValid) {
               Write-Host "::error::The catalog index failed validation with $(@($result.Errors).Count) error(s)."

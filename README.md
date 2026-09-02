@@ -159,7 +159,21 @@ Every `source_path` and every path inside an artifact must satisfy all of the fo
 
 The case-collision rule is the dangerous one: it is the only violation that produces a successful clone with missing content.
 
-**None of these rules is machine-checked yet.** A validator in catalog CI is outstanding work — until it exists, this table is enforced by review alone.
+**Catalog CI enforces this table.** `validate-catalog.ps1 -CatalogRoot .` checks every file in the checkout and every declared `source_path`, and names the artifact, the exact path and the rule it broke. Run it locally before pushing:
+
+```powershell
+./scripts/validate-catalog.ps1 -IndexPath ./index.json -CatalogRoot .
+```
+
+Without `-CatalogRoot` the validator checks `index.json` alone and reports `PathCount: 0` — which is how you tell a checkout that passed from one that was never scanned. With it, a root holding no files is an error rather than a silent pass.
+
+To check a specific set of paths instead of walking a directory — tracked files only, say — pass them with `-PathList` (the two are mutually exclusive):
+
+```powershell
+./scripts/validate-catalog.ps1 -IndexPath ./index.json -PathList (git ls-files)
+```
+
+Two details the table above leaves implicit: the rules apply to `AS-SPIKE-*` fixtures too — `fixture: true` exempts an artifact from matching validation, not from a path that breaks everyone's checkout — and two directories differing only in case are reported even when no two *files* collide, because on Windows they are one directory.
 
 ## Fetching artifacts
 

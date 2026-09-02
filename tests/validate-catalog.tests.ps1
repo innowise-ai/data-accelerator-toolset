@@ -692,6 +692,313 @@ Describe 'validate-catalog.ps1' {
         }
     }
 
+    Context 'the Windows path rules over a checkout' {
+        # Paths are handed in as data rather than created on disk. 'CON.md' and
+        # 'trailing.' cannot exist on Windows at all, so a fixture tree could
+        # only be built on Linux - for rules whose whole subject is Windows.
+        It 'rejects a Windows reserved device name, naming the artifact, the path and the rule' {
+            $path = New-TestIndex -Name 'pathreserved' -Artifacts @(
+                @{
+                    id = 'AS-0001'; version = '1.0.0'; source_path = 'artifacts/AS-0001'
+                    applies_to = @{}; strength = 'always'; topics = @()
+                }
+            )
+
+            $result = & $validator -IndexPath $path -PathList @('artifacts/AS-0001/CON.md')
+
+            $result.IsValid | Should -BeFalse
+
+            # All three, because an error that says only "invalid path" repeats
+            # the problem instead of fixing it: the author needs the artifact,
+            # the exact path, and which rule it broke.
+            $report = @($result.Errors) -join "`n"
+            $report | Should -MatchExactly 'AS-0001'
+            $report | Should -Match 'artifacts/AS-0001/CON\.md'
+            $report | Should -Match 'reserved device name'
+        }
+
+        It 'rejects a reserved name in a directory component too' {
+            # 'artifacts/CON/skill.md' fails the checkout on the directory. Git
+            # reports neither case more precisely than 'invalid path', so the
+            # component has to be named.
+            $path = New-TestIndex -Name 'pathreserveddir'
+
+            $result = & $validator -IndexPath $path -PathList @('artifacts/CON/skill.md')
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match "component 'CON'"
+        }
+
+        It 'rejects a trailing <Rule>' -ForEach @(
+            @{ Rule = 'dot'; Path = 'artifacts/AS-0001/trailing.' }
+            @{ Rule = 'space'; Path = 'artifacts/AS-0001/trailing ' }
+        ) {
+            $indexPath = New-TestIndex -Name "pathtrailing-$Rule"
+
+            $result = & $validator -IndexPath $indexPath -PathList @($Path)
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'dot or a space'
+        }
+
+        It 'rejects a path over the 240-character maximum' {
+            $indexPath = New-TestIndex -Name 'pathlong'
+            $prefix = 'artifacts/AS-0001/'
+            # Exactly 241: one over the limit is the boundary worth testing, and
+            # a comfortably-too-long path would pass a rule with an off-by-one.
+            $tooLong = $prefix + ('a' * (241 - $prefix.Length))
+            $tooLong.Length | Should -Be 241
+
+            $result = & $validator -IndexPath $indexPath -PathList @($tooLong)
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match '240-character maximum'
+        }
+
+        It 'accepts a path of exactly 240 characters' {
+            # The limit is conservative already; making it off-by-one stricter
+            # would fail a path the spike measured as working.
+            $indexPath = New-TestIndex -Name 'pathexact'
+            $prefix = 'artifacts/AS-0001/'
+            $exact = $prefix + ('a' * (240 - $prefix.Length))
+            $exact.Length | Should -Be 240
+
+            (& $validator -IndexPath $indexPath -PathList @($exact)).IsValid | Should -BeTrue
+        }
+
+        It 'rejects two paths that collide case-insensitively, naming both' {
+            # The dangerous one: the clone succeeds and one file silently
+            # disappears from the worktree, so nothing fails until a Windows
+            # user installs an artifact with a file missing.
+            $indexPath = New-TestIndex -Name 'pathcollision' -Artifacts @(
+                @{
+                    id = 'AS-0001'; version = '1.0.0'; source_path = 'artifacts/AS-0001'
+                    applies_to = @{}; strength = 'always'; topics = @()
+                }
+            )
+
+            $result = & $validator -IndexPath $indexPath -PathList @(
+                'artifacts/AS-0001/Case.md'
+                'artifacts/AS-0001/case.md'
+            )
+
+            $result.IsValid | Should -BeFalse
+
+            # Case-sensitive, or 'case.md' would be satisfied by the 'Case.md'
+            # already in the message and the test would pass with only one of
+            # the two paths ever quoted.
+            $report = @($result.Errors) -join "`n"
+            $report | Should -MatchExactly 'Case\.md'
+            $report | Should -MatchExactly 'case\.md'
+        }
+
+        It 'accepts <_>, which only looks reserved' -ForEach @(
+            'artifacts/AS-0001/CONTRIBUTING.md'
+            'artifacts/AS-0001/NULL.md'
+            'artifacts/AS-0001/AUX-CHECKS.md'
+            'artifacts/AS-0001/COM10.md'
+        ) {
+            # The rule matches the component up to the first dot, so a name that
+            # merely starts with a device name is an ordinary file. False
+            # positives here are how a path check stops being trusted.
+            $indexPath = New-TestIndex -Name ('pathok-' + ($_ -replace '[^A-Za-z0-9]', ''))
+
+            (& $validator -IndexPath $indexPath -PathList @($_)).IsValid | Should -BeTrue
+        }
+
+        It 'names an artifact directory the index does not declare' {
+            # A file under artifacts/ that belongs to no declared artifact still
+            # breaks the checkout for everyone. Naming the directory is the only
+            # handle its author has.
+            $indexPath = New-TestIndex -Name 'pathorphan'
+
+            $result = & $validator -IndexPath $indexPath -PathList @('artifacts/AS-9999/CON.md')
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match "Artifact directory 'AS-9999'"
+        }
+
+        It 'checks no paths at all unless asked' {
+            # The scan is opt-in, and PathCount is how a caller tells "found
+            # nothing" from "never ran" - including this test.
+            $indexPath = New-TestIndex -Name 'pathopt-in'
+
+            $result = & $validator -IndexPath $indexPath
+
+            $result.IsValid | Should -BeTrue
+            $result.PathCount | Should -Be 0
+        }
+
+        It 'refuses a catalog root that holds no files' {
+            # The scan was asked for and ran no rules. Reported as a broken
+            # invocation, which is what keeps 'PathCount: 0' meaning one thing -
+            # nobody asked for the scan - rather than two.
+            $indexPath = New-TestIndex -Name 'pathemptyroot'
+            $emptyRoot = Join-Path $TestDrive 'empty-checkout'
+            [void](New-Item -ItemType Directory -Path $emptyRoot -Force)
+
+            { & $validator -IndexPath $indexPath -CatalogRoot $emptyRoot } |
+                Should -Throw -ExpectedMessage '*holds no files to check*'
+        }
+
+        It 'refuses a catalog root that is a file, and says so' {
+            # 'not found' about a path the caller can see would send them looking
+            # for a typo that is not there.
+            $indexPath = New-TestIndex -Name 'pathfileroot'
+
+            { & $validator -IndexPath $indexPath -CatalogRoot $indexPath } |
+                Should -Throw -ExpectedMessage '*is not a directory*'
+        }
+
+        It 'ignores blank entries in -PathList rather than failing to bind' {
+            # `git ls-files` output, which the parameter's own comment advertises,
+            # arrives with a trailing empty element. PathCount counts what was
+            # checked, so the blanks must not show up in it either.
+            $indexPath = New-TestIndex -Name 'pathblanks'
+
+            $result = & $validator -IndexPath $indexPath -PathList @(
+                'artifacts/AS-0001/SKILL.md'
+                ''
+                '   '
+            )
+
+            $result.IsValid | Should -BeTrue
+            $result.PathCount | Should -Be 1
+        }
+
+        It 'rejects a name that is a device with a trailing space' {
+            # Windows ignores trailing spaces in the name part, so 'CON .md'
+            # opens the console device exactly as 'CON.md' does - and Git's own
+            # path check lets it through, so nothing downstream would catch it.
+            $indexPath = New-TestIndex -Name 'pathdevicespace'
+
+            $result = & $validator -IndexPath $indexPath -PathList @('artifacts/AS-0001/CON .md')
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'reserved device name'
+        }
+
+        It 'rejects two directories that differ only in case, once' {
+            # Different leaf names, so the paths themselves never collide - but
+            # on Windows the two directories are one, and a sparse checkout of
+            # one spelling pulls the other's files.
+            $indexPath = New-TestIndex -Name 'pathdircollision'
+
+            $result = & $validator -IndexPath $indexPath -PathList @(
+                'artifacts/AS-0001/SKILL.md'
+                'artifacts/AS-0001/metadata.json'
+                'artifacts/as-0001/notes.md'
+            )
+
+            $result.IsValid | Should -BeFalse
+
+            $directoryErrors = @($result.Errors | Where-Object { $_ -match 'differ only in case' })
+            # One fault, one message: three files under the two spellings must not
+            # produce three copies of the same complaint.
+            $directoryErrors.Count | Should -Be 1
+            $directoryErrors[0] | Should -MatchExactly 'AS-0001'
+            $directoryErrors[0] | Should -MatchExactly 'as-0001'
+        }
+
+        It 'checks a fixture artifact source_path like any other' {
+            # 'fixture: true' exempts an artifact from matching validation, which
+            # is metadata a fixture is not required to carry. It cannot exempt one
+            # from the path rules: a reserved name fails the checkout for every
+            # consumer, whoever owns the artifact.
+            $indexPath = New-TestIndex -Name 'pathfixture' -Artifacts @(
+                @{
+                    id = 'AS-SPIKE-001'; version = '1.0.0'; source_path = 'artifacts/CON'
+                    fixture = $true
+                }
+            )
+
+            $result = & $validator -IndexPath $indexPath
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'reserved device name'
+        }
+
+        It 'refuses -CatalogRoot and -PathList together' {
+            # Two answers to "which paths". Letting one win silently would leave
+            # the caller believing a checkout was walked when it was not.
+            $indexPath = New-TestIndex -Name 'pathbothinputs'
+            $treeRoot = Join-Path $TestDrive 'both-inputs'
+            [void](New-Item -ItemType Directory -Path $treeRoot -Force)
+            Set-Content -LiteralPath (Join-Path $treeRoot 'index.json') -Value '{}'
+
+            { & $validator -IndexPath $indexPath -CatalogRoot $treeRoot -PathList @('a/b.md') } |
+                Should -Throw -ExpectedMessage '*Parameter set cannot be resolved*'
+        }
+
+        It 'walks a checkout given -CatalogRoot, and leaves .git out of it' {
+            $indexPath = New-TestIndex -Name 'pathwalk'
+            $treeRoot = Join-Path $TestDrive 'checkout'
+            # The nested .git stands in for a submodule: the prune has to happen
+            # at every depth, not only at the root.
+            foreach ($relative in @(
+                    'artifacts/AS-0001/SKILL.md'
+                    'index.json'
+                    '.git/config'
+                    'artifacts/AS-0001/vendored/.git/config')) {
+                $filePath = Join-Path $treeRoot $relative
+                [void](New-Item -ItemType Directory -Path (Split-Path -Parent $filePath) -Force)
+                Set-Content -LiteralPath $filePath -Value 'fixture'
+            }
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $treeRoot
+
+            $result.IsValid | Should -BeTrue
+
+            # Two, not four: neither .git is the catalog's to fix, and neither
+            # holds anything a consumer checks out.
+            $result.PathCount | Should -Be 2
+        }
+    }
+
+    Context 'the path rules over a declared source_path' {
+        # index.json is the other place a catalog names a path, and the only one
+        # where an absolute path or a backslash can appear at all - a path walked
+        # out of a checkout is relative and '/'-separated by construction.
+        It 'rejects <Case>' -ForEach @(
+            @{ Case = 'a backslash separator'; SourcePath = 'artifacts\AS-0001'; Expected = "uses '\\' separators" }
+            @{ Case = 'an absolute path'; SourcePath = '/srv/artifacts/AS-0001'; Expected = 'is absolute' }
+            @{ Case = 'a parent segment'; SourcePath = '../outside/AS-0001'; Expected = "'\.' or '\.\.' segment" }
+            @{ Case = 'a reserved device name'; SourcePath = 'artifacts/CON'; Expected = 'reserved device name' }
+        ) {
+            $indexPath = New-TestIndex -Name ('sourcepath-' + ($Case -replace '[^A-Za-z0-9]', '')) -Artifacts @(
+                @{
+                    id = 'AS-0001'; version = '1.0.0'; source_path = $SourcePath
+                    applies_to = @{}; strength = 'always'; topics = @()
+                }
+            )
+
+            $result = & $validator -IndexPath $indexPath
+
+            $result.IsValid | Should -BeFalse
+
+            $report = @($result.Errors) -join "`n"
+            $report | Should -Match 'AS-0001'
+            $report | Should -Match $Expected
+        }
+
+        It 'reports a parent segment once, and not as a trailing dot' {
+            # '..' is a dot segment, not a name that happens to end in a dot.
+            # Two errors for one fault, one of them naming the wrong rule, is
+            # how an author learns to skim past the output.
+            $indexPath = New-TestIndex -Name 'sourcepathdotsonce' -Artifacts @(
+                @{
+                    id = 'AS-0001'; version = '1.0.0'; source_path = '../outside/AS-0001'
+                    applies_to = @{}; strength = 'always'; topics = @()
+                }
+            )
+
+            $result = & $validator -IndexPath $indexPath
+
+            @($result.Errors).Count | Should -Be 1
+            @($result.Errors)[0] | Should -Not -Match 'dot or a space'
+        }
+    }
+
     Context 'reporting every fault at once' {
         It 'reports every error rather than stopping at the first' {
             # Unlike the installer, which throws on the first problem because it
@@ -798,6 +1105,29 @@ Describe 'validate-catalog.ps1' {
             $indexed = @((Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'index.json') |
                 ConvertFrom-Json).artifacts).Count
             $result.ArtifactCount | Should -Be $indexed
+        }
+
+        It 'validates the real catalog paths against the path rules' {
+            # The rules above are a contract only if the catalog that ships
+            # satisfies them.
+            #
+            # Driven from `git ls-files` rather than -CatalogRoot: the walk
+            # deliberately includes untracked files, so on a developer's machine
+            # a scratch file that happens to collide case-insensitively with a
+            # tracked one would fail this test for a reason no reviewer could
+            # guess. What ships is what is tracked. The walk itself is covered by
+            # the fixture-tree case above.
+            $tracked = @(& git -C $repoRoot ls-files)
+            if ($LASTEXITCODE -ne 0 -or $tracked.Count -eq 0) {
+                Set-ItResult -Skipped -Because 'git could not list the tracked files here'
+                return
+            }
+
+            $result = & $validator -IndexPath (Join-Path $repoRoot 'index.json') -PathList $tracked
+
+            $result.Errors | Should -Be @()
+            $result.IsValid | Should -BeTrue
+            $result.PathCount | Should -Be $tracked.Count
         }
     }
 }

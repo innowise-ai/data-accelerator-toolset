@@ -17,7 +17,7 @@ install. Clone it, install Pester once, and run the gate:
 ```powershell
 Install-Module Pester -RequiredVersion 5.6.1 -Force -Scope CurrentUser
 
-$result = ./scripts/validate-catalog.ps1 -IndexPath ./index.json
+$result = ./scripts/validate-catalog.ps1 -IndexPath ./index.json -CatalogRoot .
 if (-not $result.IsValid) { throw "Catalog validation failed." }
 Invoke-Pester -Path ./tests
 ```
