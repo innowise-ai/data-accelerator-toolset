@@ -1,0 +1,21 @@
+{
+  "id": "SAFE-NL2SQL-GUARDRAILS",
+  "version": "0.1.0",
+  "source_path": "artifacts/SAFE-NL2SQL-GUARDRAILS",
+  "applies_to": {
+    "languages": ["sql"]
+  },
+  "strength": "on-demand",
+  "topics": ["data-quality"],
+  "scope": "project",
+  "presentation": {
+    "name": "Safe NL2SQL guardrails",
+    "summary": "Generates SQL from natural language without letting an unvalidated query reach the database.",
+    "benefits": [
+      "Rejects writes, unlisted tables, and multi-statement SQL with an independent validator instead of a prompt instruction",
+      "Surfaces ambiguous business-term-to-column mappings instead of silently guessing",
+      "Bounds execution with a read-only identity, statement timeout, and result limits",
+      "Returns SQL, assumptions, and a validation trace so a result can be audited, not just trusted"
+    ]
+  }
+}

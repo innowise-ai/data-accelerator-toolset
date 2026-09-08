@@ -2,11 +2,11 @@
 
 The artifact catalog. Consumers fetch selected artifacts from this repository using Git partial clone with cone-mode sparse checkout, so a client downloads only the artifacts it needs rather than the whole catalog.
 
-The catalog holds twenty-eight artifacts in two groups. Eighteen are data-engineering specific, covering dbt, Snowflake, Airflow, Python pipeline code, and stack-agnostic pipeline quality practice. Ten are general skills that apply to any stack: change review, project documentation, test design, refactoring, error diagnosis, technical writing, and the four development-process artifacts covering requirements, planning, execution and verification. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
+The catalog holds thirty artifacts in two groups. Twenty are data-engineering specific, covering dbt, Snowflake, Airflow, Python pipeline code, and stack-agnostic pipeline quality practice. Ten are general skills that apply to any stack: change review, project documentation, test design, refactoring, error diagnosis, technical writing, and the four development-process artifacts covering requirements, planning, execution and verification. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
 
 Every artifact is currently `on-demand`, so a profile receives only what its declared topics select and the user explicitly chooses. There is no baseline set — see [`docs/authoring-artifacts.md`](docs/authoring-artifacts.md) for what an `always` artifact would have to justify.
 
-Twenty-seven artifacts are `project` scope. `TECHNICAL-WRITING` is the single `user`-scope artifact: a personal editing tool that does not belong in a shared project plan.
+Twenty-nine artifacts are `project` scope. `TECHNICAL-WRITING` is the single `user`-scope artifact: a personal editing tool that does not belong in a shared project plan.
 
 ## Layout
 
@@ -18,6 +18,7 @@ artifacts/
     metadata.json
   CHANGE-REVIEW/
   DATA-INCIDENT-DEBUGGING/
+  DBT-COLUMN-LINEAGE/
   DBT-ERROR-DEBUGGING/
   DBT-INCREMENTAL-MODELS/
   DBT-MODEL-CREATION/
@@ -36,6 +37,7 @@ artifacts/
   PYTEST-DATA-PIPELINES/
   REFACTORING-SAFETY/
   REQUIREMENTS-BRAINSTORMING/
+  SAFE-NL2SQL-GUARDRAILS/
   SCD2-IMPLEMENTATION/
   SNOWFLAKE-EXPENSIVE-QUERIES/
   SNOWFLAKE-QUERY-BY-ID/

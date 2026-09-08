@@ -1,0 +1,20 @@
+{
+  "id": "DBT-COLUMN-LINEAGE",
+  "version": "0.1.0",
+  "source_path": "artifacts/DBT-COLUMN-LINEAGE",
+  "applies_to": {
+    "frameworks": ["dbt"]
+  },
+  "strength": "on-demand",
+  "topics": ["data-modeling"],
+  "scope": "project",
+  "presentation": {
+    "name": "dbt column lineage",
+    "summary": "Traces where a dbt model's column came from and what depends on it, without reading SQL by hand across the model chain.",
+    "benefits": [
+      "Answers 'where did this field come from' and 'what breaks if I change it' from the dbt Cloud Discovery API",
+      "Shows the transformation type at each hop (passthrough, transformed, renamed), not just the model names",
+      "Validates model and column names before tracing, so a typo returns an error instead of a silent empty result"
+    ]
+  }
+}
