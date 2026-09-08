@@ -18,6 +18,11 @@ import sys
 import platform
 from pathlib import Path
 
+# Seconds to wait on a Discovery API call before giving up. Without a timeout a
+# stalled connection hangs the script indefinitely, and Desktop Commander's own
+# timeout_ms would kill it with no diagnostic.
+REQUEST_TIMEOUT = 30
+
 
 def get_platform_info() -> dict:
     """

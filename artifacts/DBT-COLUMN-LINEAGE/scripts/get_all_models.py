@@ -17,7 +17,7 @@ import argparse
 import requests
 import pandas as pd
 import sys
-from config import get_config, get_headers
+from config import get_config, get_headers, REQUEST_TIMEOUT
 
 
 def fetch_all_models(
@@ -44,32 +44,45 @@ def fetch_all_models(
     cursor = None
     page_count = 0
     
+    # Values are passed as GraphQL variables, never interpolated into the query
+    # string. The cursor matters as much as the caller's arguments here: it comes
+    # back from the API, so interpolating it lets the response steer the next query.
+    query = """
+    query Environment($environmentId: BigInt!, $first: Int!, $after: String) {
+        environment(id: $environmentId) {
+            applied {
+                models(first: $first, after: $after) {
+                    pageInfo {
+                        endCursor
+                        hasNextPage
+                    }
+                    totalCount
+                    edges {
+                        node {
+                            uniqueId
+                            name
+                            description
+                        }
+                    }
+                }
+            }
+        }
+    }
+    """
+    
     while has_next_page:
-        after_clause = f', after: "{cursor}"' if cursor else ""
+        variables = {
+            "environmentId": environment_id,
+            "first": page_size,
+            "after": cursor,
+        }
         
-        query = f"""
-        query Environment {{
-            environment(id: {environment_id}) {{
-                applied {{
-                    models(first: {page_size}{after_clause}) {{
-                        pageInfo {{
-                            endCursor
-                            hasNextPage
-                        }}
-                        totalCount
-                        edges {{
-                            node {{
-                                uniqueId
-                                name
-                                description
-                            }}
-                        }}
-                    }}
-                }}
-            }}
-        }}"""
-        
-        response = requests.post(host, json={"query": query}, headers=headers)
+        response = requests.post(
+            host,
+            json={"query": query, "variables": variables},
+            headers=headers,
+            timeout=REQUEST_TIMEOUT,
+        )
         response.raise_for_status()
         
         data = response.json()

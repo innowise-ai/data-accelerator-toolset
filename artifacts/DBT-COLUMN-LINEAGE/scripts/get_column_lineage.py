@@ -16,7 +16,7 @@ import argparse
 import requests
 import pandas as pd
 import sys
-from config import get_config, get_headers
+from config import get_config, get_headers, REQUEST_TIMEOUT
 
 
 def fetch_column_lineage(
@@ -41,13 +41,16 @@ def fetch_column_lineage(
     """
     headers = get_headers(token)
     
-    query = f"""
-    query Column {{
-        column(environmentId: "{environment_id}") {{
+    # Values are passed as GraphQL variables, never interpolated into the query
+    # string. A column name containing a double quote would otherwise close the
+    # string literal and rewrite the query structure.
+    query = """
+    query Column($environmentId: BigInt!, $nodeUniqueId: String!, $columnName: String!) {
+        column(environmentId: $environmentId) {
             lineage(
-                nodeUniqueId: "{unique_id}"
-                filters: {{ columnName: "{column_name}" }}
-            ) {{
+                nodeUniqueId: $nodeUniqueId
+                filters: { columnName: $columnName }
+            ) {
                 description
                 descriptionOriginColumnName
                 isPrimaryKey
@@ -59,12 +62,23 @@ def fetch_column_lineage(
                 relationship
                 uniqueId
                 transformationType
-            }}
-        }}
-    }}
+            }
+        }
+    }
     """
     
-    response = requests.post(host, json={"query": query}, headers=headers)
+    variables = {
+        "environmentId": environment_id,
+        "nodeUniqueId": unique_id,
+        "columnName": column_name,
+    }
+    
+    response = requests.post(
+        host,
+        json={"query": query, "variables": variables},
+        headers=headers,
+        timeout=REQUEST_TIMEOUT,
+    )
     response.raise_for_status()
     
     data = response.json()

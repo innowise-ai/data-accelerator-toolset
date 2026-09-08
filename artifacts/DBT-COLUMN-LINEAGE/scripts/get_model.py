@@ -17,7 +17,7 @@ import argparse
 import requests
 import pandas as pd
 import sys
-from config import get_config, get_headers
+from config import get_config, get_headers, REQUEST_TIMEOUT
 
 
 def fetch_model(
@@ -40,32 +40,42 @@ def fetch_model(
     """
     headers = get_headers(token)
     
-    query = f"""
-    query Environment {{
-        environment(id: "{environment_id}") {{
-            applied {{
+    # Values are passed as GraphQL variables, never interpolated into the query
+    # string. This also fixes the environment id type: the schema declares it as
+    # BigInt, so quoting it as a string was wrong.
+    query = """
+    query Environment($environmentId: BigInt!, $uniqueIds: [String!]) {
+        environment(id: $environmentId) {
+            applied {
                 models(
-                    filter: {{ uniqueIds: ["{unique_id}"] }}
+                    filter: { uniqueIds: $uniqueIds }
                     first: 1
-                ) {{
+                ) {
                     totalCount
-                    edges {{
-                        node {{
+                    edges {
+                        node {
                             rawCode
                             uniqueId
                             version
                             schema
                             name
                             description
-                        }}
-                    }}
-                }}
-            }}
-        }}
-    }}
+                        }
+                    }
+                }
+            }
+        }
+    }
     """
     
-    response = requests.post(host, json={"query": query}, headers=headers)
+    variables = {"environmentId": environment_id, "uniqueIds": [unique_id]}
+    
+    response = requests.post(
+        host,
+        json={"query": query, "variables": variables},
+        headers=headers,
+        timeout=REQUEST_TIMEOUT,
+    )
     response.raise_for_status()
     
     data = response.json()
