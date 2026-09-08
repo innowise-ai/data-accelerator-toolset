@@ -80,6 +80,26 @@
       }
     },
     {
+      "id": "DBT-COLUMN-LINEAGE",
+      "version": "0.1.0",
+      "source_path": "artifacts/DBT-COLUMN-LINEAGE",
+      "applies_to": {
+        "frameworks": ["dbt"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-modeling"],
+      "scope": "project",
+      "presentation": {
+        "name": "dbt column lineage",
+        "summary": "Traces where a dbt model's column came from and what depends on it, without reading SQL by hand across the model chain.",
+        "benefits": [
+          "Answers 'where did this field come from' and 'what breaks if I change it' from the dbt Cloud Discovery API",
+          "Shows the transformation type at each hop (passthrough, transformed, renamed), not just the model names",
+          "Validates model and column names before tracing, so a typo returns an error instead of a silent empty result"
+        ]
+      }
+    },
+    {
       "id": "DBT-ERROR-DEBUGGING",
       "version": "0.1.0",
       "source_path": "artifacts/DBT-ERROR-DEBUGGING",
@@ -426,6 +446,27 @@
           "Separates stated requirements from assumptions that were never confirmed",
           "Makes constraints and non-goals explicit before design starts",
           "Says when enough is known to begin, so discovery does not run forever"
+        ]
+      }
+    },
+    {
+      "id": "SAFE-NL2SQL-GUARDRAILS",
+      "version": "0.1.0",
+      "source_path": "artifacts/SAFE-NL2SQL-GUARDRAILS",
+      "applies_to": {
+        "languages": ["sql"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-quality"],
+      "scope": "project",
+      "presentation": {
+        "name": "Safe NL2SQL guardrails",
+        "summary": "Generates SQL from natural language without letting an unvalidated query reach the database.",
+        "benefits": [
+          "Rejects writes, unlisted tables, and multi-statement SQL with an independent validator instead of a prompt instruction",
+          "Surfaces ambiguous business-term-to-column mappings instead of silently guessing",
+          "Bounds execution with a read-only identity, statement timeout, and result limits",
+          "Returns SQL, assumptions, and a validation trace so a result can be audited, not just trusted"
         ]
       }
     },

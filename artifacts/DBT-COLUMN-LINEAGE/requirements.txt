@@ -1,0 +1,8 @@
+# Python dependencies for dbt-column-lineage skill
+# Cross-platform compatible (macOS, Linux, Windows)
+
+# Core dependencies
+requests>=2.31.0
+
+# Data manipulation for output formatting
+pandas>=2.0.0
