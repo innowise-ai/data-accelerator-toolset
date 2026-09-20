@@ -18,7 +18,8 @@
       "performance",
       "debugging",
       "writing",
-      "development-process"
+      "development-process",
+      "security"
     ]
   },
   "artifacts": [
@@ -487,6 +488,25 @@
           "Builds non-overlapping validity intervals with exactly one current row",
           "Detects real attribute changes instead of rewriting history on every load",
           "Avoids the idempotency traps that duplicate rows on re-run"
+        ]
+      }
+    },
+    {
+      "id": "SENSITIVE-DATA-HANDLING",
+      "version": "0.1.0",
+      "source_path": "artifacts/SENSITIVE-DATA-HANDLING",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["security"],
+      "scope": "project",
+      "presentation": {
+        "name": "Sensitive data handling",
+        "summary": "Decides what personal data a model may carry, and keeps deletion possible later.",
+        "benefits": [
+          "Classifies columns by how they identify someone, including the combinations that do",
+          "Tokenises identifiers so joins survive and identity does not",
+          "Keeps personal data out of logs, lower environments and test fixtures",
+          "Designs history so an erasure request does not break the dimension"
         ]
       }
     },
