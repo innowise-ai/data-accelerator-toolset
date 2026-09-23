@@ -2,11 +2,11 @@
 
 The artifact catalog. Consumers fetch selected artifacts from this repository using Git partial clone with cone-mode sparse checkout, so a client downloads only the artifacts it needs rather than the whole catalog.
 
-The catalog holds thirty artifacts in two groups. Twenty are data-engineering specific, covering dbt, Snowflake, Airflow, Python pipeline code, and stack-agnostic pipeline quality practice. Ten are general skills that apply to any stack: change review, project documentation, test design, refactoring, error diagnosis, technical writing, and the four development-process artifacts covering requirements, planning, execution and verification. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
+The catalog holds thirty-one artifacts in two groups. Twenty are data-engineering specific, covering dbt, Snowflake, Airflow, Python pipeline code, and stack-agnostic pipeline quality practice. Eleven are general skills that apply to any stack: change review, project documentation, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, and project adaptation, which binds the installed skills to one repository's layout, terminology and conventions. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
 
 Every artifact is currently `on-demand`, so a profile receives only what its declared topics select and the user explicitly chooses. There is no baseline set — see [`docs/authoring-artifacts.md`](docs/authoring-artifacts.md) for what an `always` artifact would have to justify.
 
-Twenty-nine artifacts are `project` scope. `TECHNICAL-WRITING` is the single `user`-scope artifact: a personal editing tool that does not belong in a shared project plan.
+Thirty artifacts are `project` scope. `TECHNICAL-WRITING` is the single `user`-scope artifact: a personal editing tool that does not belong in a shared project plan.
 
 ## Layout
 
@@ -33,6 +33,7 @@ artifacts/
   PIPELINE-OUTPUT-REVIEW/
   PIPELINE-REGRESSION-GATES/
   PLAN-EXECUTION/
+  PROJECT-ADAPTATION/
   PROJECT-DOCUMENTATION/
   PYTEST-DATA-PIPELINES/
   REFACTORING-SAFETY/
