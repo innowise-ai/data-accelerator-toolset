@@ -1,0 +1,20 @@
+{
+  "id": "PROJECT-ADAPTATION",
+  "version": "0.1.0",
+  "source_path": "artifacts/PROJECT-ADAPTATION",
+  "applies_to": {},
+  "strength": "on-demand",
+  "topics": ["development-process", "documentation"],
+  "scope": "project",
+  "presentation": {
+    "name": "Project adaptation",
+    "summary": "Adapts installed skills to this repository by writing where things live and what the team calls them into a rules file the agent reads.",
+    "benefits": [
+      "Maps the repository so the agent finds pipelines, configs and docs without searching",
+      "Binds the project's own terms to the generic terms the skills use",
+      "Records the naming, branch and documentation conventions actually in force",
+      "Says which installed skill applies to which part of the repository",
+      "Stays local to your checkout unless you choose to share it with the team"
+    ]
+  }
+}

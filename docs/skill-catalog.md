@@ -5,8 +5,8 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-30 artifacts today: 20 data-engineering specific (dbt, Snowflake, Airflow,
-Python pipeline code, stack-agnostic pipeline quality) and 10 general skills
+31 artifacts today: 20 data-engineering specific (dbt, Snowflake, Airflow,
+Python pipeline code, stack-agnostic pipeline quality) and 11 general skills
 that apply to any stack. All are `on-demand` — an agent uses one when the task
 calls for it, rather than always loading it. `Applies to` shows the
 `applies_to` restriction from the index; "any" means the artifact carries no
@@ -43,7 +43,7 @@ one project gets.
 | **Snowflake query diagnosis** (`SNOWFLAKE-QUERY-BY-ID`) | snowflake | performance, debugging | Diagnoses one Snowflake query from its profile and operator statistics. |
 | **Snowflake query rewriting** (`SNOWFLAKE-QUERY-TEXT`) | snowflake | performance, refactoring | Rewrites a Snowflake query for performance without changing its results. |
 
-## General skills (10)
+## General skills (11)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -51,6 +51,7 @@ one project gets.
 | **Error diagnosis** (`ERROR-DIAGNOSIS`) | any | debugging | Finds the cause of a failure by narrowing it down and proving it before changing code. |
 | **Implementation planning** (`IMPLEMENTATION-PLANNING`) | any | development-process | Turns agreed requirements into an ordered plan with verifiable steps. |
 | **Plan execution** (`PLAN-EXECUTION`) | any | development-process | Works through an agreed plan one step at a time and handles it when reality diverges. |
+| **Project adaptation** (`PROJECT-ADAPTATION`) | any | development-process, documentation | Adapts installed skills to this repository by writing where things live and what the team calls them into a rules file the agent reads. |
 | **Project documentation** (`PROJECT-DOCUMENTATION`) | any | documentation | Documents architecture decisions, component boundaries and constraints a reader cannot infer from the code. |
 | **Refactoring safety** (`REFACTORING-SAFETY`) | any | refactoring | Plans and sequences a refactor so behaviour is provably unchanged at every step. |
 | **Requirements brainstorming** (`REQUIREMENTS-BRAINSTORMING`) | any | development-process | Works out what is actually needed before any code is written. |
