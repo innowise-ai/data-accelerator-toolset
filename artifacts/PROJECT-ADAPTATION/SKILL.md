@@ -204,14 +204,26 @@ never the ones that would be good to have. An aspirational convention written as
 it were house style is worse than none: the agent follows it and produces work that
 matches nothing around it.
 
-What belongs here:
+The core set below is always worth recording, because nearly every installed skill
+produces code, tests or documentation and has to put them somewhere. Beyond it,
+record a convention only when an installed skill's output would have to follow it —
+a translation rule for guides matters when a documentation skill is installed, and is
+noise when none is. A convention nothing installed will touch is not this section's
+business, however true it is.
+
+The core set:
 
 - **Naming** of files, objects and tables, where there is a visible pattern.
 - **Branch, commit and review flow** — branch naming, commit message style, whether
   work goes through pull requests and where they are opened.
 - **Where documentation lands** — in the repository, and where; or outside it, in a
   wiki or a ticket system, and what the repository keeps instead. Say which format
-  the team expects so output does not have to be reformatted by hand.
+  the team expects so output does not have to be reformatted by hand. Find the
+  location in the repository rather than asking for it: an existing `docs/` or
+  equivalent, and for each kind of document the directory where it already lives.
+  When one kind lives in two places, the most recent file shows where new ones go.
+  When the repository has no documentation directory at all, use `docs/` and say it
+  is a default, not something observed.
 - **How to run the checks** — the exact commands for tests, lint and build, if they
   are not obvious from a standard manifest.
 
@@ -293,11 +305,18 @@ sort statements into three kinds:
 | Kind | Meaning | What happens next |
 |---|---|---|
 | Observed | Directly visible — a path exists, a config sets it, fifty commits follow the pattern | Shown, not asked |
+| Settled by recency | Two patterns coexist, and the most recent work consistently follows one — say, the newest plan in `docs/plans/`, older ones elsewhere | Shown with its evidence, not asked |
 | Inferred | A reasonable reading the evidence does not settle | Asked |
 | Unknown | Not in the repository at all — wiki location, team vocabulary, review flow on a host with no config in the repo | Asked |
 
 The failure this prevents is a confident, wrong description of a codebase the survey
 half-understood. An inferred statement presented as observed is exactly that failure.
+
+The opposite failure is asking what the repository already answers. Every question
+costs the engineer attention, and a list of questions they could have answered by
+looking reads as the skill not having looked. Before asking, check whether the
+evidence settles it; ask only where the answer would change what an agent does and
+the repository genuinely does not say.
 
 ### 3. Confirm what the survey could not settle
 
