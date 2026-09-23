@@ -223,6 +223,9 @@ local stays in this checkout and changes nothing in the repository; shared is
 committed and read by the whole team's agents. If the engineer does not choose,
 use the local mode.
 
+When a section already exists, where it lives is the answer: refresh it in place and
+do not ask again. Ask only if the engineer says they want to move it.
+
 ### 1. Survey, read-only
 
 Read before writing anything. What to look at:
