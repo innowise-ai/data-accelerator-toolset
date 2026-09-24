@@ -511,6 +511,27 @@
       }
     },
     {
+      "id": "SNOWFLAKE-GRANTS-AFTER-RECREATE",
+      "version": "0.1.0",
+      "source_path": "artifacts/SNOWFLAKE-GRANTS-AFTER-RECREATE",
+      "applies_to": {
+        "frameworks": ["snowflake"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-quality"],
+      "scope": "project",
+      "presentation": {
+        "name": "Snowflake grants after recreation",
+        "summary": "Restores access after Snowflake objects are recreated, without guessing at roles.",
+        "benefits": [
+          "Diffs the grants that should exist against the grants in place and emits the GRANTs to close the gap",
+          "Catches access that was lost because ownership moved, which COPY GRANTS does not carry over",
+          "Reports every grant it could not establish instead of inventing a role for it",
+          "Verifies access under the consumer role itself, with secondary roles off"
+        ]
+      }
+    },
+    {
       "id": "SNOWFLAKE-QUERY-BY-ID",
       "version": "0.1.0",
       "source_path": "artifacts/SNOWFLAKE-QUERY-BY-ID",
@@ -547,6 +568,27 @@
           "Separates transformations that are safe from ones that only look safe",
           "Explains why each rewrite preserves the result set",
           "Keeps null and duplicate semantics intact through the rewrite"
+        ]
+      }
+    },
+    {
+      "id": "SNOWFLAKE-SEMANTIC-VIEW-DRIFT",
+      "version": "0.1.0",
+      "source_path": "artifacts/SNOWFLAKE-SEMANTIC-VIEW-DRIFT",
+      "applies_to": {
+        "frameworks": ["snowflake"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-modeling", "data-quality"],
+      "scope": "project",
+      "presentation": {
+        "name": "Snowflake semantic view drift",
+        "summary": "Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions.",
+        "benefits": [
+          "Classifies drift as added, dropped, renamed or retyped columns, since each needs a different fix",
+          "Keeps a renamed column's element name and description instead of replacing them with a new element",
+          "Carries existing comments, synonyms and instructions into the regenerated view",
+          "Flags new columns that need a description instead of inventing one"
         ]
       }
     },
