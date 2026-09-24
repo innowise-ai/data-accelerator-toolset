@@ -5,7 +5,7 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-30 artifacts today: 20 data-engineering specific (dbt, Snowflake, Airflow,
+32 artifacts today: 22 data-engineering specific (dbt, Snowflake, Airflow,
 Python pipeline code, stack-agnostic pipeline quality) and 10 general skills
 that apply to any stack. All are `on-demand` — an agent uses one when the task
 calls for it, rather than always loading it. `Applies to` shows the
@@ -18,7 +18,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (20)
+## Data engineering (22)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -40,8 +40,10 @@ one project gets.
 | **Safe NL2SQL guardrails** (`SAFE-NL2SQL-GUARDRAILS`) | sql | data-quality | Generates SQL from natural language without letting an unvalidated query reach the database. |
 | **SCD Type 2 implementation** (`SCD2-IMPLEMENTATION`) | sql | data-modeling | Implements Slowly Changing Dimension Type 2 in SQL with correct validity intervals. |
 | **Snowflake cost hunting** (`SNOWFLAKE-EXPENSIVE-QUERIES`) | snowflake | performance | Finds the Snowflake queries actually worth optimising and reads the metrics that point at a fix. |
+| **Snowflake grants after recreation** (`SNOWFLAKE-GRANTS-AFTER-RECREATE`) | snowflake | data-quality | Restores access after Snowflake objects are recreated, without guessing at roles. |
 | **Snowflake query diagnosis** (`SNOWFLAKE-QUERY-BY-ID`) | snowflake | performance, debugging | Diagnoses one Snowflake query from its profile and operator statistics. |
 | **Snowflake query rewriting** (`SNOWFLAKE-QUERY-TEXT`) | snowflake | performance, refactoring | Rewrites a Snowflake query for performance without changing its results. |
+| **Snowflake semantic view drift** (`SNOWFLAKE-SEMANTIC-VIEW-DRIFT`) | snowflake | data-modeling, data-quality | Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions. |
 
 ## General skills (10)
 
