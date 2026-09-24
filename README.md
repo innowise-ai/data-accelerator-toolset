@@ -2,11 +2,11 @@
 
 The artifact catalog. Consumers fetch selected artifacts from this repository using Git partial clone with cone-mode sparse checkout, so a client downloads only the artifacts it needs rather than the whole catalog.
 
-The catalog holds thirty-two artifacts in two groups. Twenty-one are data-engineering specific, covering dbt, Snowflake, Airflow, Python pipeline code, sensitive data handling, and stack-agnostic pipeline quality practice. Eleven are general skills that apply to any stack: change review, project documentation, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, and project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
+The catalog holds thirty-four artifacts in two groups. Twenty-three are data-engineering specific, covering dbt, Snowflake, Airflow, Python pipeline code, sensitive data handling, and stack-agnostic pipeline quality practice. Eleven are general skills that apply to any stack: change review, project documentation, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, and project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
 
 Every artifact is currently `on-demand`, so a profile receives only what its declared topics select and the user explicitly chooses. There is no baseline set — see [`docs/authoring-artifacts.md`](docs/authoring-artifacts.md) for what an `always` artifact would have to justify.
 
-Thirty artifacts are `project` scope. `TECHNICAL-WRITING` is the single `user`-scope artifact: a personal editing tool that does not belong in a shared project plan.
+Thirty-three artifacts are `project` scope. `TECHNICAL-WRITING` is the single `user`-scope artifact: a personal editing tool that does not belong in a shared project plan.
 
 ## Layout
 
@@ -41,8 +41,10 @@ artifacts/
   SAFE-NL2SQL-GUARDRAILS/
   SCD2-IMPLEMENTATION/
   SNOWFLAKE-EXPENSIVE-QUERIES/
+  SNOWFLAKE-GRANTS-AFTER-RECREATE/
   SNOWFLAKE-QUERY-BY-ID/
   SNOWFLAKE-QUERY-TEXT/
+  SNOWFLAKE-SEMANTIC-VIEW-DRIFT/
   TECHNICAL-WRITING/
   TEST-DESIGN-REVIEW/
   WORK-VERIFICATION/
