@@ -51,7 +51,7 @@ one project gets.
 | **Error diagnosis** (`ERROR-DIAGNOSIS`) | any | debugging | Finds the cause of a failure by narrowing it down and proving it before changing code. |
 | **Implementation planning** (`IMPLEMENTATION-PLANNING`) | any | development-process | Turns agreed requirements into an ordered plan with verifiable steps. |
 | **Plan execution** (`PLAN-EXECUTION`) | any | development-process | Works through an agreed plan one step at a time and handles it when reality diverges. |
-| **Project adaptation** (`PROJECT-ADAPTATION`) | any | development-process, documentation | Adapts installed skills to this repository by writing where things live and what the team calls them into a rules file the agent reads. |
+| **Project adaptation** (`PROJECT-ADAPTATION`) | any | development-process, documentation | Adapts installed toolset skills by adding repository paths, commands, conventions and examples inside each installed SKILL.md. |
 | **Project documentation** (`PROJECT-DOCUMENTATION`) | any | documentation | Documents architecture decisions, component boundaries and constraints a reader cannot infer from the code. |
 | **Refactoring safety** (`REFACTORING-SAFETY`) | any | refactoring | Plans and sequences a refactor so behaviour is provably unchanged at every step. |
 | **Requirements brainstorming** (`REQUIREMENTS-BRAINSTORMING`) | any | development-process | Works out what is actually needed before any code is written. |
