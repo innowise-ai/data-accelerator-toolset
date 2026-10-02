@@ -1,6 +1,6 @@
 {
   "id": "CHANGE-REVIEW",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "source_path": "artifacts/CHANGE-REVIEW",
   "applies_to": {},
   "strength": "on-demand",
@@ -13,7 +13,9 @@
       "Establishes what the change is supposed to do before judging whether it does it",
       "Separates blocking defects from preferences, so findings are actionable",
       "Checks backward compatibility for callers the diff does not show",
-      "Reports unverified areas instead of implying the whole change was checked"
+      "Reports unverified areas instead of implying the whole change was checked",
+      "Accounts for every file in the diff, so a skipped file cannot pass as a reviewed one",
+      "Re-checks findings before reporting and drops only those the code disproves"
     ]
   }
 }
