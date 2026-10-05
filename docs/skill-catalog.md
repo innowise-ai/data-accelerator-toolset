@@ -5,10 +5,10 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-31 artifacts today: 20 data-engineering specific (dbt, Snowflake, Airflow,
-Python pipeline code, stack-agnostic pipeline quality) and 11 general skills
-that apply to any stack. All are `on-demand` — an agent uses one when the task
-calls for it, rather than always loading it. `Applies to` shows the
+32 artifacts today: 21 data-engineering specific (dbt, Snowflake, Airflow,
+Python pipeline code, sensitive data handling, stack-agnostic pipeline quality)
+and 11 general skills that apply to any stack. All are `on-demand` — an agent
+uses one when the task calls for it, rather than always loading it. `Applies to` shows the
 `applies_to` restriction from the index; "any" means the artifact carries no
 language/framework restriction. `Scope` is `project` unless noted — a
 `project`-scope artifact is selected by what the project is; `user`-scope
@@ -18,7 +18,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (20)
+## Data engineering (21)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -38,6 +38,7 @@ one project gets.
 | **Pipeline regression gates** (`PIPELINE-REGRESSION-GATES`) | any | testing, data-quality | Selects the cheapest checks that would actually catch the regression a change can cause. |
 | **pytest for data pipelines** (`PYTEST-DATA-PIPELINES`) | python | testing | Tests data pipeline code with pytest, mocking at the I/O boundary. |
 | **Safe NL2SQL guardrails** (`SAFE-NL2SQL-GUARDRAILS`) | sql | data-quality | Generates SQL from natural language without letting an unvalidated query reach the database. |
+| **Sensitive data handling** (`SENSITIVE-DATA-HANDLING`) | any | security | Decides what personal data a model may carry, and keeps deletion possible later. |
 | **SCD Type 2 implementation** (`SCD2-IMPLEMENTATION`) | sql | data-modeling | Implements Slowly Changing Dimension Type 2 in SQL with correct validity intervals. |
 | **Snowflake cost hunting** (`SNOWFLAKE-EXPENSIVE-QUERIES`) | snowflake | performance | Finds the Snowflake queries actually worth optimising and reads the metrics that point at a fix. |
 | **Snowflake query diagnosis** (`SNOWFLAKE-QUERY-BY-ID`) | snowflake | performance, debugging | Diagnoses one Snowflake query from its profile and operator statistics. |
