@@ -3,7 +3,7 @@
   "toolset_ref": "refs/tags/v0.6.3",
   "vocabulary": {
     "languages": ["typescript", "javascript", "python", "csharp", "go", "sql"],
-    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks"],
+    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker"],
     "layout": ["monorepo", "single"],
     "agents": ["claude-code", "codex", "cursor"],
     "topics": [
@@ -19,7 +19,8 @@
       "debugging",
       "writing",
       "development-process",
-      "security"
+      "security",
+      "containerization"
     ]
   },
   "artifacts": [
@@ -259,6 +260,88 @@
           "Separates what to reuse from what to rewrite",
           "Builds the staging layer before porting business logic",
           "Reconciles migrated output against the legacy result"
+        ]
+      }
+    },
+    {
+      "id": "DOCKER-BUILD-STRATEGIES",
+      "version": "0.1.0",
+      "source_path": "artifacts/DOCKER-BUILD-STRATEGIES",
+      "applies_to": {
+        "frameworks": ["docker"]
+      },
+      "strength": "on-demand",
+      "topics": ["containerization"],
+      "scope": "project",
+      "presentation": {
+        "name": "Docker build strategies",
+        "summary": "Builds Python data images that keep credentials out of layers, cache well and run as non-root.",
+        "benefits": [
+          "Supplies pip, dbt and Git credentials through build secrets so they never land in an image layer",
+          "Orders the Dockerfile so dependency installs are cached across code changes",
+          "Separates build tools from the runtime image and runs the process as a non-root user",
+          "Checks image metadata and all layer contents for credentials, including deleted files"
+        ]
+      }
+    },
+    {
+      "id": "DOCKER-COMPOSE-PATTERNS",
+      "version": "0.1.0",
+      "source_path": "artifacts/DOCKER-COMPOSE-PATTERNS",
+      "applies_to": {
+        "frameworks": ["docker"]
+      },
+      "strength": "on-demand",
+      "topics": ["containerization"],
+      "scope": "project",
+      "presentation": {
+        "name": "Docker Compose patterns",
+        "summary": "Wires local data stacks in Compose so services wait for a database to be ready, not merely started.",
+        "benefits": [
+          "Waits on health checks and completed init jobs instead of container start",
+          "Keeps database data in named volumes and secrets out of the committed file",
+          "Publishes datastore ports to loopback only",
+          "Separates development overrides from the base file"
+        ]
+      }
+    },
+    {
+      "id": "DOCKER-DESTRUCTIVE-GUARDRAILS",
+      "version": "0.1.0",
+      "source_path": "artifacts/DOCKER-DESTRUCTIVE-GUARDRAILS",
+      "applies_to": {
+        "frameworks": ["docker"]
+      },
+      "strength": "always",
+      "topics": [],
+      "scope": "project",
+      "presentation": {
+        "name": "Docker destructive-command guardrails",
+        "summary": "Stops Docker cleanup commands from deleting data until the loss has been stated and confirmed.",
+        "benefits": [
+          "Names exactly what a prune, force-remove or volume delete would take before running it",
+          "Offers a narrower command when the real problem is disk space or a stuck container",
+          "Tells the user which volumes a command does and does not touch",
+          "Lets a single stopped test container be removed without needless confirmation"
+        ]
+      }
+    },
+    {
+      "id": "DOCKER-PROJECT-FOUNDATIONS",
+      "version": "0.1.0",
+      "source_path": "artifacts/DOCKER-PROJECT-FOUNDATIONS",
+      "applies_to": {"languages": ["python"]},
+      "strength": "on-demand",
+      "topics": ["containerization"],
+      "scope": "project",
+      "presentation": {
+        "name": "Docker project foundations",
+        "summary": "Adds a first working Docker setup to a Python data project, with its dependencies as Compose services.",
+        "benefits": [
+          "Creates .dockerignore, Dockerfile and compose.yaml together so the first build is clean",
+          "Runs databases and brokers as pinned containers instead of host installs",
+          "Defaults to loopback ports and a documented development-only credential",
+          "Confirms the stack actually starts before calling the scaffold done"
         ]
       }
     },

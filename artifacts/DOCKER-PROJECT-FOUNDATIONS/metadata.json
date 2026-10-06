@@ -1,0 +1,19 @@
+{
+  "id": "DOCKER-PROJECT-FOUNDATIONS",
+  "version": "0.1.0",
+  "source_path": "artifacts/DOCKER-PROJECT-FOUNDATIONS",
+  "applies_to": {"languages": ["python"]},
+  "strength": "on-demand",
+  "topics": ["containerization"],
+  "scope": "project",
+  "presentation": {
+    "name": "Docker project foundations",
+    "summary": "Adds a first working Docker setup to a Python data project, with its dependencies as Compose services.",
+    "benefits": [
+      "Creates .dockerignore, Dockerfile and compose.yaml together so the first build is clean",
+      "Runs databases and brokers as pinned containers instead of host installs",
+      "Defaults to loopback ports and a documented development-only credential",
+      "Confirms the stack actually starts before calling the scaffold done"
+    ]
+  }
+}

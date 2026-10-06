@@ -5,14 +5,17 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-34 artifacts today: 23 data-engineering specific (dbt, Snowflake, Airflow,
-Python pipeline code, sensitive data handling, stack-agnostic pipeline quality)
-and 11 general skills that apply to any stack. All are `on-demand` — an agent
-uses one when the task calls for it, rather than always loading it. `Applies to` shows the
-`applies_to` restriction from the index; "any" means the artifact carries no
-language/framework restriction. `Scope` is `project` unless noted — a
-`project`-scope artifact is selected by what the project is; `user`-scope
-reflects a personal preference instead.
+38 artifacts today: 23 data-engineering specific (dbt, Snowflake, Airflow,
+Python pipeline code, sensitive data handling, stack-agnostic pipeline quality),
+4 for containers and local environments, and 11 general skills that apply to any
+stack. All are `on-demand` except `DOCKER-DESTRUCTIVE-GUARDRAILS`, which is
+`always`: it installs into every project that uses Docker, because losing a data
+volume is not something a team should have to remember to ask protection against.
+An `on-demand` artifact is used when the task calls for it, rather than always
+loading it. `Applies to` shows the `applies_to` restriction from the index; "any"
+means the artifact carries no language/framework restriction. `Scope` is `project`
+unless noted — a `project`-scope artifact is selected by what the project is;
+`user`-scope reflects a personal preference instead.
 
 An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
@@ -45,6 +48,15 @@ one project gets.
 | **Snowflake query diagnosis** (`SNOWFLAKE-QUERY-BY-ID`) | snowflake | performance, debugging | Diagnoses one Snowflake query from its profile and operator statistics. |
 | **Snowflake query rewriting** (`SNOWFLAKE-QUERY-TEXT`) | snowflake | performance, refactoring | Rewrites a Snowflake query for performance without changing its results. |
 | **Snowflake semantic view drift** (`SNOWFLAKE-SEMANTIC-VIEW-DRIFT`) | snowflake | data-modeling, data-quality | Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions. |
+
+## Containers and local environment (4)
+
+| Skill | Applies to | Topic(s) | What it does |
+|---|---|---|---|
+| **Docker build strategies** (`DOCKER-BUILD-STRATEGIES`) | docker | containerization | Builds Python data images that keep credentials out of layers, cache well and run as non-root. |
+| **Docker Compose patterns** (`DOCKER-COMPOSE-PATTERNS`) | docker | containerization | Wires local data stacks in Compose so services wait for a database to be ready, not merely started. |
+| **Docker destructive-command guardrails** (`DOCKER-DESTRUCTIVE-GUARDRAILS`) | docker | — (`always`) | Stops Docker cleanup commands from deleting data until the loss has been stated and confirmed. |
+| **Docker project foundations** (`DOCKER-PROJECT-FOUNDATIONS`) | python | containerization | Adds a first working Docker setup to a Python data project, with its dependencies as Compose services. |
 
 ## General skills (11)
 
