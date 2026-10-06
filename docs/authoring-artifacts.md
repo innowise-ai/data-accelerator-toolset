@@ -84,8 +84,8 @@ Every schema 2 `on-demand` artifact declares:
 
 ```json
 "presentation": {
-  "name": "Humanizer",
-  "summary": "Makes generated prose read naturally.",
+  "name": "Make generated prose read naturally",
+  "summary": "Removes the patterns that make generated text read as machine-written.",
   "benefits": [
     "Removes repetitive AI phrasing",
     "Preserves meaning"
@@ -93,10 +93,67 @@ Every schema 2 `on-demand` artifact declares:
 }
 ```
 
-Keep the name and summary short. Benefits must be concrete outcomes the skill
+Keep the name and summary short, and follow [Naming](#naming) for the name. Benefits must be concrete outcomes the skill
 actually provides. The questionnaire uses this object verbatim and never reads
 `SKILL.md` to invent benefits. Empty cards, empty benefits, and scalar
 `presentation` values fail validation.
+
+## Naming
+
+An artifact has three names, and readers meet them in different places: the
+**id** (also the directory name and what a profile stores), the **`name`** in the
+`SKILL.md` frontmatter (what an agent lists and what a user types in a slash
+menu), and **`presentation.name`** (what the setup questionnaire and
+[`docs/skill-catalog.md`](skill-catalog.md) show). All three have to tell a reader
+what the artifact *does*, without opening it. The catalog was renamed wholesale
+for `v1.0.0` because many of them named a subject area instead; these rules are
+what keep that from happening again.
+
+**The id is `[PLATFORM-]OBJECT-ACTION`, written as a noun phrase.** Upper case,
+hyphen-separated. Lead with the platform when there is one (`DBT-`,
+`SNOWFLAKE-`, `DOCKER-`), so related artifacts sort together. Then name the
+task: `SNOWFLAKE-QUERY-REWRITE`, `DBT-INCREMENTAL-STRATEGY`,
+`PIPELINE-CHECK-SELECTION`.
+
+- **Name the task, not the input.** `SNOWFLAKE-QUERY-BY-ID` described what the
+  artifact is given; `SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS` describes what it does
+  with it.
+- **Name the task, not the subject area.** `AIRFLOW-DAG-CONVENTIONS` could hold
+  anything about DAGs; `AIRFLOW-DAG-STRUCTURE` says which part. Words such as
+  *conventions*, *patterns*, *strategies*, *foundations*, *safety*,
+  *guardrails* and *handling* are a signal to look again. They are not banned:
+  `SENSITIVE-DATA-HANDLING` was reviewed and kept, because the object carries
+  the meaning.
+- **Do not promise what the artifact does not do.** `DBT-MODEL-CREATION` read as
+  scaffolding; the artifact is a build-and-verify loop, so it became
+  `DBT-MODEL-BUILD-VERIFY`.
+
+**The `SKILL.md` `name` is the id in lower case.** `SNOWFLAKE-QUERY-REWRITE` →
+`snowflake-query-rewrite`. The validator enforces this when run with
+`-CatalogRoot`.
+
+**`presentation.name` is a verb phrase: verb, object, and what sets it apart.**
+"Rewrite Snowflake SQL without changing results", not "Snowflake query
+rewriting". The distinguishing clause is the part that matters; it is what lets
+a user choose between neighbours.
+
+**The `SKILL.md` `description` says what the artifact does, then when to use
+it.** End it with a "Use when ..." sentence naming the situation that should
+trigger it. An agent picks a skill mostly from this line, so a description that
+only summarises the content leaves the agent guessing when it applies.
+
+**The neighbour test.** Before settling a name, find the artifact closest to
+yours in the same area: `ERROR-DIAGNOSIS`, `DBT-BUILD-FAILURE-DIAGNOSIS` and
+`DATA-INCIDENT-TRACING` all deal with something going wrong. If a reader cannot
+tell from the two names which one fits their situation, the name is not
+finished.
+
+**Renaming a published artifact is a breaking change.** The installer keys
+installed copies by id, so a new id is a different artifact: the old copy is
+removed and the new one installed, an edited copy is kept beside it, and
+feedback filed under the old id no longer matches. Get the name right before the
+first tag. When a rename is unavoidable, batch it into a major release and say
+so in the release notes.
 
 ## The current vocabulary
 
@@ -127,6 +184,7 @@ A value not in the vocabulary is a CI failure. That is deliberate: the alternati
 - **Ids must be unique case-insensitively.** They become directory names; on Windows and default macOS `AS-0001` and `as-0001` are one directory, and one artifact silently overwrites the other.
 - **The index entry and the artifact's own `metadata.json` must agree.** The index is authoritative for matching — it is the only file a consumer holds when it decides what to fetch. **Nothing checks this agreement.** A `metadata.json` that disagrees with the index passes CI, and the index wins at install time.
 - **Never set `fixture: true`.** It is only for the `AS-SPIKE-*` transport fixtures, and it exempts an artifact from *all* matching validation — though not from the [path rules](../README.md#path-rules), which apply to every entry because a broken path breaks the checkout for everyone. On a real artifact it would silently hide it from every install. The validator rejects it on any non-`AS-SPIKE-*` id, which is the only reason a typo here is survivable.
+- **The directory is named exactly for the id.** `source_path` must be `artifacts/<id>`, case included, and the `SKILL.md` frontmatter `name` must be the id in lower case. The validator rejects both mismatches (the second only with `-CatalogRoot`). The `AS-SPIKE-*` transport fixtures are exempt from the directory rule.
 - **One artifact is exactly one self-contained directory.** See [the subtree contract](../README.md#the-subtree-contract). Breaking it does not fail loudly — the clone succeeds and the artifact arrives incomplete.
 
 ## Worked example
@@ -146,24 +204,24 @@ Adding a TypeScript code-review convention artifact, end to end.
 One self-contained directory, named for the id:
 
 ```text
-artifacts/TS-REVIEW-CONVENTIONS/
+artifacts/TS-REVIEW-CHECKS/
   SKILL.md
   metadata.json
 ```
 
 Nothing outside this directory, no `..` paths, no case-colliding filenames. See [path rules](../README.md#path-rules) — CI enforces them.
 
-### 2. `artifacts/TS-REVIEW-CONVENTIONS/SKILL.md`
+### 2. `artifacts/TS-REVIEW-CHECKS/SKILL.md`
 
 The artifact's actual content — what gets loaded into the agent's context.
 
 ```markdown
 ---
-name: ts-review-conventions
-description: TypeScript code review conventions - what to flag and what to leave alone.
+name: ts-review-checks
+description: TypeScript-specific review checks - what to flag and what to leave alone. Use when reviewing a TypeScript change.
 ---
 
-# TypeScript review conventions
+# TypeScript review checks
 
 ## Flag these
 
@@ -179,15 +237,15 @@ description: TypeScript code review conventions - what to flag and what to leave
 - `as const` on literal config objects.
 ```
 
-### 3. `artifacts/TS-REVIEW-CONVENTIONS/metadata.json`
+### 3. `artifacts/TS-REVIEW-CHECKS/metadata.json`
 
 The same matching fields as the index entry. Copy them across exactly — nothing checks that you did.
 
 ```json
 {
-  "id": "TS-REVIEW-CONVENTIONS",
+  "id": "TS-REVIEW-CHECKS",
   "version": "0.1.0",
-  "source_path": "artifacts/TS-REVIEW-CONVENTIONS",
+  "source_path": "artifacts/TS-REVIEW-CHECKS",
   "applies_to": {
     "languages": ["typescript"]
   },
@@ -202,9 +260,9 @@ Appended to the `artifacts` list:
 
 ```json
 {
-  "id": "TS-REVIEW-CONVENTIONS",
+  "id": "TS-REVIEW-CHECKS",
   "version": "0.1.0",
-  "source_path": "artifacts/TS-REVIEW-CONVENTIONS",
+  "source_path": "artifacts/TS-REVIEW-CHECKS",
   "applies_to": {
     "languages": ["typescript"]
   },
@@ -250,10 +308,10 @@ Errors        : {}
 Failing prints each fault to the host as it is found *and* returns them in `Errors`. Every fault is collected, so one run shows you everything rather than one typo per push:
 
 ```text
-ERROR: Artifact TS-REVIEW-CONVENTIONS declares 'TypeScript' in dimension 'languages', which is not in the catalog vocabulary. Allowed: typescript, javascript, python, csharp, go.
+ERROR: Artifact TS-REVIEW-CHECKS declares 'TypeScript' in dimension 'languages', which is not in the catalog vocabulary. Allowed: typescript, javascript, python, csharp, go.
 
 IsValid       : False
-Errors        : {Artifact TS-REVIEW-CONVENTIONS declares 'TypeScript' in dimension 'languages', which is not in the catalog vocabulary. Allowed: typescript, javascript, python, csharp, go.}
+Errors        : {Artifact TS-REVIEW-CHECKS declares 'TypeScript' in dimension 'languages', which is not in the catalog vocabulary. Allowed: typescript, javascript, python, csharp, go.}
 ```
 
 The script returns an object; it does not set a non-zero exit code by itself. Check `IsValid`, as CI does.
@@ -327,17 +385,20 @@ Green CI does not mean a correct artifact. These are enforced by review alone.
 
 | Not checked | What slips through |
 |---|---|
+| **Whether a name says what the artifact does** | The validator checks that the id, directory and `SKILL.md` name agree, not that they are any good. [Naming](#naming) is a review judgement. |
 | **The `always` ceiling** | The validator never counts `always` artifacts. An index with 20 extra universal `always` artifacts validates clean. The ≤ 15 per profile ceiling is a review judgement with no gate behind it. |
-| **Index ↔ `metadata.json` agreement** | The validator never opens an artifact directory. A `metadata.json` saying `strength: always` under an index entry saying `on-demand` passes CI. The index wins at install time, so the artifact behaves as the index says and the file in the directory lies. |
-| **`source_path` points at anything** | Never resolved against the filesystem. An entry whose `source_path` names a directory that does not exist validates clean; the failure surfaces at install as an empty checkout. |
+| **Index ↔ `metadata.json` agreement** | The validator never compares `metadata.json` with the index. A `metadata.json` saying `strength: always` under an index entry saying `on-demand` passes CI. The index wins at install time, so the artifact behaves as the index says and the file in the directory lies. |
+| **`source_path` points at anything** | Its spelling is checked (`artifacts/<id>`), but it is never resolved against the filesystem. An entry whose directory does not exist validates clean; the failure surfaces at install as an empty checkout. |
 | **The subtree contract** | Nothing verifies an artifact is self-contained. An artifact depending on a file outside its directory clones successfully and arrives incomplete. |
-| **`SKILL.md` content** | Not read, not linted, not required to exist. |
+| **`SKILL.md` content** | Only the frontmatter `name` is read, and only with `-CatalogRoot`. The body and the `description` are not linted, and the file is not required to exist. |
 
-The pattern across all five: the failure is silent. Nothing errors, the install reports success, and the content is wrong or missing. That is why review is the gate here and why this list is worth re-reading before you approve someone else's artifact.
+The pattern across all six: the failure is silent. Nothing errors, the install reports success, and the content is wrong or missing. That is why review is the gate here and why this list is worth re-reading before you approve someone else's artifact.
 
 ## Checklist
 
 - [ ] Directory under `artifacts/`, named for the id, self-contained
+- [ ] Id, `SKILL.md` `name` and `presentation.name` follow [Naming](#naming), and pass the neighbour test
+- [ ] `SKILL.md` `description` ends with a "Use when ..." sentence
 - [ ] Schema 2: `scope` is `project` or `user`; user scope is never `always`
 - [ ] `strength` defaulted to `on-demand` unless you can defend `always` against the test
 - [ ] `applies_to` declares only the dimensions that would make the artifact *wrong* if absent; `{}` written explicitly if universal
