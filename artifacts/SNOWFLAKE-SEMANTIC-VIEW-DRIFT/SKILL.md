@@ -16,6 +16,39 @@ synonyms, custom instructions and verified queries, which were written by someon
 who understood the data. Any fix that regenerates the view from the table schema
 throws those away. Every step below is arranged to prevent that.
 
+## What this skill changes
+
+The drift check itself only reads. Everything up to the classified report is
+`GET_DDL`, `DESCRIBE`, `information_schema` and `QUERY_HISTORY`, and it is safe to
+run against production.
+
+Changes happen in two places, and each needs the user's explicit go-ahead:
+
+- **The view definition.** When the view is deployed from source control, edit
+  the source file and stop there. Commit, review and deploy go through the
+  project's normal process, not through this session. Only when the live object
+  is the sole definition do you run `CREATE OR REPLACE` yourself. In that case
+  show the full statement and wait for confirmation first.
+- **The temporary validation view.** Creating and dropping `<view>__drift_check`
+  is a write. Ask before running it, and say which schema it goes into.
+
+Run under the least privilege that does the job. The instructions in this skill
+are guidance, not a control. What actually limits the agent is the Snowflake role
+it connects as, so set that up to match:
+
+- **A read role by default:** `USAGE` on the warehouse, databases and schemas,
+  `SELECT` on the base tables and the semantic view, and the
+  `SNOWFLAKE.GOVERNANCE_VIEWER` database role for `ACCOUNT_USAGE.QUERY_HISTORY`.
+  That is enough for the whole drift check.
+- **A write role only if validation runs in Snowflake:** `CREATE SEMANTIC VIEW`
+  on a sandbox schema, plus `SELECT` on the base tables. Nothing on production
+  objects.
+- **Production changes through the deployment**, under its service role, never
+  from the agent's session.
+
+Set `alter session set query_tag = 'agent:semantic-view-drift';` at the start,
+so every statement the agent runs can be found in `QUERY_HISTORY` afterwards.
+
 ## Establish which definition is the real one
 
 There can be three versions of the truth: the definition in source control, the
@@ -178,21 +211,22 @@ flags it as a guess.
 ## Validate before replacing
 
 Only comments can be changed with `ALTER SEMANTIC VIEW`; everything else needs the
-view recreated. Create the new definition under a temporary name in the same
-schema first. It fails at creation if any expression references a column that
+view recreated. With the user's go-ahead, create the new definition under a
+temporary name in a sandbox schema first, keeping the base tables fully
+qualified. It fails at creation if any expression references a column that
 does not exist, which is the cheapest place to find a mistake:
 
 ```sql
-create semantic view <db>.<schema>.<view>__drift_check
+create semantic view <sandbox_db>.<sandbox_schema>.<view>__drift_check
   ...;  -- the edited definition, without COPY GRANTS
 
 select * from semantic_view(
-    <db>.<schema>.<view>__drift_check
+    <sandbox_db>.<sandbox_schema>.<view>__drift_check
     dimensions <table_alias>.<dimension>
     metrics <table_alias>.<metric>
 ) limit 10;
 
-drop semantic view <db>.<schema>.<view>__drift_check;
+drop semantic view <sandbox_db>.<sandbox_schema>.<view>__drift_check;
 ```
 
 Query at least one dimension and one metric from each logical table, and one

@@ -15,6 +15,42 @@ This skill works out what access the recreated objects should have, compares tha
 with what they have now, and closes the gap. It reports anything it could not
 determine instead of guessing a role.
 
+## What this skill changes
+
+Establishing intended grants, reading the current state and building the diff
+only read. The output of this skill is a set of `GRANT` statements and a report.
+Applying them is a separate step:
+
+- **Missing privileges.** Show the statements and wait for the user to confirm
+  before running any of them, or hand them over for the user to run. A grant is
+  a security change, even when it restores something that existed yesterday.
+- **Ownership.** Never transfer it in this session. Present it as a decision, as
+  described below.
+- **The deployment code.** The prevention steps at the end are recommendations
+  for the user. Do not edit the DAG, the dbt project or the grants file unless
+  asked to.
+
+Run under the least privilege that does the job. The instructions in this skill
+are guidance, not a control. What actually limits the agent is the Snowflake role
+it connects as, so set that up to match:
+
+- **A read role by default:** `USAGE` on the warehouse, databases and schemas,
+  at least one privilege on each object being diagnosed, and the
+  `SNOWFLAKE.GOVERNANCE_VIEWER` database role for `ACCOUNT_USAGE.QUERY_HISTORY`.
+  `SHOW GRANTS` only returns objects the current role holds some privilege on.
+  A role that cannot see an object gets an incomplete answer, not an error. Note
+  that limit in the report rather than widening the role to `MANAGE GRANTS`
+  for visibility.
+- **Applying grants** under the role that owns the objects, or one with
+  `MANAGE GRANTS` in a managed access schema, run by a human or by the deployment.
+  Not by the agent's read role.
+- **Verification as the consumer** needs the tester to be able to assume each
+  consumer role. If the agent's user cannot, hand the verification queries over
+  rather than asking for the roles to be granted to it.
+
+Set `alter session set query_tag = 'agent:grants-after-recreate';` at the start,
+so every statement the agent runs can be found in `QUERY_HISTORY` afterwards.
+
 ## What recreation does to access
 
 Know the exact rules. Most of the confusion comes from assuming `COPY GRANTS`
@@ -130,7 +166,8 @@ per object. Grantee type matters: a grant to a database role is not the same as 
 grant to an account role with the same name. Keep three outputs separate, because
 they carry different risks:
 
-1. **Missing privileges.** Plain `GRANT` statements, safe to apply:
+1. **Missing privileges.** Plain `GRANT` statements, safe to apply once the
+   user confirms:
 
    ```sql
    grant select on view <db>.<schema>.<object> to role <role>;
