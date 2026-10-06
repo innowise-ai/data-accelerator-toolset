@@ -44,6 +44,23 @@ git diff --stat main...HEAD        # the shape of the change
 git log -p --follow -- <file>      # how this file got here
 ```
 
+## Account for every file
+
+Take the file list from `git diff --stat` and keep it as the review's ledger. Every
+file on it ends the review in one of two states: **reviewed**, or **skipped with a
+concrete reason** — generated code, a lockfile, a vendored dependency, a binary, a
+file too large to read in full.
+
+This matters because files drop out of a review silently, and the ones that drop out
+are rarely random. It is the second file of a pair that goes unread: the header after
+the implementation, the config after the code that reads it, the migration after the
+model. A finding-free review of eight files reads exactly like a finding-free review
+of the five that were actually opened. The ledger is what tells them apart.
+
+For a large change, work through the list in batches of related files rather than in
+diff order, and do not stop at the first serious finding — the second one is often
+in a file nobody has opened yet.
+
 ## Correctness
 
 Work through the change's own logic before anything else.
@@ -59,6 +76,28 @@ Work through the change's own logic before anything else.
 
 The failure path deserves as much attention as the success path, and usually gets
 less. Most code is written and tested along the path where everything works.
+
+### What not to flag
+
+Each row in that table has a version that is not a defect, and reporting it costs the
+same reviewer attention as a real finding while teaching the author to skim.
+
+A race needs concurrent callers. Before flagging unsynchronised state, find the
+evidence that the code runs on more than one thread, process or task — a worker
+pool, an async handler, a scheduler running overlapping jobs. Code with no such
+caller has no race, however it looks. The same goes for performance: an O(n²) loop
+over a list that holds a dozen config entries is not a finding. Confirm the data size
+and that the code sits on a hot path before raising it.
+
+An edge case that cannot reach the code is not a gap. If the caller validates the
+input, the type rules out `None`, or the upstream query cannot return an empty set,
+the missing guard is redundant rather than missing — check where the value comes
+from before asking for a check on it.
+
+Unchanged code is context, not subject. A pre-existing problem the change does not
+touch or make worse belongs in a separate note, if anywhere; filed as a finding
+against this change, it blocks a merge for something the author did not do. Deleted
+code is context too, except where its removal is the problem.
 
 ## Blast radius
 
@@ -151,6 +190,42 @@ Separate findings by severity, and be strict about the top category:
 Anything that is purely preference belongs in `Consider` or nowhere. Marking taste
 as blocking is how reviews stop being read.
 
+## Check the findings before reporting them
+
+Before writing the report, go back over each finding and re-open the code it points
+at. This pass has a narrow job: remove the findings the code **proves** wrong. It is
+not a second chance to judge whether a finding is worth raising — that was settled
+when it was written.
+
+A finding is proven wrong in two ways only:
+
+- **The code it describes is not there.** It discusses a function body in a file that
+  only calls the function, a check in a file that holds no logic, a removal the diff
+  does not contain.
+- **A line in the change directly contradicts it.** It calls a variable unused and
+  the diff uses it; it says a branch is missing and the branch is there; it says a
+  value is hardcoded and it is read from configuration. The contradiction has to be
+  readable straight off the code, not reached through a chain of reasoning.
+
+When a finding fails neither test, it stays, even if on second reading it feels less
+convincing. The two mistakes available here do not cost the same. A finding that
+turns out wrong costs the author a minute to answer. A correct finding deleted in
+this pass costs the defect itself, and nobody ever learns it was found. If doubt
+remains, keep the finding and say what you could not confirm.
+
+Some findings stay regardless of how confident the second reading feels:
+
+- a behaviour or compatibility change — a field, message, status or default the old
+  code produced and the new code does not
+- an altered error path, or state left half-written when a step fails
+- concurrency: locking, ordering, shared state
+- a parameter the code accepts and never uses
+
+These are the subjects where the reviewer's confidence is least reliable — including
+the confidence that the runtime does not behave the way the finding says — and where
+a wrongly dropped finding is most expensive. They go to the author to confirm or
+dismiss.
+
 ## The report
 
 ```markdown
@@ -161,6 +236,11 @@ as blocking is how reviews stop being read.
 
 ### Intent
 <what the change is supposed to do, and where that came from>
+
+### Coverage
+<reviewed N of M files>
+| Skipped file | Reason |
+|--------------|--------|
 
 ### Checks
 | Check | Result | Evidence |
@@ -180,8 +260,8 @@ as blocking is how reviews stop being read.
 - <callers outside this repository, environments not available, paths not exercised>
 ```
 
-`INSUFFICIENT EVIDENCE` is the honest verdict when the intent is unknown or the
-tests could not run. Reaching for `APPROVE` because nothing looked obviously wrong
+`INSUFFICIENT EVIDENCE` is the honest verdict when the intent is unknown, the
+tests could not run, or a file that carries the change's logic was skipped. Reaching for `APPROVE` because nothing looked obviously wrong
 converts a review into a rubber stamp, and the next person will trust it.
 
 ## Guardrails
