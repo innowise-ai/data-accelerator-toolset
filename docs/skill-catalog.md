@@ -54,7 +54,7 @@ one project gets.
 | **Docker build strategies** (`DOCKER-BUILD-STRATEGIES`) | docker | containerization | Builds Python data images that keep credentials out of layers, cache well and run as non-root. |
 | **Docker Compose patterns** (`DOCKER-COMPOSE-PATTERNS`) | docker | containerization | Wires local data stacks in Compose so services wait for a database to be ready, not merely started. |
 | **Docker destructive-command guardrails** (`DOCKER-DESTRUCTIVE-GUARDRAILS`) | docker | — (`always`) | Stops Docker cleanup commands from deleting data until the loss has been stated and confirmed. |
-| **Docker project foundations** (`DOCKER-PROJECT-FOUNDATIONS`) | any | containerization | Adds a first working Docker setup to a Python data project, with its dependencies as Compose services. |
+| **Docker project foundations** (`DOCKER-PROJECT-FOUNDATIONS`) | python | containerization | Adds a first working Docker setup to a Python data project, with its dependencies as Compose services. |
 
 ## General skills (11)
 

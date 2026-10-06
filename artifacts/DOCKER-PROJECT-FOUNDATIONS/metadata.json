@@ -2,7 +2,7 @@
   "id": "DOCKER-PROJECT-FOUNDATIONS",
   "version": "0.1.0",
   "source_path": "artifacts/DOCKER-PROJECT-FOUNDATIONS",
-  "applies_to": {},
+  "applies_to": {"languages": ["python"]},
   "strength": "on-demand",
   "topics": ["containerization"],
   "scope": "project",
