@@ -2,11 +2,11 @@
 
 The artifact catalog. Consumers fetch selected artifacts from this repository using Git partial clone with cone-mode sparse checkout, so a client downloads only the artifacts it needs rather than the whole catalog.
 
-The catalog holds thirty-six artifacts in three groups. Twenty-one are data-engineering specific, covering dbt, Snowflake, Airflow, Python pipeline code, sensitive data handling, and stack-agnostic pipeline quality practice. Four cover containers and local environments: Dockerfile build rules, Compose stacks, a first Docker scaffold, and a guardrail for destructive Docker commands. Eleven are general skills that apply to any stack: change review, project documentation, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, and project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
+The catalog holds thirty-eight artifacts in three groups. Twenty-three are data-engineering specific, covering dbt, Snowflake, Airflow, Python pipeline code, sensitive data handling, and stack-agnostic pipeline quality practice. Four cover containers and local environments: Dockerfile build rules, Compose stacks, a first Docker scaffold, and a guardrail for destructive Docker commands. Eleven are general skills that apply to any stack: change review, project documentation, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, and project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
 
 Every artifact except one is `on-demand`, so a profile receives only what its declared topics select and the user explicitly chooses. The exception is `DOCKER-DESTRUCTIVE-GUARDRAILS`, which is `always`: it installs into every project that uses Docker, because losing a data volume is not something a team should have to remember to ask protection against. See [`docs/authoring-artifacts.md`](docs/authoring-artifacts.md) for what an `always` artifact has to justify.
 
-Thirty artifacts are `project` scope. `TECHNICAL-WRITING` is the single `user`-scope artifact: a personal editing tool that does not belong in a shared project plan.
+Thirty-seven artifacts are `project` scope. `TECHNICAL-WRITING` is the single `user`-scope artifact: a personal editing tool that does not belong in a shared project plan.
 
 ## Layout
 
@@ -41,8 +41,10 @@ artifacts/
   SAFE-NL2SQL-GUARDRAILS/
   SCD2-IMPLEMENTATION/
   SNOWFLAKE-EXPENSIVE-QUERIES/
+  SNOWFLAKE-GRANTS-AFTER-RECREATE/
   SNOWFLAKE-QUERY-BY-ID/
   SNOWFLAKE-QUERY-TEXT/
+  SNOWFLAKE-SEMANTIC-VIEW-DRIFT/
   TECHNICAL-WRITING/
   TEST-DESIGN-REVIEW/
   WORK-VERIFICATION/
