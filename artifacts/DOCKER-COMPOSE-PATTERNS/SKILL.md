@@ -39,7 +39,7 @@ services:
     image: apache/airflow:2.10.5
     command: db migrate
     environment: &airflow-env
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:${POSTGRES_PASSWORD}@db/airflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:${POSTGRES_PASSWORD_URLENCODED:?Set POSTGRES_PASSWORD_URLENCODED in .env}@db/airflow
     depends_on:
       db:
         condition: service_healthy
@@ -94,6 +94,15 @@ Compose reads a `.env` file next to `compose.yaml` automatically; keep it in `.g
 and commit a `.env.example` with placeholders. A fallback such as `${DB_PASSWORD:-postgres}`
 is acceptable for a throwaway local database where one-command startup matters, provided
 it is plainly a development default and the port is not published beyond the machine.
+
+The Airflow example needs two representations of the same password: raw
+`POSTGRES_PASSWORD` for Postgres and `POSTGRES_PASSWORD_URLENCODED` for the connection
+URL. Compose interpolation does not URL-encode values. Generate the latter with
+Python's `urllib.parse.quote(raw_password, safe="")` and update both together.
+For example, the synthetic password `review@secret` becomes `review%40secret` in
+the URL. Store both values in the ignored `.env`, using single quotes for literal
+values containing `$`; never pass the encoded value as Postgres's raw password.
+Document both variables in `.env.example`, and treat both as secrets.
 
 Do not publish datastore ports to every interface. `"5432:5432"` makes the database
 reachable from the network the laptop is on. Containers in the same Compose network reach

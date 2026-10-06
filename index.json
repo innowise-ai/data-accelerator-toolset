@@ -278,7 +278,7 @@
           "Supplies pip, dbt and Git credentials through build secrets so they never land in an image layer",
           "Orders the Dockerfile so dependency installs are cached across code changes",
           "Separates build tools from the runtime image and runs the process as a non-root user",
-          "Checks the finished image by reading its history the way someone with the image would"
+          "Checks image metadata and all layer contents for credentials, including deleted files"
         ]
       }
     },

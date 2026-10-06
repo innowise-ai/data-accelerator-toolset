@@ -138,10 +138,21 @@ docker image inspect pipeline-check --format '{{.Config.User}} {{.Size}}'
 docker history --no-trunc pipeline-check
 ```
 
-The last command is the real test for credentials: read the layers as an attacker
-would, and look for anything you would not want in a registry. A non-empty user,
-a size in the hundreds of megabytes rather than gigabytes, and a clean history are
-the three things to confirm before calling an image done.
+`docker history` shows build instructions, not the contents of copied files. A
+clean history does not prove that credentials are absent: `COPY . .` can include a
+password without showing its value in the history. Inspect the image configuration
+as well, including environment variables, and check the contents of every image
+layer with a tool that scans all layers for secrets. Alternatively, use
+`docker image save --output <archive-path> pipeline-check` to save the image in a
+private temporary directory and inspect each layer archive, decompressing it as
+needed. Include files deleted or overwritten by later layers; inspecting only a
+running container or a flattened filesystem misses them.
+
+Keep any archive and inspection output containing credentials out of the repository
+and shared logs. Report which checks ran and their limits; neither a clean history
+nor a scanner's lack of findings guarantees that an image contains no secrets.
+Also confirm that the configured user is non-root and that the image size is
+reasonable for its dependencies.
 
 ## Related
 

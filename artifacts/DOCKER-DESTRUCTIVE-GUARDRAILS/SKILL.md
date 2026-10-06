@@ -42,7 +42,7 @@ anything.
 | `docker image prune -a` | Every image not used by a container | `docker image prune` for dangling only |
 | `docker network rm` / `prune` | One network, or every network with no containers attached | Remove by name |
 | `docker builder prune [-a]` | Build cache; `-a` also removes helper images and shared cache, forcing a cold rebuild | Plain `docker builder prune` |
-| `docker buildx rm` | A builder instance (not the cache) | Check which builder is in use first |
+| `docker buildx rm` | A builder instance and its local build cache; a remote builder's cache and daemon are unaffected | Check the driver and cache first; consider `--keep-state` for `docker-container` |
 | `docker context rm` | The local connection settings for a Docker host; not the remote resources, but not trivial to recreate | Check `docker context ls` |
 | `docker volume rm` / `prune` | The volume and its data, permanently; `prune -a` widens from anonymous to named volumes | Inspect first with `docker volume ls` and `docker volume inspect` |
 
@@ -50,6 +50,13 @@ Named volumes are not touched by `docker system prune`, even with `--volumes`; o
 anonymous ones are. A named volume is deleted only by an explicit `docker volume rm`,
 `docker volume prune -a`, or `docker compose down -v`. That is a useful thing to tell
 the user, because "will my database survive" is the question they actually have.
+
+Before removing a builder, use `docker buildx ls` to identify its driver and
+`docker buildx --builder <name> du` to check its cache. For the `docker-container`
+driver, `docker buildx rm --keep-state <name>` preserves BuildKit state so a new
+builder with the same name can reuse it. Do not promise cache preservation for
+other drivers based on that flag; removing a remote builder only removes the local
+connection to it. State the applicable cache loss in the confirmation.
 
 Compose has its own destructive forms, covered in `DOCKER-COMPOSE-PATTERNS`:
 `docker compose down -v` and `docker compose rm -v`.

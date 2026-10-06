@@ -69,7 +69,7 @@ services:
   app:
     build: .
     environment:
-      DATABASE_URL: postgresql://app:${POSTGRES_PASSWORD:-dev-only-password}@db:5432/app
+      DATABASE_URL: postgresql://app:${POSTGRES_PASSWORD_URLENCODED:-dev-only-password}@db:5432/app
     depends_on:
       db:
         condition: service_healthy
@@ -99,6 +99,15 @@ is labelled as a development default, and the database port is published to loop
 so nothing off the machine can reach it. Document that `.env` overrides it, add `.env` to
 `.gitignore`, and commit a `.env.example`. Why the health check and the `service_healthy`
 condition matter is in `DOCKER-COMPOSE-PATTERNS`.
+
+When overriding the development password, set both `POSTGRES_PASSWORD` (raw) and
+`POSTGRES_PASSWORD_URLENCODED` (for the URL) in `.env` and document both in
+`.env.example`. Derive the encoded value with Python's
+`urllib.parse.quote(raw_password, safe="")`: the synthetic `review@secret` becomes
+`review%40secret`. Compose does not perform this encoding. Update both values
+together; overriding only one leaves the application and database with different
+passwords. Single-quote literal `.env` values containing `$`, and keep both
+representations out of version control.
 
 ## Local versus production
 
