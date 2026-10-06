@@ -143,7 +143,10 @@ services:
 docker compose config --quiet
 ```
 
-This validates the file and resolves interpolation without printing it. Plain
+This validates the file and resolves interpolation without printing it. A variable
+written as `${NAME:?message}` makes it fail until the value exists, which is the point:
+copy `.env.example` to `.env` first, and read that failure as the file working, not as
+a broken file. Plain
 `docker compose config` prints the resolved configuration, including every secret read
 from `.env`, into your terminal and any log that captures it. Use `--quiet` by default.
 
