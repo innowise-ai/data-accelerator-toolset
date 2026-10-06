@@ -1,6 +1,6 @@
 {
   "schema_version": "2",
-  "toolset_ref": "refs/tags/v0.7.0",
+  "toolset_ref": "refs/tags/v1.0.0",
   "vocabulary": {
     "languages": ["typescript", "javascript", "python", "csharp", "go", "sql"],
     "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker"],
