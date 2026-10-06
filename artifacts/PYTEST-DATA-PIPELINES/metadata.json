@@ -1,6 +1,6 @@
 {
   "id": "PYTEST-DATA-PIPELINES",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/PYTEST-DATA-PIPELINES",
   "applies_to": {
     "languages": ["python"]
@@ -9,7 +9,7 @@
   "topics": ["testing"],
   "scope": "project",
   "presentation": {
-    "name": "pytest for data pipelines",
+    "name": "Test pipeline code with pytest, mocking I/O",
     "summary": "Tests data pipeline code with pytest, mocking at the I/O boundary.",
     "benefits": [
       "Draws a clear unit and integration split for pipeline code",

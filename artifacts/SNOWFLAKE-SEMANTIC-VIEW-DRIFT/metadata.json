@@ -1,6 +1,6 @@
 {
   "id": "SNOWFLAKE-SEMANTIC-VIEW-DRIFT",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/SNOWFLAKE-SEMANTIC-VIEW-DRIFT",
   "applies_to": {
     "frameworks": ["snowflake"]
@@ -9,7 +9,7 @@
   "topics": ["data-modeling", "data-quality"],
   "scope": "project",
   "presentation": {
-    "name": "Snowflake semantic view drift",
+    "name": "Repair Snowflake semantic view drift",
     "summary": "Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions.",
     "benefits": [
       "Classifies drift as added, dropped, renamed or retyped columns, since each needs a different fix",

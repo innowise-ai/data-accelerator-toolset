@@ -320,6 +320,76 @@ function Test-CatalogSourcePath {
     }
 }
 
+function Test-CatalogArtifactDirectory {
+    <#
+        An artifact lives in a directory named exactly for its id. The id is what
+        a profile stores and what a reader sees in the index; a directory under
+        another name means the two drift apart on the first rename, and nothing
+        at install time would say which one is right.
+
+        The AS-SPIKE-* transport fixtures are exempt: they exist to carry hostile
+        paths such as 'artifacts/CON' through the path rules, and a directory
+        named for the id would defeat that.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string] $Id,
+
+        [Parameter(Mandatory)]
+        [string] $SourcePath
+    )
+
+    if ($Id -like 'AS-SPIKE-*') { return }
+
+    $expected = "artifacts/$Id"
+    if ($SourcePath -cne $expected) {
+        Add-CatalogError "Artifact $Id declares source_path '$SourcePath'. An artifact's directory is named for its id, so source_path must be '$expected'."
+    }
+}
+
+function Test-CatalogSkillName {
+    <#
+        The 'name' in a SKILL.md frontmatter is what an agent shows in its skill
+        list and slash menu. It must be the id in lower case, so the name a user
+        types, the directory on disk and the id in a profile are one name.
+
+        Read from the checkout, so it runs only with -CatalogRoot. An artifact
+        without a SKILL.md is not checked: not every artifact is a skill.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string] $Root,
+
+        [Parameter(Mandatory)]
+        [string] $Id,
+
+        [Parameter(Mandatory)]
+        [string] $SourcePath
+    )
+
+    $skillPath = Join-Path (Join-Path $Root $SourcePath) 'SKILL.md'
+    if (-not (Test-Path -LiteralPath $skillPath -PathType Leaf)) { return }
+
+    $expected = $Id.ToLowerInvariant()
+    $lines = @(Get-Content -LiteralPath $skillPath -TotalCount 50 -Encoding utf8)
+    $name = $null
+    if ($lines.Count -gt 0 -and $lines[0].Trim() -eq '---') {
+        for ($n = 1; $n -lt $lines.Count; $n++) {
+            if ($lines[$n].Trim() -eq '---') { break }
+            if ($lines[$n] -match '^name:\s*(?<name>.*?)\s*$') {
+                $name = $Matches.name.Trim('"', "'")
+                break
+            }
+        }
+    }
+
+    if ($null -eq $name) {
+        Add-CatalogError "Artifact $Id has a SKILL.md with no 'name' in its frontmatter. Expected 'name: $expected'."
+    } elseif ($name -cne $expected) {
+        Add-CatalogError "Artifact $Id has SKILL.md name '$name'. The name is the id in lower case: '$expected'."
+    }
+}
+
 function Get-CatalogCheckoutPath {
     <#
         Every file under a catalog checkout, as repository-relative
@@ -666,8 +736,14 @@ for ($i = 0; $i -lt $artifacts.Count; $i++) {
         continue
     }
 
-    Test-CatalogSourcePath -Id (Get-ArtifactId -Artifact $artifact -Index $i) `
-        -SourcePath ([string]$artifact.source_path)
+    $artifactId = Get-ArtifactId -Artifact $artifact -Index $i
+    $errorsBefore = $errors.Count
+    Test-CatalogSourcePath -Id $artifactId -SourcePath ([string]$artifact.source_path)
+    # One fault, one message: a path the rules above already rejected is not
+    # also reported for its directory name.
+    if ($errors.Count -eq $errorsBefore) {
+        Test-CatalogArtifactDirectory -Id $artifactId -SourcePath ([string]$artifact.source_path)
+    }
 }
 
 # Reported so a caller can tell a scan that found nothing from a scan that never
@@ -695,6 +771,26 @@ if ($PSBoundParameters.ContainsKey('PathList')) {
 
 if ($checkoutPaths.Count -gt 0) {
     Test-CatalogPathRule -Paths $checkoutPaths -DeclaredIds $seenIds
+}
+
+# Frontmatter names need file contents, which only a walked checkout provides;
+# a -PathList run has paths and nothing else.
+if (-not [string]::IsNullOrWhiteSpace($CatalogRoot)) {
+    for ($i = 0; $i -lt $artifacts.Count; $i++) {
+        $artifact = $artifacts[$i]
+        if ($null -eq $artifact -or $artifact -is [string] -or $artifact -is [ValueType]) { continue }
+        if ($null -eq $artifact.PSObject.Properties['source_path'] -or
+            [string]::IsNullOrWhiteSpace($artifact.source_path)) {
+            continue
+        }
+
+        $artifactId = Get-ArtifactId -Artifact $artifact -Index $i
+        # Only a source_path that already passed the directory rule is read, so
+        # a hostile path in the index never becomes a filesystem lookup.
+        if ([string]$artifact.source_path -cne "artifacts/$artifactId") { continue }
+
+        Test-CatalogSkillName -Root $CatalogRoot -Id $artifactId -SourcePath ([string]$artifact.source_path)
+    }
 }
 
 return [pscustomobject]@{

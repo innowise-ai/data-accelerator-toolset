@@ -1,0 +1,21 @@
+{
+  "id": "DOCKER-COMPOSE-LOCAL-STACK",
+  "version": "0.1.1",
+  "source_path": "artifacts/DOCKER-COMPOSE-LOCAL-STACK",
+  "applies_to": {
+    "frameworks": ["docker"]
+  },
+  "strength": "on-demand",
+  "topics": ["containerization"],
+  "scope": "project",
+  "presentation": {
+    "name": "Wire a local data stack in Compose with real readiness checks",
+    "summary": "Wires local data stacks in Compose so services wait for a database to be ready, not merely started.",
+    "benefits": [
+      "Waits on health checks and completed init jobs instead of container start",
+      "Keeps database data in named volumes and secrets out of the committed file",
+      "Publishes datastore ports to loopback only",
+      "Separates development overrides from the base file"
+    ]
+  }
+}

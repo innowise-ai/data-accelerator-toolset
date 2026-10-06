@@ -1,6 +1,6 @@
 ---
 name: implementation-planning
-description: Turning agreed requirements into an ordered plan - steps that can be verified independently, risky assumptions tested early, done criteria per step, and an explicit statement of what the plan excludes.
+description: Turning agreed requirements into an ordered plan - steps that can be verified independently, risky assumptions tested early, done criteria per step, and an explicit statement of what the plan excludes. Use when requirements are agreed and the work needs a plan before coding starts.
 ---
 
 # Planning an implementation

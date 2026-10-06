@@ -1,13 +1,13 @@
 {
   "id": "REQUIREMENTS-BRAINSTORMING",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/REQUIREMENTS-BRAINSTORMING",
   "applies_to": {},
   "strength": "on-demand",
   "topics": ["development-process"],
   "scope": "project",
   "presentation": {
-    "name": "Requirements brainstorming",
+    "name": "Work out what is needed before writing code",
     "summary": "Works out what is actually needed before any code is written.",
     "benefits": [
       "Surfaces the real goal behind a requested solution",

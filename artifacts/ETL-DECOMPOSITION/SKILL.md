@@ -1,6 +1,6 @@
 ---
 name: etl-decomposition
-description: Split monolithic extract-transform-load functions into testable units with the I/O at the edges.
+description: Split monolithic extract-transform-load functions into testable units with the I/O at the edges. Use when an ETL function is too large to test or change safely.
 ---
 
 # ETL decomposition

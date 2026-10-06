@@ -4,50 +4,55 @@ The artifact catalog. Consumers fetch selected artifacts from this repository us
 
 The catalog holds thirty-eight artifacts in three groups. Twenty-three are data-engineering specific, covering dbt, Snowflake, Airflow, Python pipeline code, sensitive data handling, and stack-agnostic pipeline quality practice. Four cover containers and local environments: Dockerfile build rules, Compose stacks, a first Docker scaffold, and a guardrail for destructive Docker commands. Eleven are general skills that apply to any stack: change review, project documentation, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, and project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
 
-Every artifact except one is `on-demand`, so a profile receives only what its declared topics select and the user explicitly chooses. The exception is `DOCKER-DESTRUCTIVE-GUARDRAILS`, which is `always`: it installs into every project that uses Docker, because losing a data volume is not something a team should have to remember to ask protection against. See [`docs/authoring-artifacts.md`](docs/authoring-artifacts.md) for what an `always` artifact has to justify.
+Every artifact except one is `on-demand`, so a profile receives only what its declared topics select and the user explicitly chooses. The exception is `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every project that uses Docker, because losing a data volume is not something a team should have to remember to ask protection against. See [`docs/authoring-artifacts.md`](docs/authoring-artifacts.md) for what an `always` artifact has to justify.
 
-Thirty-seven artifacts are `project` scope. `TECHNICAL-WRITING` is the single `user`-scope artifact: a personal editing tool that does not belong in a shared project plan.
+Thirty-seven artifacts are `project` scope. `TECHNICAL-PROSE-EDITING` is the single `user`-scope artifact: a personal editing tool that does not belong in a shared project plan.
 
 ## Layout
 
 ```text
 index.json                      # catalog root — the only file fetched unconditionally
 artifacts/
-  AIRFLOW-DAG-CONVENTIONS/
+  AIRFLOW-DAG-STRUCTURE/
     SKILL.md
     metadata.json
-  CHANGE-REVIEW/
-  DATA-INCIDENT-DEBUGGING/
+  CODE-CHANGE-REVIEW/
+  COMPLETION-VERIFICATION/
+  DATA-INCIDENT-TRACING/
+  DBT-BUILD-FAILURE-DIAGNOSIS/
   DBT-COLUMN-LINEAGE/
-  DBT-ERROR-DEBUGGING/
-  DBT-INCREMENTAL-MODELS/
-  DBT-MODEL-CREATION/
-  DBT-MODEL-DOCUMENTATION/
+  DBT-INCREMENTAL-STRATEGY/
+  DBT-LAYER-BOUNDARIES/
+  DBT-LEGACY-SQL-MIGRATION/
+  DBT-MODEL-BUILD-VERIFY/
+  DBT-MODEL-DESCRIPTIONS/
   DBT-MODEL-REFACTORING/
   DBT-MODEL-TESTING/
-  DBT-PROJECT-CONVENTIONS/
-  DBT-SQL-MIGRATION/
+  DOCKER-COMPOSE-LOCAL-STACK/
+  DOCKER-DATA-LOSS-CONFIRMATION/
+  DOCKER-IMAGE-BUILD/
+  DOCKER-PROJECT-SETUP/
   ERROR-DIAGNOSIS/
   ETL-DECOMPOSITION/
   IMPLEMENTATION-PLANNING/
+  NL2SQL-QUERY-VALIDATION/
+  PIPELINE-CHECK-SELECTION/
   PIPELINE-OUTPUT-REVIEW/
-  PIPELINE-REGRESSION-GATES/
   PLAN-EXECUTION/
   PROJECT-ADAPTATION/
   PROJECT-DOCUMENTATION/
   PYTEST-DATA-PIPELINES/
-  REFACTORING-SAFETY/
+  REFACTOR-STEP-PLANNING/
   REQUIREMENTS-BRAINSTORMING/
-  SAFE-NL2SQL-GUARDRAILS/
   SCD2-IMPLEMENTATION/
-  SNOWFLAKE-EXPENSIVE-QUERIES/
-  SNOWFLAKE-GRANTS-AFTER-RECREATE/
-  SNOWFLAKE-QUERY-BY-ID/
-  SNOWFLAKE-QUERY-TEXT/
+  SENSITIVE-DATA-HANDLING/
+  SNOWFLAKE-COST-HOTSPOTS/
+  SNOWFLAKE-GRANT-RESTORE/
+  SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS/
+  SNOWFLAKE-QUERY-REWRITE/
   SNOWFLAKE-SEMANTIC-VIEW-DRIFT/
-  TECHNICAL-WRITING/
+  TECHNICAL-PROSE-EDITING/
   TEST-DESIGN-REVIEW/
-  WORK-VERIFICATION/
 ```
 
 ## `index.json`
@@ -69,15 +74,15 @@ artifacts/
   },
   "artifacts": [
     {
-      "id": "AIRFLOW-DAG-CONVENTIONS",
-      "version": "0.1.0",
-      "source_path": "artifacts/AIRFLOW-DAG-CONVENTIONS",
+      "id": "AIRFLOW-DAG-STRUCTURE",
+      "version": "0.1.1",
+      "source_path": "artifacts/AIRFLOW-DAG-STRUCTURE",
       "applies_to": { "frameworks": ["airflow"] },
       "strength": "on-demand",
       "topics": ["orchestration"],
       "scope": "project",
       "presentation": {
-        "name": "Airflow DAG conventions",
+        "name": "Structure Airflow DAGs for safe, cheap imports",
         "summary": "Structures Airflow DAGs so nothing expensive or fragile runs at import time.",
         "benefits": [
           "Keeps connections and queries out of module scope, where the scheduler re-runs them",
@@ -142,7 +147,7 @@ An `always` artifact cannot use user scope.
 This is not a style preference. Cone-mode sparse checkout selects whole directories:
 
 ```bash
-git sparse-checkout set artifacts/DBT-MODEL-CREATION artifacts/DBT-MODEL-TESTING
+git sparse-checkout set artifacts/DBT-MODEL-BUILD-VERIFY artifacts/DBT-MODEL-TESTING
 ```
 
 An artifact whose files are scattered across the repository cannot be selected this way. The alternative — non-cone mode with per-file patterns — was rejected as a production default because it forces the installer to enumerate every file of every artifact, coupling transport to internal artifact layout.
@@ -189,7 +194,7 @@ git clone --depth 1 --branch <tag> --filter=blob:none --sparse -- <toolset-url> 
 # 2. Read index.json — it materializes with the initial checkout
 
 # 3. Select the artifacts you need, by directory
-git -C <dst> sparse-checkout set artifacts/DBT-MODEL-CREATION artifacts/DBT-MODEL-TESTING
+git -C <dst> sparse-checkout set artifacts/DBT-MODEL-BUILD-VERIFY artifacts/DBT-MODEL-TESTING
 ```
 
 Pin to a tag or commit SHA, never a moving branch. Unselected artifacts are absent from the local object store, not merely from the worktree — verified under `GIT_NO_LAZY_FETCH=1`. Reading a missing blob triggers a lazy fetch from the promisor remote.

@@ -1,6 +1,6 @@
 {
   "id": "ETL-DECOMPOSITION",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/ETL-DECOMPOSITION",
   "applies_to": {
     "languages": ["python"]
@@ -9,7 +9,7 @@
   "topics": ["refactoring", "orchestration"],
   "scope": "project",
   "presentation": {
-    "name": "ETL decomposition",
+    "name": "Split a monolithic ETL function into testable units",
     "summary": "Splits a monolithic extract-transform-load function into testable units with I/O at the edges.",
     "benefits": [
       "Isolates the transform so it can be tested without network or database",

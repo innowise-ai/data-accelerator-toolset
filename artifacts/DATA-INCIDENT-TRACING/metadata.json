@@ -1,0 +1,18 @@
+{
+  "id": "DATA-INCIDENT-TRACING",
+  "version": "0.1.1",
+  "source_path": "artifacts/DATA-INCIDENT-TRACING",
+  "applies_to": {},
+  "strength": "on-demand",
+  "topics": ["debugging", "data-quality"],
+  "scope": "project",
+  "presentation": {
+    "name": "Trace wrong data when the pipeline succeeded",
+    "summary": "Traces wrong data back to the code that produced it when the pipeline reported success.",
+    "benefits": [
+      "Keeps the investigation read-only until a cause is proven",
+      "Turns symptoms into hypotheses a single query can rule out",
+      "Records evidence and unproven gaps in a written incident log"
+    ]
+  }
+}

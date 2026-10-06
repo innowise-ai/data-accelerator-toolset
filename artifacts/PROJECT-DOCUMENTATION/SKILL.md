@@ -1,6 +1,6 @@
 ---
 name: project-documentation
-description: Documenting a project at the level code cannot explain itself - decisions and their reasons, component boundaries, non-obvious constraints, and keeping all three true as the code changes.
+description: Documenting a project at the level code cannot explain itself - decisions and their reasons, component boundaries, non-obvious constraints, and keeping all three true as the code changes. Use when writing or updating architecture notes, decision records or a project README.
 ---
 
 # Documenting a project
@@ -14,7 +14,7 @@ The failure this prevents is specific and expensive: someone deletes a workaroun
 because it looks unnecessary, and rediscovers the reason for it in production.
 
 For column-level documentation inside a dbt project, see
-[dbt-model-documentation](../DBT-MODEL-DOCUMENTATION/SKILL.md). This covers the
+[dbt-model-descriptions](../DBT-MODEL-DESCRIPTIONS/SKILL.md). This covers the
 project level, in any stack.
 
 ## Write only what the code cannot say

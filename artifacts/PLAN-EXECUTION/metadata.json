@@ -1,13 +1,13 @@
 {
   "id": "PLAN-EXECUTION",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/PLAN-EXECUTION",
   "applies_to": {},
   "strength": "on-demand",
   "topics": ["development-process"],
   "scope": "project",
   "presentation": {
-    "name": "Plan execution",
+    "name": "Execute a plan step by step and handle divergence",
     "summary": "Works through an agreed plan one step at a time and handles it when reality diverges.",
     "benefits": [
       "Keeps each step small enough to verify before the next one starts",

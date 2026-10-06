@@ -25,9 +25,9 @@
   },
   "artifacts": [
     {
-      "id": "AIRFLOW-DAG-CONVENTIONS",
-      "version": "0.1.0",
-      "source_path": "artifacts/AIRFLOW-DAG-CONVENTIONS",
+      "id": "AIRFLOW-DAG-STRUCTURE",
+      "version": "0.1.1",
+      "source_path": "artifacts/AIRFLOW-DAG-STRUCTURE",
       "applies_to": {
         "frameworks": ["airflow"]
       },
@@ -35,7 +35,7 @@
       "topics": ["orchestration"],
       "scope": "project",
       "presentation": {
-        "name": "Airflow DAG conventions",
+        "name": "Structure Airflow DAGs for safe, cheap imports",
         "summary": "Structures Airflow DAGs so nothing expensive or fragile runs at import time.",
         "benefits": [
           "Keeps connections and queries out of module scope, where the scheduler re-runs them",
@@ -45,15 +45,15 @@
       }
     },
     {
-      "id": "CHANGE-REVIEW",
-      "version": "0.2.0",
-      "source_path": "artifacts/CHANGE-REVIEW",
+      "id": "CODE-CHANGE-REVIEW",
+      "version": "0.2.1",
+      "source_path": "artifacts/CODE-CHANGE-REVIEW",
       "applies_to": {},
       "strength": "on-demand",
       "topics": ["code-review"],
       "scope": "project",
       "presentation": {
-        "name": "Change review",
+        "name": "Review a code change for correctness and risk",
         "summary": "Reviews a code change for correctness, risk, test coverage and backward compatibility.",
         "benefits": [
           "Establishes what the change is supposed to do before judging whether it does it",
@@ -66,15 +66,34 @@
       }
     },
     {
-      "id": "DATA-INCIDENT-DEBUGGING",
-      "version": "0.1.0",
-      "source_path": "artifacts/DATA-INCIDENT-DEBUGGING",
+      "id": "COMPLETION-VERIFICATION",
+      "version": "0.1.1",
+      "source_path": "artifacts/COMPLETION-VERIFICATION",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["development-process"],
+      "scope": "project",
+      "presentation": {
+        "name": "Check work does what was asked before reporting done",
+        "summary": "Checks that work actually does what was asked before it is reported as finished.",
+        "benefits": [
+          "Requires observed command output before any claim that something passes",
+          "Separates passed, failed, skipped and never-run instead of merging them",
+          "Checks the original request was met, not only that the code runs",
+          "Reports what was not verified rather than leaving it implied"
+        ]
+      }
+    },
+    {
+      "id": "DATA-INCIDENT-TRACING",
+      "version": "0.1.1",
+      "source_path": "artifacts/DATA-INCIDENT-TRACING",
       "applies_to": {},
       "strength": "on-demand",
       "topics": ["debugging", "data-quality"],
       "scope": "project",
       "presentation": {
-        "name": "Data incident investigation",
+        "name": "Trace wrong data when the pipeline succeeded",
         "summary": "Traces wrong data back to the code that produced it when the pipeline reported success.",
         "benefits": [
           "Keeps the investigation read-only until a cause is proven",
@@ -84,29 +103,9 @@
       }
     },
     {
-      "id": "DBT-COLUMN-LINEAGE",
-      "version": "0.1.0",
-      "source_path": "artifacts/DBT-COLUMN-LINEAGE",
-      "applies_to": {
-        "frameworks": ["dbt"]
-      },
-      "strength": "on-demand",
-      "topics": ["data-modeling"],
-      "scope": "project",
-      "presentation": {
-        "name": "dbt column lineage",
-        "summary": "Traces where a dbt model's column came from and what depends on it, without reading SQL by hand across the model chain.",
-        "benefits": [
-          "Answers 'where did this field come from' and 'what breaks if I change it' from the dbt Cloud Discovery API",
-          "Shows the transformation type at each hop (passthrough, transformed, renamed), not just the model names",
-          "Validates model and column names before tracing, so a typo returns an error instead of a silent empty result"
-        ]
-      }
-    },
-    {
-      "id": "DBT-ERROR-DEBUGGING",
-      "version": "0.1.0",
-      "source_path": "artifacts/DBT-ERROR-DEBUGGING",
+      "id": "DBT-BUILD-FAILURE-DIAGNOSIS",
+      "version": "0.1.1",
+      "source_path": "artifacts/DBT-BUILD-FAILURE-DIAGNOSIS",
       "applies_to": {
         "frameworks": ["dbt"]
       },
@@ -114,7 +113,7 @@
       "topics": ["debugging"],
       "scope": "project",
       "presentation": {
-        "name": "dbt error debugging",
+        "name": "Diagnose a failing dbt build from compiled SQL",
         "summary": "Diagnoses a failing dbt build from the compiled SQL rather than the error text.",
         "benefits": [
           "Reads the compiled SQL, where the real error usually is",
@@ -124,9 +123,29 @@
       }
     },
     {
-      "id": "DBT-INCREMENTAL-MODELS",
-      "version": "0.1.0",
-      "source_path": "artifacts/DBT-INCREMENTAL-MODELS",
+      "id": "DBT-COLUMN-LINEAGE",
+      "version": "0.1.1",
+      "source_path": "artifacts/DBT-COLUMN-LINEAGE",
+      "applies_to": {
+        "frameworks": ["dbt"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-modeling"],
+      "scope": "project",
+      "presentation": {
+        "name": "Trace a dbt column upstream and downstream",
+        "summary": "Traces where a dbt model's column came from and what depends on it, without reading SQL by hand across the model chain.",
+        "benefits": [
+          "Answers 'where did this field come from' and 'what breaks if I change it' from the dbt Cloud Discovery API",
+          "Shows the transformation type at each hop (passthrough, transformed, renamed), not just the model names",
+          "Validates model and column names before tracing, so a typo returns an error instead of a silent empty result"
+        ]
+      }
+    },
+    {
+      "id": "DBT-INCREMENTAL-STRATEGY",
+      "version": "0.1.1",
+      "source_path": "artifacts/DBT-INCREMENTAL-STRATEGY",
       "applies_to": {
         "frameworks": ["dbt"]
       },
@@ -134,7 +153,7 @@
       "topics": ["data-modeling", "performance"],
       "scope": "project",
       "presentation": {
-        "name": "dbt incremental models",
+        "name": "Choose a dbt incremental strategy and unique key",
         "summary": "Chooses an incremental strategy and unique key that survive late data and schema drift.",
         "benefits": [
           "Matches the strategy to how the source actually changes",
@@ -144,9 +163,49 @@
       }
     },
     {
-      "id": "DBT-MODEL-CREATION",
-      "version": "0.1.0",
-      "source_path": "artifacts/DBT-MODEL-CREATION",
+      "id": "DBT-LAYER-BOUNDARIES",
+      "version": "0.1.1",
+      "source_path": "artifacts/DBT-LAYER-BOUNDARIES",
+      "applies_to": {
+        "frameworks": ["dbt"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-modeling", "data-quality"],
+      "scope": "project",
+      "presentation": {
+        "name": "Define what belongs in each dbt layer",
+        "summary": "Establishes what belongs in each dbt layer and why the boundaries hold.",
+        "benefits": [
+          "Places sources, staging, intermediate and mart logic consistently",
+          "Applies contracts and tests at the layer where they are meaningful",
+          "Prevents business logic leaking into the staging layer"
+        ]
+      }
+    },
+    {
+      "id": "DBT-LEGACY-SQL-MIGRATION",
+      "version": "0.1.1",
+      "source_path": "artifacts/DBT-LEGACY-SQL-MIGRATION",
+      "applies_to": {
+        "frameworks": ["dbt"]
+      },
+      "strength": "on-demand",
+      "topics": ["refactoring", "data-modeling"],
+      "scope": "project",
+      "presentation": {
+        "name": "Port legacy SQL into dbt and reconcile it",
+        "summary": "Ports legacy SQL into dbt layer by layer and reconciles against the original.",
+        "benefits": [
+          "Separates what to reuse from what to rewrite",
+          "Builds the staging layer before porting business logic",
+          "Reconciles migrated output against the legacy result"
+        ]
+      }
+    },
+    {
+      "id": "DBT-MODEL-BUILD-VERIFY",
+      "version": "0.1.1",
+      "source_path": "artifacts/DBT-MODEL-BUILD-VERIFY",
       "applies_to": {
         "frameworks": ["dbt"]
       },
@@ -154,7 +213,7 @@
       "topics": ["data-modeling"],
       "scope": "project",
       "presentation": {
-        "name": "dbt model creation",
+        "name": "Build and verify a new dbt model",
         "summary": "Runs the build-and-verify loop for a new dbt model instead of stopping at compile.",
         "benefits": [
           "Reads the project's existing layering and naming before writing",
@@ -164,9 +223,9 @@
       }
     },
     {
-      "id": "DBT-MODEL-DOCUMENTATION",
-      "version": "0.1.0",
-      "source_path": "artifacts/DBT-MODEL-DOCUMENTATION",
+      "id": "DBT-MODEL-DESCRIPTIONS",
+      "version": "0.1.1",
+      "source_path": "artifacts/DBT-MODEL-DESCRIPTIONS",
       "applies_to": {
         "frameworks": ["dbt"]
       },
@@ -174,7 +233,7 @@
       "topics": ["documentation"],
       "scope": "project",
       "presentation": {
-        "name": "dbt model documentation",
+        "name": "Write dbt model and column descriptions",
         "summary": "Writes model and column descriptions that state what the SQL cannot.",
         "benefits": [
           "Puts the model's grain first, so consumers know what a row is",
@@ -185,7 +244,7 @@
     },
     {
       "id": "DBT-MODEL-REFACTORING",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/DBT-MODEL-REFACTORING",
       "applies_to": {
         "frameworks": ["dbt"]
@@ -194,7 +253,7 @@
       "topics": ["refactoring"],
       "scope": "project",
       "presentation": {
-        "name": "dbt model refactoring",
+        "name": "Refactor a dbt model and prove output is unchanged",
         "summary": "Restructures a dbt model while proving its output did not change.",
         "benefits": [
           "Finds the full downstream blast radius from the dbt graph, not grep",
@@ -205,7 +264,7 @@
     },
     {
       "id": "DBT-MODEL-TESTING",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/DBT-MODEL-TESTING",
       "applies_to": {
         "frameworks": ["dbt"]
@@ -214,7 +273,7 @@
       "topics": ["testing", "data-quality"],
       "scope": "project",
       "presentation": {
-        "name": "dbt model testing",
+        "name": "Pick dbt schema tests for each column role",
         "summary": "Picks dbt schema tests that catch real defects for each column role.",
         "benefits": [
           "Chooses tests by what the column is, not by habit",
@@ -224,49 +283,9 @@
       }
     },
     {
-      "id": "DBT-PROJECT-CONVENTIONS",
-      "version": "0.1.0",
-      "source_path": "artifacts/DBT-PROJECT-CONVENTIONS",
-      "applies_to": {
-        "frameworks": ["dbt"]
-      },
-      "strength": "on-demand",
-      "topics": ["data-modeling", "data-quality"],
-      "scope": "project",
-      "presentation": {
-        "name": "dbt project conventions",
-        "summary": "Establishes what belongs in each dbt layer and why the boundaries hold.",
-        "benefits": [
-          "Places sources, staging, intermediate and mart logic consistently",
-          "Applies contracts and tests at the layer where they are meaningful",
-          "Prevents business logic leaking into the staging layer"
-        ]
-      }
-    },
-    {
-      "id": "DBT-SQL-MIGRATION",
-      "version": "0.1.0",
-      "source_path": "artifacts/DBT-SQL-MIGRATION",
-      "applies_to": {
-        "frameworks": ["dbt"]
-      },
-      "strength": "on-demand",
-      "topics": ["refactoring", "data-modeling"],
-      "scope": "project",
-      "presentation": {
-        "name": "Legacy SQL to dbt",
-        "summary": "Ports legacy SQL into dbt layer by layer and reconciles against the original.",
-        "benefits": [
-          "Separates what to reuse from what to rewrite",
-          "Builds the staging layer before porting business logic",
-          "Reconciles migrated output against the legacy result"
-        ]
-      }
-    },
-    {
-      "id": "DOCKER-BUILD-STRATEGIES",
-      "version": "0.1.0",
-      "source_path": "artifacts/DOCKER-BUILD-STRATEGIES",
+      "id": "DOCKER-COMPOSE-LOCAL-STACK",
+      "version": "0.1.1",
+      "source_path": "artifacts/DOCKER-COMPOSE-LOCAL-STACK",
       "applies_to": {
         "frameworks": ["docker"]
       },
@@ -274,28 +293,7 @@
       "topics": ["containerization"],
       "scope": "project",
       "presentation": {
-        "name": "Docker build strategies",
-        "summary": "Builds Python data images that keep credentials out of layers, cache well and run as non-root.",
-        "benefits": [
-          "Supplies pip, dbt and Git credentials through build secrets so they never land in an image layer",
-          "Orders the Dockerfile so dependency installs are cached across code changes",
-          "Separates build tools from the runtime image and runs the process as a non-root user",
-          "Checks image metadata and all layer contents for credentials, including deleted files"
-        ]
-      }
-    },
-    {
-      "id": "DOCKER-COMPOSE-PATTERNS",
-      "version": "0.1.0",
-      "source_path": "artifacts/DOCKER-COMPOSE-PATTERNS",
-      "applies_to": {
-        "frameworks": ["docker"]
-      },
-      "strength": "on-demand",
-      "topics": ["containerization"],
-      "scope": "project",
-      "presentation": {
-        "name": "Docker Compose patterns",
+        "name": "Wire a local data stack in Compose with real readiness checks",
         "summary": "Wires local data stacks in Compose so services wait for a database to be ready, not merely started.",
         "benefits": [
           "Waits on health checks and completed init jobs instead of container start",
@@ -306,9 +304,9 @@
       }
     },
     {
-      "id": "DOCKER-DESTRUCTIVE-GUARDRAILS",
-      "version": "0.1.0",
-      "source_path": "artifacts/DOCKER-DESTRUCTIVE-GUARDRAILS",
+      "id": "DOCKER-DATA-LOSS-CONFIRMATION",
+      "version": "0.1.1",
+      "source_path": "artifacts/DOCKER-DATA-LOSS-CONFIRMATION",
       "applies_to": {
         "frameworks": ["docker"]
       },
@@ -316,7 +314,7 @@
       "topics": [],
       "scope": "project",
       "presentation": {
-        "name": "Docker destructive-command guardrails",
+        "name": "Confirm data loss before Docker cleanup commands run",
         "summary": "Stops Docker cleanup commands from deleting data until the loss has been stated and confirmed.",
         "benefits": [
           "Names exactly what a prune, force-remove or volume delete would take before running it",
@@ -327,15 +325,36 @@
       }
     },
     {
-      "id": "DOCKER-PROJECT-FOUNDATIONS",
-      "version": "0.1.0",
-      "source_path": "artifacts/DOCKER-PROJECT-FOUNDATIONS",
+      "id": "DOCKER-IMAGE-BUILD",
+      "version": "0.1.1",
+      "source_path": "artifacts/DOCKER-IMAGE-BUILD",
+      "applies_to": {
+        "frameworks": ["docker"]
+      },
+      "strength": "on-demand",
+      "topics": ["containerization"],
+      "scope": "project",
+      "presentation": {
+        "name": "Build Python data images that cache well and keep secrets out",
+        "summary": "Builds Python data images that keep credentials out of layers, cache well and run as non-root.",
+        "benefits": [
+          "Supplies pip, dbt and Git credentials through build secrets so they never land in an image layer",
+          "Orders the Dockerfile so dependency installs are cached across code changes",
+          "Separates build tools from the runtime image and runs the process as a non-root user",
+          "Checks image metadata and all layer contents for credentials, including deleted files"
+        ]
+      }
+    },
+    {
+      "id": "DOCKER-PROJECT-SETUP",
+      "version": "0.1.1",
+      "source_path": "artifacts/DOCKER-PROJECT-SETUP",
       "applies_to": {"languages": ["python"]},
       "strength": "on-demand",
       "topics": ["containerization"],
       "scope": "project",
       "presentation": {
-        "name": "Docker project foundations",
+        "name": "Add a first Docker setup to a Python data project",
         "summary": "Adds a first working Docker setup to a Python data project, with its dependencies as Compose services.",
         "benefits": [
           "Creates .dockerignore, Dockerfile and compose.yaml together so the first build is clean",
@@ -347,14 +366,14 @@
     },
     {
       "id": "ERROR-DIAGNOSIS",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/ERROR-DIAGNOSIS",
       "applies_to": {},
       "strength": "on-demand",
       "topics": ["debugging"],
       "scope": "project",
       "presentation": {
-        "name": "Error diagnosis",
+        "name": "Prove the cause of a code failure before fixing it",
         "summary": "Finds the cause of a failure by narrowing it down and proving it before changing code.",
         "benefits": [
           "Establishes a reliable reproduction before theorising about causes",
@@ -366,7 +385,7 @@
     },
     {
       "id": "ETL-DECOMPOSITION",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/ETL-DECOMPOSITION",
       "applies_to": {
         "languages": ["python"]
@@ -375,7 +394,7 @@
       "topics": ["refactoring", "orchestration"],
       "scope": "project",
       "presentation": {
-        "name": "ETL decomposition",
+        "name": "Split a monolithic ETL function into testable units",
         "summary": "Splits a monolithic extract-transform-load function into testable units with I/O at the edges.",
         "benefits": [
           "Isolates the transform so it can be tested without network or database",
@@ -386,14 +405,14 @@
     },
     {
       "id": "IMPLEMENTATION-PLANNING",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/IMPLEMENTATION-PLANNING",
       "applies_to": {},
       "strength": "on-demand",
       "topics": ["development-process"],
       "scope": "project",
       "presentation": {
-        "name": "Implementation planning",
+        "name": "Turn agreed requirements into a step-by-step plan",
         "summary": "Turns agreed requirements into an ordered plan with verifiable steps.",
         "benefits": [
           "Breaks work into steps that can each be checked independently",
@@ -404,33 +423,36 @@
       }
     },
     {
-      "id": "PIPELINE-OUTPUT-REVIEW",
-      "version": "0.1.0",
-      "source_path": "artifacts/PIPELINE-OUTPUT-REVIEW",
-      "applies_to": {},
+      "id": "NL2SQL-QUERY-VALIDATION",
+      "version": "0.1.1",
+      "source_path": "artifacts/NL2SQL-QUERY-VALIDATION",
+      "applies_to": {
+        "languages": ["sql"]
+      },
       "strength": "on-demand",
-      "topics": ["code-review", "data-quality"],
+      "topics": ["data-quality"],
       "scope": "project",
       "presentation": {
-        "name": "Pipeline output review",
-        "summary": "Reviews the data a pipeline run actually produced, not just whether tests passed.",
+        "name": "Generate SQL from natural language, validated before it runs",
+        "summary": "Generates SQL from natural language without letting an unvalidated query reach the database.",
         "benefits": [
-          "Reconciles row accounting so silently dropped rows surface",
-          "Checks keys, contracts and drift against a recorded baseline",
-          "Reports INSUFFICIENT EVIDENCE instead of guessing a verdict"
+          "Rejects writes, unlisted tables, and multi-statement SQL with an independent validator instead of a prompt instruction",
+          "Surfaces ambiguous business-term-to-column mappings instead of silently guessing",
+          "Bounds execution with a read-only identity, statement timeout, and result limits",
+          "Returns SQL, assumptions, and a validation trace so a result can be audited, not just trusted"
         ]
       }
     },
     {
-      "id": "PIPELINE-REGRESSION-GATES",
-      "version": "0.1.0",
-      "source_path": "artifacts/PIPELINE-REGRESSION-GATES",
+      "id": "PIPELINE-CHECK-SELECTION",
+      "version": "0.1.1",
+      "source_path": "artifacts/PIPELINE-CHECK-SELECTION",
       "applies_to": {},
       "strength": "on-demand",
       "topics": ["testing", "data-quality"],
       "scope": "project",
       "presentation": {
-        "name": "Pipeline regression gates",
+        "name": "Pick the cheapest checks a pipeline change needs",
         "summary": "Selects the cheapest checks that would actually catch the regression a change can cause.",
         "benefits": [
           "Maps the type of change to the layers of testing it requires",
@@ -440,15 +462,33 @@
       }
     },
     {
+      "id": "PIPELINE-OUTPUT-REVIEW",
+      "version": "0.1.1",
+      "source_path": "artifacts/PIPELINE-OUTPUT-REVIEW",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["code-review", "data-quality"],
+      "scope": "project",
+      "presentation": {
+        "name": "Review the data a pipeline run actually produced",
+        "summary": "Reviews the data a pipeline run actually produced, not just whether tests passed.",
+        "benefits": [
+          "Reconciles row accounting so silently dropped rows surface",
+          "Checks keys, contracts and drift against a recorded baseline",
+          "Reports INSUFFICIENT EVIDENCE instead of guessing a verdict"
+        ]
+      }
+    },
+    {
       "id": "PLAN-EXECUTION",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/PLAN-EXECUTION",
       "applies_to": {},
       "strength": "on-demand",
       "topics": ["development-process"],
       "scope": "project",
       "presentation": {
-        "name": "Plan execution",
+        "name": "Execute a plan step by step and handle divergence",
         "summary": "Works through an agreed plan one step at a time and handles it when reality diverges.",
         "benefits": [
           "Keeps each step small enough to verify before the next one starts",
@@ -460,14 +500,14 @@
     },
     {
       "id": "PROJECT-ADAPTATION",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/PROJECT-ADAPTATION",
       "applies_to": {},
       "strength": "on-demand",
       "topics": ["development-process", "documentation"],
       "scope": "project",
       "presentation": {
-        "name": "Project adaptation",
+        "name": "Adapt installed skills to this repository",
         "summary": "Adapts installed toolset skills by adding repository paths, commands, conventions and examples inside each installed SKILL.md.",
         "benefits": [
           "Gives each installed skill the project paths and commands it needs",
@@ -480,14 +520,14 @@
     },
     {
       "id": "PROJECT-DOCUMENTATION",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/PROJECT-DOCUMENTATION",
       "applies_to": {},
       "strength": "on-demand",
       "topics": ["documentation"],
       "scope": "project",
       "presentation": {
-        "name": "Project documentation",
+        "name": "Document decisions and boundaries code can't show",
         "summary": "Documents architecture decisions, component boundaries and constraints a reader cannot infer from the code.",
         "benefits": [
           "Records why a decision was made, not just what the code does",
@@ -499,7 +539,7 @@
     },
     {
       "id": "PYTEST-DATA-PIPELINES",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/PYTEST-DATA-PIPELINES",
       "applies_to": {
         "languages": ["python"]
@@ -508,7 +548,7 @@
       "topics": ["testing"],
       "scope": "project",
       "presentation": {
-        "name": "pytest for data pipelines",
+        "name": "Test pipeline code with pytest, mocking I/O",
         "summary": "Tests data pipeline code with pytest, mocking at the I/O boundary.",
         "benefits": [
           "Draws a clear unit and integration split for pipeline code",
@@ -518,15 +558,15 @@
       }
     },
     {
-      "id": "REFACTORING-SAFETY",
-      "version": "0.1.0",
-      "source_path": "artifacts/REFACTORING-SAFETY",
+      "id": "REFACTOR-STEP-PLANNING",
+      "version": "0.1.1",
+      "source_path": "artifacts/REFACTOR-STEP-PLANNING",
       "applies_to": {},
       "strength": "on-demand",
       "topics": ["refactoring"],
       "scope": "project",
       "presentation": {
-        "name": "Refactoring safety",
+        "name": "Plan a refactor in behaviour-preserving steps",
         "summary": "Plans and sequences a refactor so behaviour is provably unchanged at every step.",
         "benefits": [
           "Establishes a behavioural baseline before the first edit",
@@ -538,14 +578,14 @@
     },
     {
       "id": "REQUIREMENTS-BRAINSTORMING",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/REQUIREMENTS-BRAINSTORMING",
       "applies_to": {},
       "strength": "on-demand",
       "topics": ["development-process"],
       "scope": "project",
       "presentation": {
-        "name": "Requirements brainstorming",
+        "name": "Work out what is needed before writing code",
         "summary": "Works out what is actually needed before any code is written.",
         "benefits": [
           "Surfaces the real goal behind a requested solution",
@@ -556,29 +596,8 @@
       }
     },
     {
-      "id": "SAFE-NL2SQL-GUARDRAILS",
-      "version": "0.1.0",
-      "source_path": "artifacts/SAFE-NL2SQL-GUARDRAILS",
-      "applies_to": {
-        "languages": ["sql"]
-      },
-      "strength": "on-demand",
-      "topics": ["data-quality"],
-      "scope": "project",
-      "presentation": {
-        "name": "Safe NL2SQL guardrails",
-        "summary": "Generates SQL from natural language without letting an unvalidated query reach the database.",
-        "benefits": [
-          "Rejects writes, unlisted tables, and multi-statement SQL with an independent validator instead of a prompt instruction",
-          "Surfaces ambiguous business-term-to-column mappings instead of silently guessing",
-          "Bounds execution with a read-only identity, statement timeout, and result limits",
-          "Returns SQL, assumptions, and a validation trace so a result can be audited, not just trusted"
-        ]
-      }
-    },
-    {
       "id": "SCD2-IMPLEMENTATION",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/SCD2-IMPLEMENTATION",
       "applies_to": {
         "languages": ["sql"]
@@ -587,7 +606,7 @@
       "topics": ["data-modeling"],
       "scope": "project",
       "presentation": {
-        "name": "SCD Type 2 implementation",
+        "name": "Implement SCD Type 2 with correct validity intervals",
         "summary": "Implements Slowly Changing Dimension Type 2 in SQL with correct validity intervals.",
         "benefits": [
           "Builds non-overlapping validity intervals with exactly one current row",
@@ -598,14 +617,14 @@
     },
     {
       "id": "SENSITIVE-DATA-HANDLING",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/SENSITIVE-DATA-HANDLING",
       "applies_to": {},
       "strength": "on-demand",
       "topics": ["security"],
       "scope": "project",
       "presentation": {
-        "name": "Sensitive data handling",
+        "name": "Decide what personal data a model may carry",
         "summary": "Decides what personal data a model may carry, and keeps deletion possible later.",
         "benefits": [
           "Classifies columns by how they identify someone, including the combinations that do",
@@ -616,9 +635,9 @@
       }
     },
     {
-      "id": "SNOWFLAKE-EXPENSIVE-QUERIES",
-      "version": "0.1.0",
-      "source_path": "artifacts/SNOWFLAKE-EXPENSIVE-QUERIES",
+      "id": "SNOWFLAKE-COST-HOTSPOTS",
+      "version": "0.1.1",
+      "source_path": "artifacts/SNOWFLAKE-COST-HOTSPOTS",
       "applies_to": {
         "frameworks": ["snowflake"]
       },
@@ -626,7 +645,7 @@
       "topics": ["performance"],
       "scope": "project",
       "presentation": {
-        "name": "Snowflake cost hunting",
+        "name": "Find Snowflake queries worth optimising",
         "summary": "Finds the Snowflake queries actually worth optimising and reads the metrics that point at a fix.",
         "benefits": [
           "Picks the right history view for the question being asked",
@@ -636,9 +655,9 @@
       }
     },
     {
-      "id": "SNOWFLAKE-GRANTS-AFTER-RECREATE",
-      "version": "0.1.0",
-      "source_path": "artifacts/SNOWFLAKE-GRANTS-AFTER-RECREATE",
+      "id": "SNOWFLAKE-GRANT-RESTORE",
+      "version": "0.1.1",
+      "source_path": "artifacts/SNOWFLAKE-GRANT-RESTORE",
       "applies_to": {
         "frameworks": ["snowflake"]
       },
@@ -646,7 +665,7 @@
       "topics": ["data-quality"],
       "scope": "project",
       "presentation": {
-        "name": "Snowflake grants after recreation",
+        "name": "Restore grants after Snowflake objects are recreated",
         "summary": "Restores access after Snowflake objects are recreated, without guessing at roles.",
         "benefits": [
           "Diffs the grants that should exist against the grants in place and emits the GRANTs to close the gap",
@@ -657,9 +676,9 @@
       }
     },
     {
-      "id": "SNOWFLAKE-QUERY-BY-ID",
-      "version": "0.1.0",
-      "source_path": "artifacts/SNOWFLAKE-QUERY-BY-ID",
+      "id": "SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS",
+      "version": "0.1.1",
+      "source_path": "artifacts/SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS",
       "applies_to": {
         "frameworks": ["snowflake"]
       },
@@ -667,7 +686,7 @@
       "topics": ["performance", "debugging"],
       "scope": "project",
       "presentation": {
-        "name": "Snowflake query diagnosis",
+        "name": "Diagnose one Snowflake query from its profile",
         "summary": "Diagnoses one Snowflake query from its profile and operator statistics.",
         "benefits": [
           "Reads pruning and spill statistics to locate the real bottleneck",
@@ -677,9 +696,9 @@
       }
     },
     {
-      "id": "SNOWFLAKE-QUERY-TEXT",
-      "version": "0.1.0",
-      "source_path": "artifacts/SNOWFLAKE-QUERY-TEXT",
+      "id": "SNOWFLAKE-QUERY-REWRITE",
+      "version": "0.1.1",
+      "source_path": "artifacts/SNOWFLAKE-QUERY-REWRITE",
       "applies_to": {
         "frameworks": ["snowflake"]
       },
@@ -687,7 +706,7 @@
       "topics": ["performance", "refactoring"],
       "scope": "project",
       "presentation": {
-        "name": "Snowflake query rewriting",
+        "name": "Rewrite Snowflake SQL without changing results",
         "summary": "Rewrites a Snowflake query for performance without changing its results.",
         "benefits": [
           "Separates transformations that are safe from ones that only look safe",
@@ -698,7 +717,7 @@
     },
     {
       "id": "SNOWFLAKE-SEMANTIC-VIEW-DRIFT",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/SNOWFLAKE-SEMANTIC-VIEW-DRIFT",
       "applies_to": {
         "frameworks": ["snowflake"]
@@ -707,7 +726,7 @@
       "topics": ["data-modeling", "data-quality"],
       "scope": "project",
       "presentation": {
-        "name": "Snowflake semantic view drift",
+        "name": "Repair Snowflake semantic view drift",
         "summary": "Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions.",
         "benefits": [
           "Classifies drift as added, dropped, renamed or retyped columns, since each needs a different fix",
@@ -718,15 +737,15 @@
       }
     },
     {
-      "id": "TECHNICAL-WRITING",
-      "version": "0.1.0",
-      "source_path": "artifacts/TECHNICAL-WRITING",
+      "id": "TECHNICAL-PROSE-EDITING",
+      "version": "0.1.1",
+      "source_path": "artifacts/TECHNICAL-PROSE-EDITING",
       "applies_to": {},
       "strength": "on-demand",
       "topics": ["writing"],
       "scope": "user",
       "presentation": {
-        "name": "Technical writing",
+        "name": "Edit technical prose without changing meaning",
         "summary": "Improves technical prose without changing its meaning or terminology.",
         "benefits": [
           "Removes padding and boilerplate that add length but no information",
@@ -738,39 +757,20 @@
     },
     {
       "id": "TEST-DESIGN-REVIEW",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/TEST-DESIGN-REVIEW",
       "applies_to": {},
       "strength": "on-demand",
       "topics": ["testing"],
       "scope": "project",
       "presentation": {
-        "name": "Test design and review",
+        "name": "Decide what to test and whether tests catch defects",
         "summary": "Decides what is worth testing and judges whether existing tests would catch a defect.",
         "benefits": [
           "Derives cases from behaviour and boundaries rather than from code shape",
           "Identifies tests that pass regardless of whether the code is correct",
           "Covers failure paths, not only the successful one",
           "Distinguishes untested code from code that cannot be tested as written"
-        ]
-      }
-    },
-    {
-      "id": "WORK-VERIFICATION",
-      "version": "0.1.0",
-      "source_path": "artifacts/WORK-VERIFICATION",
-      "applies_to": {},
-      "strength": "on-demand",
-      "topics": ["development-process"],
-      "scope": "project",
-      "presentation": {
-        "name": "Work verification",
-        "summary": "Checks that work actually does what was asked before it is reported as finished.",
-        "benefits": [
-          "Requires observed command output before any claim that something passes",
-          "Separates passed, failed, skipped and never-run instead of merging them",
-          "Checks the original request was met, not only that the code runs",
-          "Reports what was not verified rather than leaving it implied"
         ]
       }
     }

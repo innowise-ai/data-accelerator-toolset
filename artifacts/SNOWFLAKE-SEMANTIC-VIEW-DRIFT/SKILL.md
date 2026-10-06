@@ -1,6 +1,6 @@
 ---
 name: snowflake-semantic-view-drift
-description: Detecting and repairing drift between a Snowflake semantic view and the tables beneath it - classifying added, dropped, renamed and retyped columns, and regenerating the view without losing hand-written descriptions.
+description: Detecting and repairing drift between a Snowflake semantic view and the tables beneath it - classifying added, dropped, renamed and retyped columns, and regenerating the view without losing hand-written descriptions. Use when tables under a semantic view have changed or the view starts returning errors.
 ---
 
 # Semantic view drift
@@ -201,7 +201,7 @@ across; regenerating it is how they get lost.
 - **Keep `COPY GRANTS`** on the `CREATE OR REPLACE`. Without it, every explicit grant
   on the view is lost. Even with it, ownership moves to the role that runs the
   statement. See
-  [snowflake-grants-after-recreate](../SNOWFLAKE-GRANTS-AFTER-RECREATE/SKILL.md).
+  [snowflake-grant-restore](../SNOWFLAKE-GRANT-RESTORE/SKILL.md).
 
 Never write a description yourself. A plausible invented description is worse than
 a missing one: a missing description is visibly incomplete, while an invented one

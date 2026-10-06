@@ -1,0 +1,20 @@
+{
+  "id": "DBT-BUILD-FAILURE-DIAGNOSIS",
+  "version": "0.1.1",
+  "source_path": "artifacts/DBT-BUILD-FAILURE-DIAGNOSIS",
+  "applies_to": {
+    "frameworks": ["dbt"]
+  },
+  "strength": "on-demand",
+  "topics": ["debugging"],
+  "scope": "project",
+  "presentation": {
+    "name": "Diagnose a failing dbt build from compiled SQL",
+    "summary": "Diagnoses a failing dbt build from the compiled SQL rather than the error text.",
+    "benefits": [
+      "Reads the compiled SQL, where the real error usually is",
+      "Checks upstream models before blaming the failing one",
+      "Says when to stop patching symptoms and fix the source"
+    ]
+  }
+}

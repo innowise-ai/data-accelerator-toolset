@@ -1,6 +1,6 @@
 ---
 name: requirements-brainstorming
-description: Working out what is actually needed before any code is written - finding the goal behind the request, separating requirements from assumptions, and knowing when enough is known to start.
+description: Working out what is actually needed before any code is written - finding the goal behind the request, separating requirements from assumptions, and knowing when enough is known to start. Use when a request is new or vague and nothing has been built yet.
 ---
 
 # Working out what is needed

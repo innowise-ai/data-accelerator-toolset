@@ -1,0 +1,19 @@
+{
+  "id": "REFACTOR-STEP-PLANNING",
+  "version": "0.1.1",
+  "source_path": "artifacts/REFACTOR-STEP-PLANNING",
+  "applies_to": {},
+  "strength": "on-demand",
+  "topics": ["refactoring"],
+  "scope": "project",
+  "presentation": {
+    "name": "Plan a refactor in behaviour-preserving steps",
+    "summary": "Plans and sequences a refactor so behaviour is provably unchanged at every step.",
+    "benefits": [
+      "Establishes a behavioural baseline before the first edit",
+      "Separates internal restructuring from interface changes that break callers",
+      "Sequences the work so each step can be verified and reverted alone",
+      "Says when a refactor should stop rather than expand"
+    ]
+  }
+}

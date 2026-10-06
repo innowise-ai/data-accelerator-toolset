@@ -1130,4 +1130,94 @@ Describe 'validate-catalog.ps1' {
             $result.PathCount | Should -Be $tracked.Count
         }
     }
+
+    Context 'artifact naming' {
+        # The id, the directory and the SKILL.md name are one name. The catalog
+        # rename for v1.0.0 changed all three by hand; these rules are what keep
+        # the next rename from leaving one of them behind.
+
+        BeforeAll {
+            function New-NamedArtifact {
+                param([string] $Id, [string] $SourcePath = "artifacts/$Id")
+                @{
+                    id = $Id; version = '1.0.0'; source_path = $SourcePath
+                    applies_to = @{}; strength = 'always'; topics = @()
+                }
+            }
+
+            function New-SkillTree {
+                # A checkout holding one SKILL.md with the given text, for the
+                # -CatalogRoot runs below.
+                param([string] $Name, [string] $Id, [string] $SkillText)
+                $root = Join-Path $TestDrive $Name
+                $skillPath = Join-Path $root "artifacts/$Id/SKILL.md"
+                [void](New-Item -ItemType Directory -Path (Split-Path -Parent $skillPath) -Force)
+                Set-Content -LiteralPath $skillPath -Value $SkillText -Encoding utf8NoBOM
+                return $root
+            }
+        }
+
+        It 'rejects a source_path whose directory is not named for the id' {
+            $indexPath = New-TestIndex -Name 'dirname' -Artifacts @(
+                (New-NamedArtifact -Id 'AS-0001' -SourcePath 'artifacts/AS-OLD-NAME')
+            )
+
+            $result = & $validator -IndexPath $indexPath
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match "source_path must be 'artifacts/AS-0001'"
+        }
+
+        It 'rejects a directory that matches the id only case-insensitively' {
+            # Fine on Windows, a different directory on Linux CI and for every
+            # consumer cloning there.
+            $indexPath = New-TestIndex -Name 'dircase' -Artifacts @(
+                (New-NamedArtifact -Id 'AS-0001' -SourcePath 'artifacts/as-0001')
+            )
+
+            $result = & $validator -IndexPath $indexPath
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match "source_path must be 'artifacts/AS-0001'"
+        }
+
+        It 'exempts the AS-SPIKE transport fixtures from the directory rule' {
+            $indexPath = New-TestIndex -Name 'dirspike' -Artifacts @(
+                @{ id = 'AS-SPIKE-001'; version = '1.0.0'; source_path = 'artifacts/spike-one'; fixture = $true }
+            )
+
+            $result = & $validator -IndexPath $indexPath
+
+            $result.Errors | Should -Be @()
+        }
+
+        It 'accepts a SKILL.md whose name is the id in lower case' {
+            $indexPath = New-TestIndex -Name 'skillname-ok' -Artifacts @((New-NamedArtifact -Id 'AS-0001'))
+            $root = New-SkillTree -Name 'skillname-ok' -Id 'AS-0001' -SkillText "---`nname: as-0001`ndescription: x`n---`n"
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            $result.Errors | Should -Be @()
+        }
+
+        It 'rejects a SKILL.md name left over from an old id' {
+            $indexPath = New-TestIndex -Name 'skillname-stale' -Artifacts @((New-NamedArtifact -Id 'AS-0001'))
+            $root = New-SkillTree -Name 'skillname-stale' -Id 'AS-0001' -SkillText "---`nname: as-old-name`ndescription: x`n---`n"
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match "SKILL.md name 'as-old-name'.*'as-0001'"
+        }
+
+        It 'rejects a SKILL.md with no name in its frontmatter' {
+            $indexPath = New-TestIndex -Name 'skillname-missing' -Artifacts @((New-NamedArtifact -Id 'AS-0001'))
+            $root = New-SkillTree -Name 'skillname-missing' -Id 'AS-0001' -SkillText "---`ndescription: x`n---`nname: as-0001`n"
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match "no 'name' in its frontmatter"
+        }
+    }
 }

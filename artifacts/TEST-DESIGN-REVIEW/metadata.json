@@ -1,13 +1,13 @@
 {
   "id": "TEST-DESIGN-REVIEW",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/TEST-DESIGN-REVIEW",
   "applies_to": {},
   "strength": "on-demand",
   "topics": ["testing"],
   "scope": "project",
   "presentation": {
-    "name": "Test design and review",
+    "name": "Decide what to test and whether tests catch defects",
     "summary": "Decides what is worth testing and judges whether existing tests would catch a defect.",
     "benefits": [
       "Derives cases from behaviour and boundaries rather than from code shape",

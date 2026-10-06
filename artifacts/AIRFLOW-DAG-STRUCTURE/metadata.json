@@ -1,0 +1,20 @@
+{
+  "id": "AIRFLOW-DAG-STRUCTURE",
+  "version": "0.1.1",
+  "source_path": "artifacts/AIRFLOW-DAG-STRUCTURE",
+  "applies_to": {
+    "frameworks": ["airflow"]
+  },
+  "strength": "on-demand",
+  "topics": ["orchestration"],
+  "scope": "project",
+  "presentation": {
+    "name": "Structure Airflow DAGs for safe, cheap imports",
+    "summary": "Structures Airflow DAGs so nothing expensive or fragile runs at import time.",
+    "benefits": [
+      "Keeps connections and queries out of module scope, where the scheduler re-runs them",
+      "Applies consistent default_args, retries and scheduling across DAGs",
+      "Flags import-time work that makes the scheduler slow or unstable"
+    ]
+  }
+}

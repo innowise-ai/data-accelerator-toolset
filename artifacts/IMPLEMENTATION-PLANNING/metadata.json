@@ -1,13 +1,13 @@
 {
   "id": "IMPLEMENTATION-PLANNING",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/IMPLEMENTATION-PLANNING",
   "applies_to": {},
   "strength": "on-demand",
   "topics": ["development-process"],
   "scope": "project",
   "presentation": {
-    "name": "Implementation planning",
+    "name": "Turn agreed requirements into a step-by-step plan",
     "summary": "Turns agreed requirements into an ordered plan with verifiable steps.",
     "benefits": [
       "Breaks work into steps that can each be checked independently",

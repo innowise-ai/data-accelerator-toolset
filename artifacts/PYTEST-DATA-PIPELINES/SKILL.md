@@ -1,6 +1,6 @@
 ---
 name: pytest-data-pipelines
-description: Testing data pipelines with pytest - unit/integration split, mocking at the I/O boundary, and DAG import tests.
+description: Testing data pipelines with pytest - unit/integration split, mocking at the I/O boundary, and DAG import tests. Use when writing or fixing tests for Python pipeline code.
 ---
 
 # Testing data pipelines

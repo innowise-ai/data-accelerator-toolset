@@ -1,0 +1,21 @@
+{
+  "id": "DOCKER-DATA-LOSS-CONFIRMATION",
+  "version": "0.1.1",
+  "source_path": "artifacts/DOCKER-DATA-LOSS-CONFIRMATION",
+  "applies_to": {
+    "frameworks": ["docker"]
+  },
+  "strength": "always",
+  "topics": [],
+  "scope": "project",
+  "presentation": {
+    "name": "Confirm data loss before Docker cleanup commands run",
+    "summary": "Stops Docker cleanup commands from deleting data until the loss has been stated and confirmed.",
+    "benefits": [
+      "Names exactly what a prune, force-remove or volume delete would take before running it",
+      "Offers a narrower command when the real problem is disk space or a stuck container",
+      "Tells the user which volumes a command does and does not touch",
+      "Lets a single stopped test container be removed without needless confirmation"
+    ]
+  }
+}

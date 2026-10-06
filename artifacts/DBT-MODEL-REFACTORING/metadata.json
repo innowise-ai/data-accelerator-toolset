@@ -1,6 +1,6 @@
 {
   "id": "DBT-MODEL-REFACTORING",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/DBT-MODEL-REFACTORING",
   "applies_to": {
     "frameworks": ["dbt"]
@@ -9,7 +9,7 @@
   "topics": ["refactoring"],
   "scope": "project",
   "presentation": {
-    "name": "dbt model refactoring",
+    "name": "Refactor a dbt model and prove output is unchanged",
     "summary": "Restructures a dbt model while proving its output did not change.",
     "benefits": [
       "Finds the full downstream blast radius from the dbt graph, not grep",

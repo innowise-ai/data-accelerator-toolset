@@ -1,6 +1,6 @@
 ---
 name: plan-execution
-description: Working through an agreed plan - one verified step at a time, deciding when to adapt versus stop and ask, resisting unrequested scope, and keeping the plan honest about actual state.
+description: Working through an agreed plan - one verified step at a time, deciding when to adapt versus stop and ask, resisting unrequested scope, and keeping the plan honest about actual state. Use when carrying out a plan that has already been agreed.
 ---
 
 # Executing a plan
@@ -117,7 +117,7 @@ when every step is done and the original request is met — those are different
 claims, and the second is the one that matters to the requester.
 
 Never report completion from expectation. Run the command, read the output, then
-report. See [work-verification](../WORK-VERIFICATION/SKILL.md) for what an honest
+report. See [completion-verification](../COMPLETION-VERIFICATION/SKILL.md) for what an honest
 completion claim requires.
 
 If part of the work could not be finished, say which part and why, plainly, rather

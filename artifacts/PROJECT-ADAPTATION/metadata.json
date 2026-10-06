@@ -1,13 +1,13 @@
 {
   "id": "PROJECT-ADAPTATION",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/PROJECT-ADAPTATION",
   "applies_to": {},
   "strength": "on-demand",
   "topics": ["development-process", "documentation"],
   "scope": "project",
   "presentation": {
-    "name": "Project adaptation",
+    "name": "Adapt installed skills to this repository",
     "summary": "Adapts installed toolset skills by adding repository paths, commands, conventions and examples inside each installed SKILL.md.",
     "benefits": [
       "Gives each installed skill the project paths and commands it needs",

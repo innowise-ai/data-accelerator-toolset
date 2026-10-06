@@ -1,6 +1,6 @@
 ---
 name: error-diagnosis
-description: Finding the cause of a failure systematically - reproducing it, narrowing the search space, testing falsifiable hypotheses, and proving the cause before changing any code.
+description: Finding the cause of a failure systematically - reproducing it, narrowing the search space, testing falsifiable hypotheses, and proving the cause before changing any code. Use when code, a test or a build fails and the cause is not yet known.
 ---
 
 # Diagnosing a failure
@@ -14,9 +14,9 @@ Diagnosis ends when you can explain every symptom. Not when the error stops
 appearing.
 
 For a dbt build that failed, see
-[dbt-error-debugging](../DBT-ERROR-DEBUGGING/SKILL.md). For wrong data produced by a
+[dbt-build-failure-diagnosis](../DBT-BUILD-FAILURE-DIAGNOSIS/SKILL.md). For wrong data produced by a
 pipeline that reported success, see
-[data-incident-debugging](../DATA-INCIDENT-DEBUGGING/SKILL.md). This covers the
+[data-incident-tracing](../DATA-INCIDENT-TRACING/SKILL.md). This covers the
 general case.
 
 ## Establish the facts before theorising
