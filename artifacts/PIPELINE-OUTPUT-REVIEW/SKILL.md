@@ -1,6 +1,6 @@
 ---
 name: pipeline-output-review
-description: Reviewing what a pipeline run actually produced - row accounting, contracts, drift against a baseline, and why a green test suite does not settle the question.
+description: Reviewing what a pipeline run actually produced - row accounting, contracts, drift against a baseline, and why a green test suite does not settle the question. Use after a pipeline run, backfill or change, before trusting its output.
 ---
 
 # Reviewing pipeline output

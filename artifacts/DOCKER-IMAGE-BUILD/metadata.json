@@ -1,0 +1,21 @@
+{
+  "id": "DOCKER-IMAGE-BUILD",
+  "version": "0.1.1",
+  "source_path": "artifacts/DOCKER-IMAGE-BUILD",
+  "applies_to": {
+    "frameworks": ["docker"]
+  },
+  "strength": "on-demand",
+  "topics": ["containerization"],
+  "scope": "project",
+  "presentation": {
+    "name": "Build Python data images that cache well and keep secrets out",
+    "summary": "Builds Python data images that keep credentials out of layers, cache well and run as non-root.",
+    "benefits": [
+      "Supplies pip, dbt and Git credentials through build secrets so they never land in an image layer",
+      "Orders the Dockerfile so dependency installs are cached across code changes",
+      "Separates build tools from the runtime image and runs the process as a non-root user",
+      "Checks image metadata and all layer contents for credentials, including deleted files"
+    ]
+  }
+}

@@ -8,7 +8,7 @@ the index — it is a rendering of `index.json`, not a second source of truth.
 38 artifacts today: 23 data-engineering specific (dbt, Snowflake, Airflow,
 Python pipeline code, sensitive data handling, stack-agnostic pipeline quality),
 4 for containers and local environments, and 11 general skills that apply to any
-stack. All are `on-demand` except `DOCKER-DESTRUCTIVE-GUARDRAILS`, which is
+stack. All are `on-demand` except `DOCKER-DATA-LOSS-CONFIRMATION`, which is
 `always`: it installs into every project that uses Docker, because losing a data
 volume is not something a team should have to remember to ask protection against.
 An `on-demand` artifact is used when the task calls for it, rather than always
@@ -25,54 +25,54 @@ one project gets.
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
-| **Airflow DAG conventions** (`AIRFLOW-DAG-CONVENTIONS`) | airflow | orchestration | Structures Airflow DAGs so nothing expensive or fragile runs at import time. |
-| **dbt column lineage** (`DBT-COLUMN-LINEAGE`) | dbt | data-modeling | Traces where a dbt model's column came from and what depends on it, without reading SQL by hand across the model chain. Requires dbt Cloud + MCP server. |
-| **dbt error debugging** (`DBT-ERROR-DEBUGGING`) | dbt | debugging | Diagnoses a failing dbt build from the compiled SQL rather than the error text. |
-| **dbt incremental models** (`DBT-INCREMENTAL-MODELS`) | dbt | data-modeling, performance | Chooses an incremental strategy and unique key that survive late data and schema drift. |
-| **dbt model creation** (`DBT-MODEL-CREATION`) | dbt | data-modeling | Runs the build-and-verify loop for a new dbt model instead of stopping at compile. |
-| **dbt model documentation** (`DBT-MODEL-DOCUMENTATION`) | dbt | documentation | Writes model and column descriptions that state what the SQL cannot. |
-| **dbt model refactoring** (`DBT-MODEL-REFACTORING`) | dbt | refactoring | Restructures a dbt model while proving its output did not change. |
-| **dbt model testing** (`DBT-MODEL-TESTING`) | dbt | testing, data-quality | Picks dbt schema tests that catch real defects for each column role. |
-| **dbt project conventions** (`DBT-PROJECT-CONVENTIONS`) | dbt | data-modeling, data-quality | Establishes what belongs in each dbt layer and why the boundaries hold. |
-| **Legacy SQL to dbt** (`DBT-SQL-MIGRATION`) | dbt | refactoring, data-modeling | Ports legacy SQL into dbt layer by layer and reconciles against the original. |
-| **Data incident investigation** (`DATA-INCIDENT-DEBUGGING`) | any | debugging, data-quality | Traces wrong data back to the code that produced it when the pipeline reported success. |
-| **ETL decomposition** (`ETL-DECOMPOSITION`) | python | refactoring, orchestration | Splits a monolithic extract-transform-load function into testable units with I/O at the edges. |
-| **Pipeline output review** (`PIPELINE-OUTPUT-REVIEW`) | any | code-review, data-quality | Reviews the data a pipeline run actually produced, not just whether tests passed. |
-| **Pipeline regression gates** (`PIPELINE-REGRESSION-GATES`) | any | testing, data-quality | Selects the cheapest checks that would actually catch the regression a change can cause. |
-| **pytest for data pipelines** (`PYTEST-DATA-PIPELINES`) | python | testing | Tests data pipeline code with pytest, mocking at the I/O boundary. |
-| **Safe NL2SQL guardrails** (`SAFE-NL2SQL-GUARDRAILS`) | sql | data-quality | Generates SQL from natural language without letting an unvalidated query reach the database. |
-| **Sensitive data handling** (`SENSITIVE-DATA-HANDLING`) | any | security | Decides what personal data a model may carry, and keeps deletion possible later. |
-| **SCD Type 2 implementation** (`SCD2-IMPLEMENTATION`) | sql | data-modeling | Implements Slowly Changing Dimension Type 2 in SQL with correct validity intervals. |
-| **Snowflake cost hunting** (`SNOWFLAKE-EXPENSIVE-QUERIES`) | snowflake | performance | Finds the Snowflake queries actually worth optimising and reads the metrics that point at a fix. |
-| **Snowflake grants after recreation** (`SNOWFLAKE-GRANTS-AFTER-RECREATE`) | snowflake | data-quality | Restores access after Snowflake objects are recreated, without guessing at roles. |
-| **Snowflake query diagnosis** (`SNOWFLAKE-QUERY-BY-ID`) | snowflake | performance, debugging | Diagnoses one Snowflake query from its profile and operator statistics. |
-| **Snowflake query rewriting** (`SNOWFLAKE-QUERY-TEXT`) | snowflake | performance, refactoring | Rewrites a Snowflake query for performance without changing its results. |
-| **Snowflake semantic view drift** (`SNOWFLAKE-SEMANTIC-VIEW-DRIFT`) | snowflake | data-modeling, data-quality | Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions. |
+| **Structure Airflow DAGs for safe, cheap imports** (`AIRFLOW-DAG-STRUCTURE`) | airflow | orchestration | Structures Airflow DAGs so nothing expensive or fragile runs at import time. |
+| **Trace wrong data when the pipeline succeeded** (`DATA-INCIDENT-TRACING`) | any | debugging, data-quality | Traces wrong data back to the code that produced it when the pipeline reported success. |
+| **Diagnose a failing dbt build from compiled SQL** (`DBT-BUILD-FAILURE-DIAGNOSIS`) | dbt | debugging | Diagnoses a failing dbt build from the compiled SQL rather than the error text. |
+| **Trace a dbt column upstream and downstream** (`DBT-COLUMN-LINEAGE`) | dbt | data-modeling | Traces where a dbt model's column came from and what depends on it, without reading SQL by hand across the model chain. Requires dbt Cloud + MCP server. |
+| **Choose a dbt incremental strategy and unique key** (`DBT-INCREMENTAL-STRATEGY`) | dbt | data-modeling, performance | Chooses an incremental strategy and unique key that survive late data and schema drift. |
+| **Define what belongs in each dbt layer** (`DBT-LAYER-BOUNDARIES`) | dbt | data-modeling, data-quality | Establishes what belongs in each dbt layer and why the boundaries hold. |
+| **Port legacy SQL into dbt and reconcile it** (`DBT-LEGACY-SQL-MIGRATION`) | dbt | refactoring, data-modeling | Ports legacy SQL into dbt layer by layer and reconciles against the original. |
+| **Build and verify a new dbt model** (`DBT-MODEL-BUILD-VERIFY`) | dbt | data-modeling | Runs the build-and-verify loop for a new dbt model instead of stopping at compile. |
+| **Write dbt model and column descriptions** (`DBT-MODEL-DESCRIPTIONS`) | dbt | documentation | Writes model and column descriptions that state what the SQL cannot. |
+| **Refactor a dbt model and prove output is unchanged** (`DBT-MODEL-REFACTORING`) | dbt | refactoring | Restructures a dbt model while proving its output did not change. |
+| **Pick dbt schema tests for each column role** (`DBT-MODEL-TESTING`) | dbt | testing, data-quality | Picks dbt schema tests that catch real defects for each column role. |
+| **Split a monolithic ETL function into testable units** (`ETL-DECOMPOSITION`) | python | refactoring, orchestration | Splits a monolithic extract-transform-load function into testable units with I/O at the edges. |
+| **Generate SQL from natural language, validated before it runs** (`NL2SQL-QUERY-VALIDATION`) | sql | data-quality | Generates SQL from natural language without letting an unvalidated query reach the database. |
+| **Pick the cheapest checks a pipeline change needs** (`PIPELINE-CHECK-SELECTION`) | any | testing, data-quality | Selects the cheapest checks that would actually catch the regression a change can cause. |
+| **Review the data a pipeline run actually produced** (`PIPELINE-OUTPUT-REVIEW`) | any | code-review, data-quality | Reviews the data a pipeline run actually produced, not just whether tests passed. |
+| **Test pipeline code with pytest, mocking I/O** (`PYTEST-DATA-PIPELINES`) | python | testing | Tests data pipeline code with pytest, mocking at the I/O boundary. |
+| **Implement SCD Type 2 with correct validity intervals** (`SCD2-IMPLEMENTATION`) | sql | data-modeling | Implements Slowly Changing Dimension Type 2 in SQL with correct validity intervals. |
+| **Decide what personal data a model may carry** (`SENSITIVE-DATA-HANDLING`) | any | security | Decides what personal data a model may carry, and keeps deletion possible later. |
+| **Find Snowflake queries worth optimising** (`SNOWFLAKE-COST-HOTSPOTS`) | snowflake | performance | Finds the Snowflake queries actually worth optimising and reads the metrics that point at a fix. |
+| **Restore grants after Snowflake objects are recreated** (`SNOWFLAKE-GRANT-RESTORE`) | snowflake | data-quality | Restores access after Snowflake objects are recreated, without guessing at roles. |
+| **Diagnose one Snowflake query from its profile** (`SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS`) | snowflake | performance, debugging | Diagnoses one Snowflake query from its profile and operator statistics. |
+| **Rewrite Snowflake SQL without changing results** (`SNOWFLAKE-QUERY-REWRITE`) | snowflake | performance, refactoring | Rewrites a Snowflake query for performance without changing its results. |
+| **Repair Snowflake semantic view drift** (`SNOWFLAKE-SEMANTIC-VIEW-DRIFT`) | snowflake | data-modeling, data-quality | Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions. |
 
 ## Containers and local environment (4)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
-| **Docker build strategies** (`DOCKER-BUILD-STRATEGIES`) | docker | containerization | Builds Python data images that keep credentials out of layers, cache well and run as non-root. |
-| **Docker Compose patterns** (`DOCKER-COMPOSE-PATTERNS`) | docker | containerization | Wires local data stacks in Compose so services wait for a database to be ready, not merely started. |
-| **Docker destructive-command guardrails** (`DOCKER-DESTRUCTIVE-GUARDRAILS`) | docker | — (`always`) | Stops Docker cleanup commands from deleting data until the loss has been stated and confirmed. |
-| **Docker project foundations** (`DOCKER-PROJECT-FOUNDATIONS`) | python | containerization | Adds a first working Docker setup to a Python data project, with its dependencies as Compose services. |
+| **Wire a local data stack in Compose with real readiness checks** (`DOCKER-COMPOSE-LOCAL-STACK`) | docker | containerization | Wires local data stacks in Compose so services wait for a database to be ready, not merely started. |
+| **Confirm data loss before Docker cleanup commands run** (`DOCKER-DATA-LOSS-CONFIRMATION`) | docker | — (`always`) | Stops Docker cleanup commands from deleting data until the loss has been stated and confirmed. |
+| **Build Python data images that cache well and keep secrets out** (`DOCKER-IMAGE-BUILD`) | docker | containerization | Builds Python data images that keep credentials out of layers, cache well and run as non-root. |
+| **Add a first Docker setup to a Python data project** (`DOCKER-PROJECT-SETUP`) | python | containerization | Adds a first working Docker setup to a Python data project, with its dependencies as Compose services. |
 
 ## General skills (11)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
-| **Change review** (`CHANGE-REVIEW`) | any | code-review | Reviews a code change for correctness, risk, test coverage and backward compatibility. |
-| **Error diagnosis** (`ERROR-DIAGNOSIS`) | any | debugging | Finds the cause of a failure by narrowing it down and proving it before changing code. |
-| **Implementation planning** (`IMPLEMENTATION-PLANNING`) | any | development-process | Turns agreed requirements into an ordered plan with verifiable steps. |
-| **Plan execution** (`PLAN-EXECUTION`) | any | development-process | Works through an agreed plan one step at a time and handles it when reality diverges. |
-| **Project adaptation** (`PROJECT-ADAPTATION`) | any | development-process, documentation | Adapts installed toolset skills by adding repository paths, commands, conventions and examples inside each installed SKILL.md. |
-| **Project documentation** (`PROJECT-DOCUMENTATION`) | any | documentation | Documents architecture decisions, component boundaries and constraints a reader cannot infer from the code. |
-| **Refactoring safety** (`REFACTORING-SAFETY`) | any | refactoring | Plans and sequences a refactor so behaviour is provably unchanged at every step. |
-| **Requirements brainstorming** (`REQUIREMENTS-BRAINSTORMING`) | any | development-process | Works out what is actually needed before any code is written. |
-| **Technical writing** (`TECHNICAL-WRITING`) | any | writing | Improves technical prose without changing its meaning or terminology. Scope: `user` (personal preference, not project-selected). |
-| **Test design and review** (`TEST-DESIGN-REVIEW`) | any | testing | Decides what is worth testing and judges whether existing tests would catch a defect. |
-| **Work verification** (`WORK-VERIFICATION`) | any | development-process | Checks that work actually does what was asked before it is reported as finished. |
+| **Review a code change for correctness and risk** (`CODE-CHANGE-REVIEW`) | any | code-review | Reviews a code change for correctness, risk, test coverage and backward compatibility. |
+| **Check work does what was asked before reporting done** (`COMPLETION-VERIFICATION`) | any | development-process | Checks that work actually does what was asked before it is reported as finished. |
+| **Prove the cause of a code failure before fixing it** (`ERROR-DIAGNOSIS`) | any | debugging | Finds the cause of a failure by narrowing it down and proving it before changing code. |
+| **Turn agreed requirements into a step-by-step plan** (`IMPLEMENTATION-PLANNING`) | any | development-process | Turns agreed requirements into an ordered plan with verifiable steps. |
+| **Execute a plan step by step and handle divergence** (`PLAN-EXECUTION`) | any | development-process | Works through an agreed plan one step at a time and handles it when reality diverges. |
+| **Adapt installed skills to this repository** (`PROJECT-ADAPTATION`) | any | development-process, documentation | Adapts installed toolset skills by adding repository paths, commands, conventions and examples inside each installed SKILL.md. |
+| **Document decisions and boundaries code can't show** (`PROJECT-DOCUMENTATION`) | any | documentation | Documents architecture decisions, component boundaries and constraints a reader cannot infer from the code. |
+| **Plan a refactor in behaviour-preserving steps** (`REFACTOR-STEP-PLANNING`) | any | refactoring | Plans and sequences a refactor so behaviour is provably unchanged at every step. |
+| **Work out what is needed before writing code** (`REQUIREMENTS-BRAINSTORMING`) | any | development-process | Works out what is actually needed before any code is written. |
+| **Edit technical prose without changing meaning** (`TECHNICAL-PROSE-EDITING`) | any | writing | Improves technical prose without changing its meaning or terminology. Scope: `user` (personal preference, not project-selected). |
+| **Decide what to test and whether tests catch defects** (`TEST-DESIGN-REVIEW`) | any | testing | Decides what is worth testing and judges whether existing tests would catch a defect. |
 
 ## How a project gets a subset of these
 

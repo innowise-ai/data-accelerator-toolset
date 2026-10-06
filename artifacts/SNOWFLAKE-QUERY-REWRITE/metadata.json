@@ -1,0 +1,20 @@
+{
+  "id": "SNOWFLAKE-QUERY-REWRITE",
+  "version": "0.1.1",
+  "source_path": "artifacts/SNOWFLAKE-QUERY-REWRITE",
+  "applies_to": {
+    "frameworks": ["snowflake"]
+  },
+  "strength": "on-demand",
+  "topics": ["performance", "refactoring"],
+  "scope": "project",
+  "presentation": {
+    "name": "Rewrite Snowflake SQL without changing results",
+    "summary": "Rewrites a Snowflake query for performance without changing its results.",
+    "benefits": [
+      "Separates transformations that are safe from ones that only look safe",
+      "Explains why each rewrite preserves the result set",
+      "Keeps null and duplicate semantics intact through the rewrite"
+    ]
+  }
+}

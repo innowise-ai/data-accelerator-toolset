@@ -1,6 +1,6 @@
 ---
 name: dbt-column-lineage
-description: Tracing a column's origin and transformations through dbt models via the dbt Cloud Discovery API - upstream sources, downstream dependents, and what changed at each hop. Requires Desktop Commander to run Python scripts locally.
+description: Tracing a column's origin and transformations through dbt models via the dbt Cloud Discovery API - upstream sources, downstream dependents, and what changed at each hop. Requires Desktop Commander to run Python scripts locally. Use when asked where a dbt column comes from or what breaks if it changes.
 ---
 
 # dbt column lineage

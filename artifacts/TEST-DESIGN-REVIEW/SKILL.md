@@ -1,6 +1,6 @@
 ---
 name: test-design-review
-description: Deciding what is worth testing and judging whether existing tests would catch a defect - deriving cases from behaviour, covering failure paths, and spotting tests that pass regardless of correctness.
+description: Deciding what is worth testing and judging whether existing tests would catch a defect - deriving cases from behaviour, covering failure paths, and spotting tests that pass regardless of correctness. Use when writing tests for new behaviour or reviewing whether existing tests are adequate.
 ---
 
 # Designing and reviewing tests
@@ -19,7 +19,7 @@ This is framework-independent. For pytest mechanics in pipeline code see
 [pytest-data-pipelines](../PYTEST-DATA-PIPELINES/SKILL.md); for dbt schema tests see
 [dbt-model-testing](../DBT-MODEL-TESTING/SKILL.md); for choosing which *layer* of
 check a pipeline change needs see
-[pipeline-regression-gates](../PIPELINE-REGRESSION-GATES/SKILL.md).
+[pipeline-check-selection](../PIPELINE-CHECK-SELECTION/SKILL.md).
 
 ## Start from behaviour, not from code shape
 
@@ -123,7 +123,7 @@ test. The usual causes:
 The fix is the code, not an elaborate mock. Mocking heavily to test untestable code
 produces a test coupled to the implementation, which then breaks on every refactor
 while still not detecting defects. See
-[refactoring-safety](../REFACTORING-SAFETY/SKILL.md) — though note the ordering
+[refactor-step-planning](../REFACTOR-STEP-PLANNING/SKILL.md) — though note the ordering
 problem: refactoring safely wants tests first. Where both are missing, add a
 coarse characterisation test at the outer boundary, refactor behind it, then write
 the real tests.

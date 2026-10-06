@@ -1,6 +1,6 @@
 {
   "id": "SCD2-IMPLEMENTATION",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/SCD2-IMPLEMENTATION",
   "applies_to": {
     "languages": ["sql"]
@@ -9,7 +9,7 @@
   "topics": ["data-modeling"],
   "scope": "project",
   "presentation": {
-    "name": "SCD Type 2 implementation",
+    "name": "Implement SCD Type 2 with correct validity intervals",
     "summary": "Implements Slowly Changing Dimension Type 2 in SQL with correct validity intervals.",
     "benefits": [
       "Builds non-overlapping validity intervals with exactly one current row",

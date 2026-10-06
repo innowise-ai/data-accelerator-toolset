@@ -1,0 +1,20 @@
+{
+  "id": "DBT-LAYER-BOUNDARIES",
+  "version": "0.1.1",
+  "source_path": "artifacts/DBT-LAYER-BOUNDARIES",
+  "applies_to": {
+    "frameworks": ["dbt"]
+  },
+  "strength": "on-demand",
+  "topics": ["data-modeling", "data-quality"],
+  "scope": "project",
+  "presentation": {
+    "name": "Define what belongs in each dbt layer",
+    "summary": "Establishes what belongs in each dbt layer and why the boundaries hold.",
+    "benefits": [
+      "Places sources, staging, intermediate and mart logic consistently",
+      "Applies contracts and tests at the layer where they are meaningful",
+      "Prevents business logic leaking into the staging layer"
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 ---
 name: scd2-implementation
-description: Implement Slowly Changing Dimension Type 2 in SQL - validity intervals, change detection, and the idempotency traps.
+description: Implement Slowly Changing Dimension Type 2 in SQL - validity intervals, change detection, and the idempotency traps. Use when building or fixing a dimension that must keep the history of changed attributes.
 ---
 
 # SCD2 implementation

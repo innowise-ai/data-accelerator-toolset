@@ -1,6 +1,6 @@
 ---
 name: dbt-model-refactoring
-description: Restructuring a dbt model without changing its output - establishing the downstream blast radius first, and proving the result is unchanged.
+description: Restructuring a dbt model without changing its output - establishing the downstream blast radius first, and proving the result is unchanged. Use when splitting, renaming or restructuring a dbt model whose output must stay the same.
 ---
 
 # Refactoring dbt models

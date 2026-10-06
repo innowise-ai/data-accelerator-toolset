@@ -31,16 +31,16 @@ and its stated rules — is upstream's.
 
 Artifacts derived from this source:
 
-  DBT-MODEL-CREATION          <- skills/dbt/creating-dbt-models
-  DBT-ERROR-DEBUGGING         <- skills/dbt/debugging-dbt-errors
-  DBT-INCREMENTAL-MODELS      <- skills/dbt/developing-incremental-models
-  DBT-MODEL-TESTING           <- skills/dbt/testing-dbt-models
-  DBT-MODEL-REFACTORING       <- skills/dbt/refactoring-dbt-models
-  DBT-SQL-MIGRATION           <- skills/dbt/migrating-sql-to-dbt
-  DBT-MODEL-DOCUMENTATION     <- skills/dbt/documenting-dbt-models
-  SNOWFLAKE-EXPENSIVE-QUERIES <- skills/snowflake/finding-expensive-queries
-  SNOWFLAKE-QUERY-BY-ID       <- skills/snowflake/optimizing-query-by-id
-  SNOWFLAKE-QUERY-TEXT        <- skills/snowflake/optimizing-query-text
+  DBT-MODEL-BUILD-VERIFY            <- skills/dbt/creating-dbt-models
+  DBT-BUILD-FAILURE-DIAGNOSIS       <- skills/dbt/debugging-dbt-errors
+  DBT-INCREMENTAL-STRATEGY          <- skills/dbt/developing-incremental-models
+  DBT-MODEL-TESTING                 <- skills/dbt/testing-dbt-models
+  DBT-MODEL-REFACTORING             <- skills/dbt/refactoring-dbt-models
+  DBT-LEGACY-SQL-MIGRATION          <- skills/dbt/migrating-sql-to-dbt
+  DBT-MODEL-DESCRIPTIONS            <- skills/dbt/documenting-dbt-models
+  SNOWFLAKE-COST-HOTSPOTS           <- skills/snowflake/finding-expensive-queries
+  SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS <- skills/snowflake/optimizing-query-by-id
+  SNOWFLAKE-QUERY-REWRITE           <- skills/snowflake/optimizing-query-text
 
 Upstream licence text, reproduced in full:
 
@@ -95,10 +95,10 @@ Upstream publishes no NOTICE file of its own.
 
 Artifacts derived from this source:
 
-  DOCKER-PROJECT-FOUNDATIONS    <- skills/docker-project-foundations
-  DOCKER-BUILD-STRATEGIES       <- skills/docker-build-strategies
-  DOCKER-COMPOSE-PATTERNS       <- skills/docker-compose-patterns
-  DOCKER-DESTRUCTIVE-GUARDRAILS <- skills/docker-destructive-guardrails
+  DOCKER-PROJECT-SETUP          <- skills/docker-project-foundations
+  DOCKER-IMAGE-BUILD            <- skills/docker-build-strategies
+  DOCKER-COMPOSE-LOCAL-STACK    <- skills/docker-compose-patterns
+  DOCKER-DATA-LOSS-CONFIRMATION <- skills/docker-destructive-guardrails
 
 Upstream licence text, reproduced in full:
 

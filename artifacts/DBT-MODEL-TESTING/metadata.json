@@ -1,6 +1,6 @@
 {
   "id": "DBT-MODEL-TESTING",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/DBT-MODEL-TESTING",
   "applies_to": {
     "frameworks": ["dbt"]
@@ -9,7 +9,7 @@
   "topics": ["testing", "data-quality"],
   "scope": "project",
   "presentation": {
-    "name": "dbt model testing",
+    "name": "Pick dbt schema tests for each column role",
     "summary": "Picks dbt schema tests that catch real defects for each column role.",
     "benefits": [
       "Chooses tests by what the column is, not by habit",

@@ -1,0 +1,20 @@
+{
+  "id": "SNOWFLAKE-COST-HOTSPOTS",
+  "version": "0.1.1",
+  "source_path": "artifacts/SNOWFLAKE-COST-HOTSPOTS",
+  "applies_to": {
+    "frameworks": ["snowflake"]
+  },
+  "strength": "on-demand",
+  "topics": ["performance"],
+  "scope": "project",
+  "presentation": {
+    "name": "Find Snowflake queries worth optimising",
+    "summary": "Finds the Snowflake queries actually worth optimising and reads the metrics that point at a fix.",
+    "benefits": [
+      "Picks the right history view for the question being asked",
+      "Ranks by credits rather than elapsed time when cost is the concern",
+      "Turns query metrics into a specific next action"
+    ]
+  }
+}

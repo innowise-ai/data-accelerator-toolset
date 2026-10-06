@@ -1,0 +1,21 @@
+{
+  "id": "SNOWFLAKE-GRANT-RESTORE",
+  "version": "0.1.1",
+  "source_path": "artifacts/SNOWFLAKE-GRANT-RESTORE",
+  "applies_to": {
+    "frameworks": ["snowflake"]
+  },
+  "strength": "on-demand",
+  "topics": ["data-quality"],
+  "scope": "project",
+  "presentation": {
+    "name": "Restore grants after Snowflake objects are recreated",
+    "summary": "Restores access after Snowflake objects are recreated, without guessing at roles.",
+    "benefits": [
+      "Diffs the grants that should exist against the grants in place and emits the GRANTs to close the gap",
+      "Catches access that was lost because ownership moved, which COPY GRANTS does not carry over",
+      "Reports every grant it could not establish instead of inventing a role for it",
+      "Verifies access under the consumer role itself, with secondary roles off"
+    ]
+  }
+}

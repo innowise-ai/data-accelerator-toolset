@@ -1,6 +1,6 @@
 {
   "id": "DBT-COLUMN-LINEAGE",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/DBT-COLUMN-LINEAGE",
   "applies_to": {
     "frameworks": ["dbt"]
@@ -9,7 +9,7 @@
   "topics": ["data-modeling"],
   "scope": "project",
   "presentation": {
-    "name": "dbt column lineage",
+    "name": "Trace a dbt column upstream and downstream",
     "summary": "Traces where a dbt model's column came from and what depends on it, without reading SQL by hand across the model chain.",
     "benefits": [
       "Answers 'where did this field come from' and 'what breaks if I change it' from the dbt Cloud Discovery API",

@@ -1,0 +1,20 @@
+{
+  "id": "DBT-MODEL-BUILD-VERIFY",
+  "version": "0.1.1",
+  "source_path": "artifacts/DBT-MODEL-BUILD-VERIFY",
+  "applies_to": {
+    "frameworks": ["dbt"]
+  },
+  "strength": "on-demand",
+  "topics": ["data-modeling"],
+  "scope": "project",
+  "presentation": {
+    "name": "Build and verify a new dbt model",
+    "summary": "Runs the build-and-verify loop for a new dbt model instead of stopping at compile.",
+    "benefits": [
+      "Reads the project's existing layering and naming before writing",
+      "Builds and inspects real output rather than only compiling",
+      "Checks grain and row counts before the model is called done"
+    ]
+  }
+}

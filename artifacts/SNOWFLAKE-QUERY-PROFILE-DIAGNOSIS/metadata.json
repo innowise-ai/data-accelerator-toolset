@@ -1,0 +1,20 @@
+{
+  "id": "SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS",
+  "version": "0.1.1",
+  "source_path": "artifacts/SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS",
+  "applies_to": {
+    "frameworks": ["snowflake"]
+  },
+  "strength": "on-demand",
+  "topics": ["performance", "debugging"],
+  "scope": "project",
+  "presentation": {
+    "name": "Diagnose one Snowflake query from its profile",
+    "summary": "Diagnoses one Snowflake query from its profile and operator statistics.",
+    "benefits": [
+      "Reads pruning and spill statistics to locate the real bottleneck",
+      "Separates a query problem from a warehouse sizing problem",
+      "Points at the specific operator responsible for the cost"
+    ]
+  }
+}

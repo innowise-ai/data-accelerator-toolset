@@ -1,13 +1,13 @@
 {
   "id": "SENSITIVE-DATA-HANDLING",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/SENSITIVE-DATA-HANDLING",
   "applies_to": {},
   "strength": "on-demand",
   "topics": ["security"],
   "scope": "project",
   "presentation": {
-    "name": "Sensitive data handling",
+    "name": "Decide what personal data a model may carry",
     "summary": "Decides what personal data a model may carry, and keeps deletion possible later.",
     "benefits": [
       "Classifies columns by how they identify someone, including the combinations that do",

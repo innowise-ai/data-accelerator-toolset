@@ -1,11 +1,11 @@
 ---
 name: dbt-model-testing
-description: Choosing dbt schema tests that catch real defects - what to test per column role, and what to do when a test fails.
+description: Choosing dbt schema tests that catch real defects - what to test per column role, and what to do when a test fails. Use when adding tests to a dbt model or deciding what a failing test means.
 ---
 
 # Testing dbt models
 
-[dbt-project-conventions](../DBT-PROJECT-CONVENTIONS/SKILL.md) covers where test
+[dbt-layer-boundaries](../DBT-LAYER-BOUNDARIES/SKILL.md) covers where test
 YAML lives and how it is wired into the project. This is about which tests are
 worth adding and how to respond when one fails.
 

@@ -1,6 +1,6 @@
 ---
 name: sensitive-data-handling
-description: Handling personal and sensitive data in a warehouse - classifying columns, deciding what to carry, tokenising so joins survive, keeping it out of logs and lower environments, and making deletion actually delete.
+description: Handling personal and sensitive data in a warehouse - classifying columns, deciding what to carry, tokenising so joins survive, keeping it out of logs and lower environments, and making deletion actually delete. Use when a model, pipeline or log touches personal or sensitive data.
 ---
 
 # Sensitive data in a warehouse
@@ -14,10 +14,10 @@ The failures here are unlike the rest of this catalog. A wrong join produces
 wrong numbers and someone eventually notices. A column carried one layer too far
 produces correct numbers and is discovered by an auditor, or by a breach.
 
-Related: [dbt-project-conventions](../DBT-PROJECT-CONVENTIONS/SKILL.md) for where
+Related: [dbt-layer-boundaries](../DBT-LAYER-BOUNDARIES/SKILL.md) for where
 layer boundaries sit, [scd2-implementation](../SCD2-IMPLEMENTATION/SKILL.md) for
 the history mechanics this artifact constrains, and
-[data-incident-debugging](../DATA-INCIDENT-DEBUGGING/SKILL.md) for keeping an
+[data-incident-tracing](../DATA-INCIDENT-TRACING/SKILL.md) for keeping an
 investigation from becoming its own disclosure.
 
 ## Find it before deciding anything
@@ -187,7 +187,7 @@ by someone who was thinking only about cost.
 
 Grant on marts. Do not grant on raw or staging, where the untransformed columns
 still sit. If everyone can read staging, every control applied in the mart layer
-is advisory. The staging example in dbt-project-conventions carries `email` and
+is advisory. The staging example in dbt-layer-boundaries carries `email` and
 `full_name` straight through, which is right for showing the staging rule and
 only safe while staging stays ungranted. Where tokenising in staging is an
 option, take it, and the question of who can read staging mostly goes away.
