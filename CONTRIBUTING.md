@@ -20,7 +20,11 @@ Install-Module Pester -RequiredVersion 5.6.1 -Force -Scope CurrentUser
 $result = ./scripts/validate-catalog.ps1 -IndexPath ./index.json -CatalogRoot .
 if (-not $result.IsValid) { throw "Catalog validation failed." }
 Invoke-Pester -Path ./tests
+python -B -m unittest discover -s tests -p 'test_*.py' -v
 ```
+
+The Terraform plan summary tests use Python 3.8+ and its standard library; they
+need no Terraform installation or cloud credentials.
 
 ## Commit messages
 
@@ -38,8 +42,8 @@ commits.
 - Work on a branch off `main`; never commit directly to `main`.
 - Open a PR for review — don't push straight to `main` unless a maintainer
   explicitly asks for it.
-- The gate above (validation + `Invoke-Pester -Path ./tests`) must pass before
-  merge. CI (`.github/workflows/validate.yml`) runs the same two steps.
+- The gate above (catalog validation, Pester and Python tests) must pass before
+  merge. CI (`.github/workflows/validate.yml`) runs the same checks.
 - For a new or changed artifact, manually verify the profile combinations that
   should select and exclude it — see the
   [checklist](docs/authoring-artifacts.md#checklist) in the authoring guide.

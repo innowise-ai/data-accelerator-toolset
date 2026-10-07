@@ -4,8 +4,8 @@ Summarise a Terraform plan for review, from the JSON form of a saved plan.
 
 Prints what will be destroyed, replaced, changed, created, moved, imported and
 forgotten, which resources drifted outside Terraform, and which changes touch
-stateful or access-control resources. Prints attribute names only, never values:
-the JSON plan holds sensitive values in plain text.
+stateful or access-control resources. Prints attribute paths without values and
+hides paths inside marked sensitive objects: the JSON plan holds secrets in plain text.
 
 Standard library only. Python 3.8+.
 
@@ -98,6 +98,7 @@ def classify(actions):
 
 
 LIST_LIMIT = 8
+MISSING = object()
 
 
 def is_empty(value):
@@ -115,32 +116,34 @@ def diff_paths(before, after, unknown=None, path=()):
     """
     if unknown is True:
         return [(path, "unknown")]
-    if before is None and after is None:
-        return []
-    if all(v is None or isinstance(v, dict) for v in (before, after)):
-        if is_empty(before) and is_empty(after):
-            return [] if before == after else [(path, "empty")]
-        b, a = before or {}, after or {}
+    if all(v is MISSING or v is None or isinstance(v, dict) for v in (before, after)):
+        b = before if isinstance(before, dict) else {}
+        a = after if isinstance(after, dict) else {}
         u = unknown if isinstance(unknown, dict) else {}
         found = []
         for key in sorted(set(b) | set(a) | set(u)):
-            found += diff_paths(b.get(key), a.get(key), u.get(key), path + (key,))
-        return found
-    if all(v is None or isinstance(v, list) for v in (before, after)):
-        if is_empty(before) and is_empty(after):
-            return [] if before == after else [(path, "empty")]
-        b, a = before or [], after or []
+            found += diff_paths(b.get(key, MISSING), a.get(key, MISSING), u.get(key), path + (key,))
+        if found:
+            return found
+    if all(v is MISSING or v is None or isinstance(v, list) for v in (before, after)):
+        b = before if isinstance(before, list) else []
+        a = after if isinstance(after, list) else []
         u = unknown if isinstance(unknown, list) else []
         found = []
         for i in range(max(len(b), len(a), len(u))):
             found += diff_paths(
-                b[i] if i < len(b) else None,
-                a[i] if i < len(a) else None,
+                b[i] if i < len(b) else MISSING,
+                a[i] if i < len(a) else MISSING,
                 u[i] if i < len(u) else None,
                 path + (i,),
             )
-        return found
-    if before == after:
+        if found:
+            return found
+    # Unknown descendants still matter when the container is empty or its type
+    # changes. Do not treat the partial `after` value as the whole result.
+    if contains_unknown(unknown):
+        return [(path, "unknown")]
+    if type(before) is type(after) and before == after:
         return []
     if is_empty(before) and is_empty(after):
         return [(path, "empty")]
@@ -154,7 +157,7 @@ def value_at(value, path):
         elif isinstance(value, list) and isinstance(step, int) and step < len(value):
             value = value[step]
         else:
-            return None
+            return MISSING
     return value
 
 
@@ -189,8 +192,22 @@ def format_path(path):
     return "".join(parts).lstrip(".")
 
 
+def review_path(path, *changes):
+    """Stop at the first sensitive ancestor, before exposing its map keys."""
+    for length in range(len(path) + 1):
+        prefix = path[:length]
+        if any(
+            value_at(change.get(field), prefix) is True
+            for change in changes
+            for field in ("before_sensitive", "after_sensitive")
+        ):
+            return (format_path(prefix) or "(resource)") + " (sensitive)"
+    return format_path(path)
+
+
 def short_list(items):
-    items = list(items)
+    # Several leaves may collapse to the same redacted path.
+    items = list(dict.fromkeys(items))
     shown = ", ".join(items[:LIST_LIMIT])
     if len(items) > LIST_LIMIT:
         shown += ", +%d more" % (len(items) - LIST_LIMIT)
@@ -247,11 +264,15 @@ def main():
 
     groups = {}
     flags = []
+    sensitivity_changes = {}
+    for rc in (plan.get("resource_drift") or []) + plan.get("resource_changes", []):
+        sensitivity_changes.setdefault(rc.get("address", "?"), []).append(rc.get("change", {}))
     for rc in plan.get("resource_changes", []):
         change = rc.get("change", {})
         actions = change.get("actions", [])
         category = classify(actions)
         address = rc.get("address", "?")
+        context = sensitivity_changes[address]
         rtype = rc.get("type", "")
         detail = []
 
@@ -268,16 +289,16 @@ def main():
             detail.append("reason: %s" % rc["action_reason"])
         if change.get("replace_paths"):
             detail.append(
-                "forced by: %s" % ", ".join(format_path(p) for p in change["replace_paths"])
+                "forced by: %s" % short_list(review_path(p, *context) for p in change["replace_paths"])
             )
         if category == "update" or category.startswith("replace"):
             paths = change_paths(change)
             changed = [
-                format_path(p) + (" (null/empty)" if kind == "empty" else "")
+                review_path(p, *context) + (" (null/empty)" if kind == "empty" else "")
                 for p, kind in paths
                 if kind != "unknown"
             ]
-            pending = [format_path(p) for p, kind in paths if kind == "unknown"]
+            pending = [review_path(p, *context) for p, kind in paths if kind == "unknown"]
             if changed:
                 detail.append("changes: %s" % short_list(changed))
             # On a replacement every computed attribute is unknown, so listing
@@ -300,7 +321,7 @@ def main():
             flags.append("ACCESS    %s (%s): read the policy itself" % (address, category))
             policy_unknown = sorted(
                 {
-                    format_path(p)
+                    review_path(p, *context)
                     for p, kind in change_paths(change)
                     if kind == "unknown" and any("policy" in str(step) for step in p)
                 }
@@ -324,6 +345,7 @@ def main():
     kept = []
     for rc in plan.get("resource_drift") or []:
         address = rc.get("address", "?")
+        context = sensitivity_changes[address]
         drift = rc.get("change", {})
         target = planned.get(address, {}).get("change", {})
         planned_category = classify(target.get("actions", ["no-op"]))
@@ -339,7 +361,7 @@ def main():
 
         undone, maybe, same = [], [], []
         for path, kind in diff_paths(drift.get("before"), drift.get("after")):
-            label = format_path(path) + (" (null/empty)" if kind == "empty" else "")
+            label = review_path(path, *context) + (" (null/empty)" if kind == "empty" else "")
             manual = value_at(drift.get("after"), path)
             if planned_category == "destroy":
                 undone.append(label)
@@ -353,7 +375,7 @@ def main():
                 elif is_empty(result) and is_empty(manual):
                     # Kept visible, not flagged: often a provider reading an
                     # unset value back as empty, but not provably so.
-                    same.append(format_path(path) + " (null/empty differs)")
+                    same.append(review_path(path, *context) + " (null/empty differs)")
                 else:
                     undone.append(label)
             else:

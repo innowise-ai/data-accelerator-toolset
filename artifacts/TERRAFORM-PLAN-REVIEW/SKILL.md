@@ -35,7 +35,8 @@ in plain text: `sensitive = true` only redacts the console output. Even the cons
 output is not safe to paste whole, because a value redacted in one attribute can be
 printed in another that the provider did not mark sensitive. Do not paste a plan,
 `plan.json` or state into chat, a pull request comment or a ticket. Summarise it with
-`scripts/plan_summary.py`, which prints attribute names and never values.
+`scripts/plan_summary.py`, which prints attribute paths without attribute values
+and hides paths inside objects marked sensitive in the plan.
 
 ## Get the plan in a form you can check
 
