@@ -156,8 +156,11 @@ request made it.
 
 So check every updated attribute against the code diff. An update to an attribute
 the diff does not touch is drift being reverted, or an upstream change on the base
-branch. The JSON lists drift in `resource_drift`, and the summary script
-cross-checks it against the planned changes and flags each revert. Do not approve a
+branch. The JSON lists drift in `resource_drift`. The summary script compares each
+drifted value, path by path, with what the plan leaves there after an update, a
+replacement or a destroy, and flags each revert. It also flags a value it cannot
+compare because the planned one is known only after apply. For a resource deleted
+outside Terraform it says whether the plan creates it again. Do not approve a
 plan that reverts drift until someone decides whether the manual change goes into
 the code or is deliberately undone. `terraform plan -refresh-only` shows the drift on
 its own.

@@ -97,15 +97,82 @@ def classify(actions):
     return "+".join(actions)
 
 
+LIST_LIMIT = 8
+
+
 def is_empty(value):
-    # Providers read an unset map, list or string back as {}, [] or "" rather
-    # than null. Treating those as equal keeps that normalisation out of review.
     return value is None or value == {} or value == [] or value == ""
 
 
+def diff_paths(before, after, unknown=None, path=()):
+    """Leaf paths where `before` and `after` differ, as (path, kind) pairs.
+
+    kind is "unknown" when the value is known only after apply, "empty" when
+    the difference is only null against an empty string, list or map, and
+    "changed" otherwise. An "empty" difference is still a difference: it is
+    labelled, not dropped, because a provider reading an unset value back as
+    empty and a real change to an empty value look the same in the JSON.
+    """
+    if unknown is True:
+        return [(path, "unknown")]
+    if before is None and after is None:
+        return []
+    if all(v is None or isinstance(v, dict) for v in (before, after)):
+        if is_empty(before) and is_empty(after):
+            return [] if before == after else [(path, "empty")]
+        b, a = before or {}, after or {}
+        u = unknown if isinstance(unknown, dict) else {}
+        found = []
+        for key in sorted(set(b) | set(a) | set(u)):
+            found += diff_paths(b.get(key), a.get(key), u.get(key), path + (key,))
+        return found
+    if all(v is None or isinstance(v, list) for v in (before, after)):
+        if is_empty(before) and is_empty(after):
+            return [] if before == after else [(path, "empty")]
+        b, a = before or [], after or []
+        u = unknown if isinstance(unknown, list) else []
+        found = []
+        for i in range(max(len(b), len(a), len(u))):
+            found += diff_paths(
+                b[i] if i < len(b) else None,
+                a[i] if i < len(a) else None,
+                u[i] if i < len(u) else None,
+                path + (i,),
+            )
+        return found
+    if before == after:
+        return []
+    if is_empty(before) and is_empty(after):
+        return [(path, "empty")]
+    return [(path, "changed")]
+
+
+def value_at(value, path):
+    for step in path:
+        if isinstance(value, dict) and step in value:
+            value = value[step]
+        elif isinstance(value, list) and isinstance(step, int) and step < len(value):
+            value = value[step]
+        else:
+            return None
+    return value
+
+
+def unknown_at(marker, path):
+    # True when the value at `path`, or anything above or below it, is unknown.
+    for step in path:
+        if marker is True:
+            return True
+        if isinstance(marker, dict):
+            marker = marker.get(step)
+        elif isinstance(marker, list) and isinstance(step, int) and step < len(marker):
+            marker = marker[step]
+        else:
+            return False
+    return contains_unknown(marker)
+
+
 def contains_unknown(marker):
-    # after_unknown mirrors the value's shape: an attribute holding a list of
-    # objects is unknown wherever any nested leaf is true.
     if marker is True:
         return True
     if isinstance(marker, dict):
@@ -115,30 +182,23 @@ def contains_unknown(marker):
     return False
 
 
-def changed_attributes(change):
-    """Top-level attribute names whose value changes or becomes unknown."""
-    before = change.get("before") or {}
-    after = change.get("after") or {}
-    unknown = change.get("after_unknown") or {}
-    if not isinstance(before, dict) or not isinstance(after, dict):
-        return [], []
-    changed = []
-    pending = []
-    for key in sorted(set(before) | set(after) | set(unknown)):
-        if contains_unknown(unknown.get(key)):
-            pending.append(key)
-        elif before.get(key) != after.get(key) and not (
-            is_empty(before.get(key)) and is_empty(after.get(key))
-        ):
-            changed.append(key)
-    return changed, pending
-
-
 def format_path(path):
     parts = []
     for step in path:
         parts.append("[%s]" % step if isinstance(step, int) else ".%s" % step)
     return "".join(parts).lstrip(".")
+
+
+def short_list(items):
+    items = list(items)
+    shown = ", ".join(items[:LIST_LIMIT])
+    if len(items) > LIST_LIMIT:
+        shown += ", +%d more" % (len(items) - LIST_LIMIT)
+    return shown
+
+
+def change_paths(change):
+    return diff_paths(change.get("before"), change.get("after"), change.get("after_unknown"))
 
 
 def load(path):
@@ -211,13 +271,19 @@ def main():
                 "forced by: %s" % ", ".join(format_path(p) for p in change["replace_paths"])
             )
         if category == "update" or category.startswith("replace"):
-            changed, pending = changed_attributes(change)
+            paths = change_paths(change)
+            changed = [
+                format_path(p) + (" (null/empty)" if kind == "empty" else "")
+                for p, kind in paths
+                if kind != "unknown"
+            ]
+            pending = [format_path(p) for p, kind in paths if kind == "unknown"]
             if changed:
-                detail.append("changes: %s" % ", ".join(changed))
+                detail.append("changes: %s" % short_list(changed))
             # On a replacement every computed attribute is unknown, so listing
             # them says nothing. On an update an unknown value is worth a look.
             if pending and category == "update":
-                detail.append("known after apply: %s" % ", ".join(pending))
+                detail.append("known after apply: %s" % short_list(pending))
         if rc.get("deposed"):
             detail.append("deposed object %s" % rc["deposed"])
 
@@ -232,44 +298,82 @@ def main():
                 )
         if rc.get("mode") == "managed" and matches(rtype, ACCESS_PATTERNS):
             flags.append("ACCESS    %s (%s): read the policy itself" % (address, category))
-            _, pending = changed_attributes(change)
-            policy_unknown = [k for k in pending if "policy" in k]
+            policy_unknown = sorted(
+                {
+                    format_path(p)
+                    for p, kind in change_paths(change)
+                    if kind == "unknown" and any("policy" in str(step) for step in p)
+                }
+            )
             if policy_unknown:
                 flags.append(
                     "ACCESS    %s: %s is known only after apply, so this plan does not show it"
-                    % (address, ", ".join(policy_unknown))
+                    % (address, short_list(policy_unknown))
                 )
 
     # Terraform prints its "changed outside of Terraform" note only for drift
     # that feeds into another planned change, so a manual fix that this plan
     # reverts usually shows as an ordinary update. Cross-check drift against
     # the plan instead of relying on the note.
+    # Each drifted value is compared, path by path, with the value the plan
+    # will leave there. A replacement leaves its planned `after`; a destroy
+    # leaves nothing.
     planned = {rc.get("address"): rc for rc in plan.get("resource_changes", [])}
     reverted = []
-    absorbed = []
+    deleted = []
+    kept = []
     for rc in plan.get("resource_drift") or []:
         address = rc.get("address", "?")
-        change = rc.get("change", {})
-        if classify(change.get("actions", [])) == "destroy":
-            reverted.append("%s  [deleted outside Terraform]" % address)
-            flags.append("DRIFT     %s was deleted outside Terraform" % address)
-            continue
-        drifted, _ = changed_attributes(change)
-        if not drifted:
-            continue
+        drift = rc.get("change", {})
         target = planned.get(address, {}).get("change", {})
-        undone = []
-        if classify(target.get("actions", [])) == "update":
-            planned_changes, planned_pending = changed_attributes(target)
-            undone = [k for k in drifted if k in planned_changes or k in planned_pending]
+        planned_category = classify(target.get("actions", ["no-op"]))
+
+        if classify(drift.get("actions", [])) == "destroy":
+            if planned_category == "create" or planned_category.startswith("replace"):
+                outcome = "this plan creates it again"
+            else:
+                outcome = "this plan does not create it again"
+            deleted.append("%s  [%s]" % (address, outcome))
+            flags.append("DRIFT     %s was deleted outside Terraform; %s" % (address, outcome))
+            continue
+
+        undone, maybe, same = [], [], []
+        for path, kind in diff_paths(drift.get("before"), drift.get("after")):
+            label = format_path(path) + (" (null/empty)" if kind == "empty" else "")
+            manual = value_at(drift.get("after"), path)
+            if planned_category == "destroy":
+                undone.append(label)
+            elif planned_category == "update" or planned_category.startswith("replace"):
+                if unknown_at(target.get("after_unknown"), path):
+                    maybe.append(label)
+                    continue
+                result = value_at(target.get("after"), path)
+                if result == manual:
+                    same.append(label)
+                elif is_empty(result) and is_empty(manual):
+                    # Kept visible, not flagged: often a provider reading an
+                    # unset value back as empty, but not provably so.
+                    same.append(format_path(path) + " (null/empty differs)")
+                else:
+                    undone.append(label)
+            else:
+                same.append(label)
+
         if undone:
-            reverted.append("%s  [%s]" % (address, ", ".join(undone)))
+            reverted.append("%s  [%s; %s]" % (address, planned_category, short_list(undone)))
             flags.append(
-                "DRIFT     %s: this plan undoes a change made outside Terraform to %s"
-                % (address, ", ".join(undone))
+                "DRIFT     %s (%s): this plan undoes a change made outside Terraform to %s"
+                % (address, planned_category, short_list(undone))
             )
-        else:
-            absorbed.append("%s  [%s]" % (address, ", ".join(drifted)))
+        if maybe:
+            reverted.append("%s  [%s; may undo, known after apply: %s]"
+                            % (address, planned_category, short_list(maybe)))
+            flags.append(
+                "DRIFT     %s (%s): may undo a change made outside Terraform to %s; "
+                "the planned value is known only after apply" % (address, planned_category, short_list(maybe))
+            )
+        if same:
+            kept.append("%s  [%s]" % (address, short_list(same)))
 
     order = [
         "destroy",
@@ -316,17 +420,21 @@ def main():
         lines.append("%s (%d):" % (key, len(groups[key])))
         lines.extend("  " + item for item in groups[key])
 
+    if deleted:
+        lines.append("")
+        lines.append("Deleted outside Terraform (%d):" % len(deleted))
+        lines.extend("  " + item for item in deleted)
     if reverted:
         lines.append("")
-        lines.append("Changed outside Terraform and undone by this plan (%d):" % len(reverted))
+        lines.append("Changed outside Terraform and undone, or possibly undone, by this plan:")
         lines.extend("  " + item for item in reverted)
-    if absorbed:
+    if kept:
         lines.append("")
         lines.append(
-            "Changed outside Terraform, not undone by this plan (%d); usually values "
-            "the provider reads back, check if unexpected:" % len(absorbed)
+            "Changed outside Terraform and left as it is by this plan (%d); often values "
+            "the provider reads back, check if unexpected:" % len(kept)
         )
-        lines.extend("  " + item for item in absorbed)
+        lines.extend("  " + item for item in kept)
 
     print("\n".join(lines))
     if warnings:
