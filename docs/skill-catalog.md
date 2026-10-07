@@ -5,12 +5,13 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-38 artifacts today: 23 data-engineering specific (dbt, Snowflake, Airflow,
+39 artifacts today: 23 data-engineering specific (dbt, Snowflake, Airflow,
 Python pipeline code, sensitive data handling, stack-agnostic pipeline quality),
-4 for containers and local environments, and 11 general skills that apply to any
-stack. All are `on-demand` except `DOCKER-DATA-LOSS-CONFIRMATION`, which is
-`always`: it installs into every project that uses Docker, because losing a data
-volume is not something a team should have to remember to ask protection against.
+4 for containers and local environments, 1 for infrastructure as code, and 11
+general skills that apply to any stack. All are `on-demand` except
+`DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
+project that uses Docker, because losing a data volume is not something a team
+should have to remember to ask protection against.
 An `on-demand` artifact is used when the task calls for it, rather than always
 loading it. `Applies to` shows the `applies_to` restriction from the index; "any"
 means the artifact carries no language/framework restriction. `Scope` is `project`
@@ -57,6 +58,12 @@ one project gets.
 | **Confirm data loss before Docker cleanup commands run** (`DOCKER-DATA-LOSS-CONFIRMATION`) | docker | — (`always`) | Stops Docker cleanup commands from deleting data until the loss has been stated and confirmed. |
 | **Build Python data images that cache well and keep secrets out** (`DOCKER-IMAGE-BUILD`) | docker | containerization | Builds Python data images that keep credentials out of layers, cache well and run as non-root. |
 | **Add a first Docker setup to a Python data project** (`DOCKER-PROJECT-SETUP`) | python | containerization | Adds a first working Docker setup to a Python data project, with its dependencies as Compose services. |
+
+## Infrastructure as code (1)
+
+| Skill | Applies to | Topic(s) | What it does |
+|---|---|---|---|
+| **Review a Terraform plan in plain language before apply** (`TERRAFORM-PLAN-REVIEW`) | terraform | code-review, security | Reads a Terraform plan before it is applied and restates each change in plain language, so a reviewer without deep Terraform knowledge can approve or stop it. |
 
 ## General skills (11)
 
