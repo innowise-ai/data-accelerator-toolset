@@ -1,0 +1,154 @@
+{
+ "DBT-MODEL-BUILD-VERIFY": [
+  "Data engineering",
+  "dbt"
+ ],
+ "DBT-LAYER-BOUNDARIES": [
+  "Data engineering",
+  "dbt"
+ ],
+ "DBT-INCREMENTAL-STRATEGY": [
+  "Data engineering",
+  "dbt"
+ ],
+ "DBT-COLUMN-LINEAGE": [
+  "Data engineering",
+  "dbt"
+ ],
+ "DBT-MODEL-TESTING": [
+  "Data engineering",
+  "dbt"
+ ],
+ "DBT-MODEL-DESCRIPTIONS": [
+  "Data engineering",
+  "dbt"
+ ],
+ "DBT-MODEL-REFACTORING": [
+  "Data engineering",
+  "dbt"
+ ],
+ "DBT-LEGACY-SQL-MIGRATION": [
+  "Data engineering",
+  "dbt"
+ ],
+ "DBT-BUILD-FAILURE-DIAGNOSIS": [
+  "Data engineering",
+  "dbt"
+ ],
+ "SNOWFLAKE-COST-HOTSPOTS": [
+  "Data engineering",
+  "Snowflake"
+ ],
+ "SNOWFLAKE-QUERY-REWRITE": [
+  "Data engineering",
+  "Snowflake"
+ ],
+ "SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS": [
+  "Data engineering",
+  "Snowflake"
+ ],
+ "SNOWFLAKE-SEMANTIC-VIEW-DRIFT": [
+  "Data engineering",
+  "Snowflake"
+ ],
+ "SNOWFLAKE-GRANT-RESTORE": [
+  "Data engineering",
+  "Snowflake"
+ ],
+ "AIRFLOW-DAG-STRUCTURE": [
+  "Data engineering",
+  "Airflow"
+ ],
+ "ETL-DECOMPOSITION": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
+ "PYTEST-DATA-PIPELINES": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
+ "SCD2-IMPLEMENTATION": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
+ "NL2SQL-QUERY-VALIDATION": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
+ "PIPELINE-CHECK-SELECTION": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
+ "PIPELINE-OUTPUT-REVIEW": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
+ "DATA-INCIDENT-TRACING": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
+ "SENSITIVE-DATA-HANDLING": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
+ "DOCKER-IMAGE-BUILD": [
+  "Containers",
+  "Docker"
+ ],
+ "DOCKER-COMPOSE-LOCAL-STACK": [
+  "Containers",
+  "Docker"
+ ],
+ "DOCKER-PROJECT-SETUP": [
+  "Containers",
+  "Docker"
+ ],
+ "DOCKER-DATA-LOSS-CONFIRMATION": [
+  "Containers",
+  "Docker"
+ ],
+ "CODE-CHANGE-REVIEW": [
+  "General",
+  "Review and testing"
+ ],
+ "TEST-DESIGN-REVIEW": [
+  "General",
+  "Review and testing"
+ ],
+ "ERROR-DIAGNOSIS": [
+  "General",
+  "Review and testing"
+ ],
+ "REFACTOR-STEP-PLANNING": [
+  "General",
+  "Review and testing"
+ ],
+ "REQUIREMENTS-BRAINSTORMING": [
+  "General",
+  "Development process"
+ ],
+ "IMPLEMENTATION-PLANNING": [
+  "General",
+  "Development process"
+ ],
+ "PLAN-EXECUTION": [
+  "General",
+  "Development process"
+ ],
+ "COMPLETION-VERIFICATION": [
+  "General",
+  "Development process"
+ ],
+ "PROJECT-ADAPTATION": [
+  "General",
+  "Development process"
+ ],
+ "PROJECT-DOCUMENTATION": [
+  "General",
+  "Docs and writing"
+ ],
+ "TECHNICAL-PROSE-EDITING": [
+  "General",
+  "Docs and writing"
+ ]
+}

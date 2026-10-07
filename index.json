@@ -597,7 +597,7 @@
     },
     {
       "id": "SCD2-IMPLEMENTATION",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source_path": "artifacts/SCD2-IMPLEMENTATION",
       "applies_to": {
         "languages": ["sql"]
