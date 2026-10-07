@@ -90,6 +90,7 @@ an `action_reason`, and the reason is what tells you whether the destroy was mea
 | `delete_because_no_module` | A module call was removed or renamed |
 | `delete_because_count_index` | A `count` list got shorter; see the index shift below |
 | `delete_because_each_key` | A `for_each` key disappeared or was renamed |
+| `delete_because_wrong_repetition` | The resource switched between `count`, `for_each` and a single instance; any address no `moved` block covers is destroyed |
 | `replace_because_cannot_update` | An attribute the cloud cannot change in place was changed (a bucket or queue name, a database identifier) |
 | `replace_because_tainted` | A previous apply failed half way; Terraform will rebuild it |
 | `replace_by_request` | Someone ran `plan -replace=...` on purpose |
@@ -143,12 +144,21 @@ source marked `<=` is read during apply for the same reason.
 
 ### 6. Drift
 
-`Objects have changed outside of Terraform` in the console, `resource_drift` in the
-JSON, is a list of things someone changed by hand since the last apply. Usually that
-was a fix in the console during an incident. Where the code still says otherwise,
-the plan will undo the fix. Do not approve a plan that reverts drift until someone
-decides whether the manual change goes into the code or is deliberately reverted.
-`terraform plan -refresh-only` shows the drift on its own.
+Drift is what someone changed by hand since the last apply, usually a fix in the
+console during an incident. Where the code still says otherwise, the plan undoes the
+fix, and the console output rarely says so. Terraform prints
+`Objects have changed outside of Terraform` only for drift that feeds into another
+planned change. A manual change that the plan simply reverts appears as an ordinary
+update, such as `max_session_duration = 14400 -> 3600`, and reads as if the pull
+request made it.
+
+So check every updated attribute against the code diff. An update to an attribute
+the diff does not touch is drift being reverted, or an upstream change on the base
+branch. The JSON lists drift in `resource_drift`, and the summary script
+cross-checks it against the planned changes and flags each revert. Do not approve a
+plan that reverts drift until someone decides whether the manual change goes into
+the code or is deliberately undone. `terraform plan -refresh-only` shows the drift on
+its own.
 
 ## Say it in plain language, per resource
 
@@ -216,7 +226,7 @@ cover.
 | Plan has changes at all | `terraform plan -detailed-exitcode` | Exit `2` on a change described as a no-op refactor |
 | Formatting and syntax | `terraform fmt -check -recursive`, `terraform validate` | Non-zero exit |
 | Replacements in console output | search for `must be replaced` and `forces replacement` | Any hit not explained in the pull request |
-| Drift | search for `changed outside of Terraform`, or `terraform plan -refresh-only` | Any hit; see Drift |
+| Drift being reverted | `DRIFT` lines from the summary script, or `terraform plan -refresh-only` | Any hit; see Drift. The console note alone misses most of them |
 | Policy wildcards | see the AWS reference | `"*"` in an action, principal or resource without a condition that narrows it |
 | Module pinning | see the Terragrunt reference | A `ref=` that is a branch, or no `ref` |
 

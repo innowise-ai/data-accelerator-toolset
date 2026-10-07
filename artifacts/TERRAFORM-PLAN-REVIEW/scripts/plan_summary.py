@@ -96,6 +96,12 @@ def classify(actions):
     return "+".join(actions)
 
 
+def is_empty(value):
+    # Providers read an unset map, list or string back as {}, [] or "" rather
+    # than null. Treating those as equal keeps that normalisation out of review.
+    return value is None or value == {} or value == [] or value == ""
+
+
 def changed_attributes(change):
     """Top-level attribute names whose value changes or becomes unknown."""
     before = change.get("before") or {}
@@ -108,7 +114,9 @@ def changed_attributes(change):
     for key in sorted(set(before) | set(after) | set(unknown)):
         if unknown.get(key) is True:
             pending.append(key)
-        elif before.get(key) != after.get(key):
+        elif before.get(key) != after.get(key) and not (
+            is_empty(before.get(key)) and is_empty(after.get(key))
+        ):
             changed.append(key)
     return changed, pending
 
@@ -185,11 +193,13 @@ def main():
             detail.append(
                 "forced by: %s" % ", ".join(format_path(p) for p in change["replace_paths"])
             )
-        if category in ("update",) or category.startswith("replace"):
+        if category == "update" or category.startswith("replace"):
             changed, pending = changed_attributes(change)
             if changed:
                 detail.append("changes: %s" % ", ".join(changed))
-            if pending:
+            # On a replacement every computed attribute is unknown, so listing
+            # them says nothing. On an update an unknown value is worth a look.
+            if pending and category == "update":
                 detail.append("known after apply: %s" % ", ".join(pending))
         if rc.get("deposed"):
             detail.append("deposed object %s" % rc["deposed"])
@@ -212,6 +222,37 @@ def main():
                     "ACCESS    %s: %s is known only after apply, so this plan does not show it"
                     % (address, ", ".join(policy_unknown))
                 )
+
+    # Terraform prints its "changed outside of Terraform" note only for drift
+    # that feeds into another planned change, so a manual fix that this plan
+    # reverts usually shows as an ordinary update. Cross-check drift against
+    # the plan instead of relying on the note.
+    planned = {rc.get("address"): rc for rc in plan.get("resource_changes", [])}
+    reverted = []
+    absorbed = []
+    for rc in plan.get("resource_drift") or []:
+        address = rc.get("address", "?")
+        change = rc.get("change", {})
+        if classify(change.get("actions", [])) == "destroy":
+            reverted.append("%s  [deleted outside Terraform]" % address)
+            flags.append("DRIFT     %s was deleted outside Terraform" % address)
+            continue
+        drifted, _ = changed_attributes(change)
+        if not drifted:
+            continue
+        target = planned.get(address, {}).get("change", {})
+        undone = []
+        if classify(target.get("actions", [])) == "update":
+            planned_changes, _ = changed_attributes(target)
+            undone = [k for k in drifted if k in planned_changes]
+        if undone:
+            reverted.append("%s  [%s]" % (address, ", ".join(undone)))
+            flags.append(
+                "DRIFT     %s: this plan undoes a change made outside Terraform to %s"
+                % (address, ", ".join(undone))
+            )
+        else:
+            absorbed.append("%s  [%s]" % (address, ", ".join(drifted)))
 
     order = [
         "destroy",
@@ -258,21 +299,17 @@ def main():
         lines.append("%s (%d):" % (key, len(groups[key])))
         lines.extend("  " + item for item in groups[key])
 
-    drift = plan.get("resource_drift") or []
-    if drift:
+    if reverted:
+        lines.append("")
+        lines.append("Changed outside Terraform and undone by this plan (%d):" % len(reverted))
+        lines.extend("  " + item for item in reverted)
+    if absorbed:
         lines.append("")
         lines.append(
-            "Changed outside Terraform since the last apply (%d). Where the code still "
-            "says otherwise, the changes above revert them:" % len(drift)
+            "Changed outside Terraform, not undone by this plan (%d); usually values "
+            "the provider reads back, check if unexpected:" % len(absorbed)
         )
-        for rc in drift:
-            change = rc.get("change", {})
-            changed, _ = changed_attributes(change)
-            what = classify(change.get("actions", []))
-            lines.append(
-                "  %s  [%s%s]"
-                % (rc.get("address", "?"), what, "; " + ", ".join(changed) if changed else "")
-            )
+        lines.extend("  " + item for item in absorbed)
 
     print("\n".join(lines))
     return 2 if destroyed else 0
