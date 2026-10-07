@@ -1,0 +1,253 @@
+<title>Skill Catalog Map</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky filter bar on top, summary strip, then tree/matrix of 38 artifacts; path panel at the bottom. */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --fg:#17202b; --muted:#5b6776; --line:#d9dfe6;
+  --accent:#1f5fd6; --accent-soft:#e3ecfc;
+  --g-de:#1f5fd6; --g-de-soft:#e3ecfc;
+  --g-ct:#a35a00; --g-ct-soft:#fbeed8;
+  --g-gn:#2c7a4b; --g-gn-soft:#def2e6;
+  --warn:#b3261e; --warn-soft:#fbe4e2;
+  --code:#eef1f5;
+  --font:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f151c; --surface:#171f29; --fg:#e6ebf1; --muted:#98a4b3; --line:#2a3542;
+  --accent:#6b9cff; --accent-soft:#1b2a47;
+  --g-de:#6b9cff; --g-de-soft:#1b2a47;
+  --g-ct:#e8a045; --g-ct-soft:#3a2a12;
+  --g-gn:#5cc489; --g-gn-soft:#14301f;
+  --warn:#ff8a80; --warn-soft:#3d1c1a; --code:#1f2935; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f151c; --surface:#171f29; --fg:#e6ebf1; --muted:#98a4b3; --line:#2a3542;
+  --accent:#6b9cff; --accent-soft:#1b2a47;
+  --g-de:#6b9cff; --g-de-soft:#1b2a47;
+  --g-ct:#e8a045; --g-ct-soft:#3a2a12;
+  --g-gn:#5cc489; --g-gn-soft:#14301f;
+  --warn:#ff8a80; --warn-soft:#3d1c1a; --code:#1f2935; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.5;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:1100px;margin-inline:auto;display:flex;flex-direction:column;gap:20px}
+h1{font-size:24px;font-weight:600;margin:0;text-wrap:balance}
+h2{font-size:16px;font-weight:600;margin:0}
+.sub{color:var(--muted);margin:4px 0 0;max-width:65ch}
+.ver{color:var(--muted);font-size:12px;margin:6px 0 0}
+.ver a,.detail a{color:var(--accent)}
+.detail .mono{overflow-wrap:anywhere;font-size:12.5px}
+.mono{font-family:var(--mono)}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-start}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.stat b{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:12px}
+.filters{padding:14px;display:flex;flex-direction:column;gap:12px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.frow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.flabel{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);width:92px;flex:none}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:2px 10px;font-size:12px}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:#0f151c}}
+:root[data-theme="dark"] .chip[aria-pressed="true"]{color:#0f151c}
+.top{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#q{flex:1 1 220px;min-width:0;border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:6px 10px}
+.seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:6px 12px}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.link{border:0;background:none;color:var(--accent);padding:4px}
+.count{color:var(--muted);font-size:12px;margin-left:auto}
+/* tree */
+.group{display:flex;flex-direction:column;gap:8px}
+.ghead{display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:2px solid var(--gc)}
+.ghead h2{color:var(--gc)}
+.ghead small{color:var(--muted)}
+.sg{margin-left:14px;padding-left:14px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.sgt{font-size:12px;color:var(--muted);font-weight:600;margin:6px 0 0}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.item>button{width:100%;text-align:left;background:none;border:0;padding:8px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center}
+.iid{font-family:var(--mono);font-size:12.5px;font-weight:500;overflow-wrap:anywhere}
+.iname{color:var(--muted);font-size:13px;grid-column:1}
+.tags{display:flex;flex-wrap:wrap;gap:4px;grid-column:1 / -1}
+.tag{font-size:11px;padding:0 7px;border-radius:4px;background:var(--code);color:var(--muted);white-space:nowrap}
+.tag.fw{background:var(--gs);color:var(--gc);font-weight:500}
+.detail{padding:4px 12px 12px;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.detail>div{min-width:0}
+.detail ul{margin:4px 0 0;padding-left:18px}
+.detail h3{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:10px 0 0;font-weight:600}
+.detail p{margin:4px 0 0}
+/* matrix */
+.mwrap{overflow-x:auto;padding:0}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:12px}
+th,td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:center}
+th{font-weight:500;color:var(--muted);position:sticky;top:0;background:var(--surface)}
+th.rot{height:96px;vertical-align:bottom}
+th.rot span{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap}
+td.l,th.l{text-align:left}
+td.l{font-family:var(--mono);white-space:nowrap}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--gc)}
+tr.gh td{background:var(--code);font-weight:600;text-align:left;font-family:var(--font)}
+.empty{padding:24px;text-align:center;color:var(--muted)}
+.item>button{grid-template-columns:minmax(0,1fr)}
+@media (prefers-reduced-motion:no-preference){.item,.chip{transition:background .12s,border-color .12s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1 data-i="title"></h1>
+      <p class="sub" data-i="sub"></p>
+      <p class="ver"><span data-i="forVersion"></span> <b class="mono">__VERSION__</b> · <a href="https://github.com/innowise-ai/data-accelerator-toolset" target="_blank" rel="noopener" data-i="repo"></a></p>
+    </div>
+    <div class="top">
+      <div class="seg" role="group" aria-label="View">
+        <button id="v-tree" aria-pressed="true" data-i="tree"></button>
+        <button id="v-matrix" aria-pressed="false" data-i="matrix"></button>
+      </div>
+      <div class="seg" role="group" aria-label="Language">
+        <button id="l-en" aria-pressed="true">EN</button>
+        <button id="l-ru" aria-pressed="false">RU</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <section class="panel filters" aria-label="Filters">
+    <div class="top">
+      <input id="q" type="search" data-ph="search" aria-label="Search">
+      <span class="count" id="count"></span>
+      <button class="link" id="reset" data-i="reset"></button>
+    </div>
+    <div class="frow"><span class="flabel" data-i="fTopic"></span><span id="f-topic" class="frow"></span></div>
+    <div class="frow"><span class="flabel" data-i="fAp"></span><span id="f-ap" class="frow"></span></div>
+  </section>
+
+  <main id="main"></main>
+</div>
+
+<script>
+const DATA = __DATA__;
+const REF = '__VERSION__';
+const REPO = 'https://github.com/innowise-ai/data-accelerator-toolset';
+const T = {
+  en:{title:'Skill Catalog Map', forVersion:'Built for catalog version', repo:'Toolset on GitHub', sub:'38 skills from the Data Accelerator toolset, grouped by area. Filter by topic or by the framework or language a skill applies to, and open any skill to see what it does.',
+      tree:'Tree', matrix:'Topic matrix', search:'Search by id, name or description', reset:'Reset', fTopic:'Topic', fAp:'Applies to',
+      of:'of', none:'Nothing found. Reset the filters.', any:'any project', what:'What it does', benefits:'What you get', where:'Path in repo', ver:'Version',
+      colSkill:'skill', colAp:'applies to',
+      s1:'skills', s2:'data engineering', s3:'containers', s4:'general, any stack', lang:'lang '},
+  ru:{title:'Карта каталога скиллов', forVersion:'Собрано для версии каталога', repo:'Toolset на GitHub', sub:'38 скиллов из Data Accelerator toolset по областям. Фильтруйте по теме, фреймворку или языку, на которые рассчитан скилл, и открывайте любой скилл, чтобы увидеть, что он делает.',
+      tree:'Дерево', matrix:'Матрица тем', search:'Поиск по id, названию или описанию', reset:'Сбросить', fTopic:'Тема', fAp:'Применимость',
+      of:'из', none:'Ничего не найдено. Сбросьте фильтры.', any:'любой проект', what:'Что делает', benefits:'Что даёт', where:'Путь в репо', ver:'Версия',
+      colSkill:'скилл', colAp:'применимость',
+      s1:'скиллов', s2:'data engineering', s3:'контейнеры', s4:'общие, любой стек', lang:'язык '}
+};
+const GROUPS = [
+  {k:'Data engineering', t:{en:'Data engineering', ru:'Data engineering'}, c:'--g-de', s:'--g-de-soft'},
+  {k:'Containers', t:{en:'Containers', ru:'Контейнеры'}, c:'--g-ct', s:'--g-ct-soft'},
+  {k:'General', t:{en:'General, any stack', ru:'Общие, любой стек'}, c:'--g-gn', s:'--g-gn-soft'}
+];
+const SUB_RU = {'Pipelines, SQL and data safety':'Pipelines, SQL и безопасность данных','Review and testing':'Review и тесты','Development process':'Процесс разработки','Docs and writing':'Документы и текст'};
+const st = {q:'', topics:new Set(), ap:new Set(), view:'tree', lang:'en', open:new Set()};
+try { if (localStorage.getItem('skillmap-view') === 'matrix') st.view = 'matrix';
+      if (localStorage.getItem('skillmap-lang') === 'ru') st.lang = 'ru'; } catch(e){}
+
+const $ = id => document.getElementById(id);
+const tr = k => T[st.lang][k];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const L = (a,f) => (st.lang==='ru' && a.ru) ? a.ru[f] : a[f];
+const apList = a => [...(a.ap.frameworks||[]), ...(a.ap.languages||[])];
+const apKey = a => [...(a.ap.frameworks||[]).map(x=>'fw:'+x), ...(a.ap.languages||[]).map(x=>'lang:'+x)];
+const topics = [...new Set(DATA.flatMap(a=>a.t))].sort();
+const aps = [...new Set(DATA.flatMap(apKey))].sort();
+const apLabel = x => x.startsWith('fw:') ? x.slice(3) : tr('lang') + x.slice(5);
+
+function buildChips(el, items, set, labelFn){
+  el.innerHTML = items.map(i => `<button class="chip" data-v="${esc(i)}" aria-pressed="${set.has(i)}">${esc(labelFn(i))}</button>`).join('');
+  el.onclick = e => { const b = e.target.closest('.chip'); if(!b) return;
+    const v = b.dataset.v; set.has(v) ? set.delete(v) : set.add(v);
+    b.setAttribute('aria-pressed', set.has(v)); render(); };
+}
+function match(a){
+  if (st.q){ const h=(a.id+' '+a.n+' '+a.sum+' '+(a.ru?a.ru.n+' '+a.ru.sum:'')).toLowerCase(); if(!h.includes(st.q)) return false; }
+  if (st.topics.size && ![...st.topics].every(t=>a.t.includes(t))) return false;
+  if (st.ap.size && ![...st.ap].some(k=>apKey(a).includes(k))) return false;
+  return true;
+}
+function tagsOf(a){
+  let h = a.t.map(t=>`<span class="tag">${esc(t)}</span>`).join('');
+  h += apList(a).map(x=>`<span class="tag fw">${esc(x)}</span>`).join('');
+  if (!apList(a).length) h += `<span class="tag">${tr('any')}</span>`;
+  return h;
+}
+function item(a, g){
+  const open = st.open.has(a.id);
+  const det = open ? `<div class="detail">
+    <div><h3>${tr('what')}</h3><p>${esc(L(a,'sum'))}</p></div>
+    <div><h3>${tr('benefits')}</h3><ul>${L(a,'b').map(b=>`<li>${esc(b)}</li>`).join('')}</ul></div>
+    <div><h3>${tr('where')}</h3><p class="mono"><a href="${REPO}/blob/${esc(REF)}/${esc(a.p)}/SKILL.md" target="_blank" rel="noopener">${esc(a.p)}/SKILL.md</a></p>
+    <h3>${tr('ver')}</h3><p class="mono">${esc(a.v)}</p></div></div>` : '';
+  return `<div class="item" style="--gc:var(${g.c});--gs:var(${g.s})">
+    <button data-id="${esc(a.id)}" aria-expanded="${open}">
+      <span class="iid">${esc(a.id)}</span>
+      <span class="iname">${esc(L(a,'n'))}</span>
+      <span class="tags">${tagsOf(a)}</span>
+    </button>${det}</div>`;
+}
+const subName = s => st.lang==='ru' ? (SUB_RU[s]||s) : s;
+function renderTree(list){
+  return GROUPS.map(g=>{
+    const items = list.filter(a=>a.g===g.k); if(!items.length) return '';
+    const subs = [...new Set(items.map(a=>a.s))];
+    return `<div class="group" style="--gc:var(${g.c})"><div class="ghead"><h2>${g.t[st.lang]}</h2><small>${items.length} ${tr('of')} ${DATA.filter(a=>a.g===g.k).length}</small></div>
+      <div class="sg">${subs.map(s=>`<div class="sgt">${esc(subName(s))}</div>`+items.filter(a=>a.s===s).map(a=>item(a,g)).join('')).join('')}</div></div>`;
+  }).join('') || `<div class="panel empty">${tr('none')}</div>`;
+}
+function renderMatrix(list){
+  if(!list.length) return `<div class="panel empty">${tr('none')}</div>`;
+  const head = `<tr><th class="l">${tr('colSkill')}</th>${topics.map(t=>`<th class="rot"><span>${esc(t)}</span></th>`).join('')}<th>${tr('colAp')}</th></tr>`;
+  let rows = '';
+  GROUPS.forEach(g=>{ const items=list.filter(a=>a.g===g.k); if(!items.length) return;
+    rows += `<tr class="gh"><td colspan="${topics.length+2}" style="color:var(${g.c})">${g.t[st.lang]}</td></tr>`;
+    rows += items.map(a=>`<tr style="--gc:var(${g.c})"><td class="l">${esc(a.id)}</td>${topics.map(t=>`<td>${a.t.includes(t)?'<span class="dot"></span>':''}</td>`).join('')}<td class="mono">${esc(apList(a).join(', ')||'—')}</td></tr>`).join('');
+  });
+  return `<div class="panel mwrap"><table><thead>${head}</thead><tbody>${rows}</tbody></table></div>`;
+}
+function stats(){
+  const n = f => DATA.filter(f).length;
+  $('stats').innerHTML = [[DATA.length,'s1'],[n(a=>a.g==='Data engineering'),'s2'],[n(a=>a.g==='Containers'),'s3'],[n(a=>a.g==='General'),'s4']]
+    .map(([v,l])=>`<div class="panel stat"><b>${v}</b><span>${tr(l)}</span></div>`).join('');
+}
+function i18n(){
+  document.documentElement.lang = st.lang;
+  document.querySelectorAll('[data-i]').forEach(e=>e.textContent = tr(e.dataset.i));
+  document.querySelectorAll('[data-ph]').forEach(e=>e.placeholder = tr(e.dataset.ph));
+  $('l-en').setAttribute('aria-pressed', st.lang==='en'); $('l-ru').setAttribute('aria-pressed', st.lang==='ru');
+  buildChips($('f-topic'), topics, st.topics, x=>x);
+  buildChips($('f-ap'), aps, st.ap, apLabel);
+  stats();
+}
+function render(){
+  const list = DATA.filter(match);
+  $('count').textContent = `${list.length} ${tr('of')} ${DATA.length}`;
+  $('main').innerHTML = `<div style="display:flex;flex-direction:column;gap:20px">${st.view==='tree'?renderTree(list):renderMatrix(list)}</div>`;
+  $('v-tree').setAttribute('aria-pressed', st.view==='tree');
+  $('v-matrix').setAttribute('aria-pressed', st.view==='matrix');
+}
+$('main').onclick = e => { const b=e.target.closest('.item>button'); if(!b) return;
+  const id=b.dataset.id; st.open.has(id)?st.open.delete(id):st.open.add(id); render();
+  const nb=document.querySelector(`.item>button[data-id="${id}"]`); if(nb) nb.focus(); };
+$('q').oninput = e => { st.q = e.target.value.trim().toLowerCase(); render(); };
+$('reset').onclick = () => { st.q=''; $('q').value=''; st.topics.clear(); st.ap.clear();
+  document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false')); render(); };
+function setView(v){ st.view=v; try{localStorage.setItem('skillmap-view',v);}catch(e){} render(); }
+function setLang(l){ st.lang=l; try{localStorage.setItem('skillmap-lang',l);}catch(e){} i18n(); render(); }
+$('v-tree').onclick = () => setView('tree');
+$('v-matrix').onclick = () => setView('matrix');
+$('l-en').onclick = () => setLang('en');
+$('l-ru').onclick = () => setLang('ru');
+i18n(); render();
+</script>

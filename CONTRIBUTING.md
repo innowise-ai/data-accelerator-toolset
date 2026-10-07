@@ -48,3 +48,11 @@ commits.
 - Commits are authored under your own git identity, with clear human-style
   messages. Don't add AI co-author trailers (`Co-Authored-By: Claude`/`Codex`/
   etc.) or "Generated with" lines, regardless of what wrote the change.
+
+## Releasing
+
+Before announcing a new tag, tick each item:
+
+- [ ] Validation and `Invoke-Pester -Path ./tests` pass on the tagged commit
+- [ ] New row in the README [Tags](README.md#tags) table
+- [ ] Refresh the shared catalog map so its version and skill list match the tag. Every artifact added in the release needs an entry in `catalog-map/groups.json` and Russian text in `catalog-map/ru.json` first (`build.js` warns about missing ones, and about Russian text written for an older artifact version). The command is in [`catalog-map/README.md`](catalog-map/README.md#update-after-a-catalog-release); only the owner of the Apps Script project can run it
