@@ -20,7 +20,11 @@ Install-Module Pester -RequiredVersion 5.6.1 -Force -Scope CurrentUser
 $result = ./scripts/validate-catalog.ps1 -IndexPath ./index.json -CatalogRoot .
 if (-not $result.IsValid) { throw "Catalog validation failed." }
 Invoke-Pester -Path ./tests
+python -B -m unittest discover -s tests -p 'test_*.py' -v
 ```
+
+The Terraform plan summary tests use Python 3.9+ and its standard library; they
+need no Terraform installation or cloud credentials.
 
 ## Commit messages
 
@@ -38,8 +42,8 @@ commits.
 - Work on a branch off `main`; never commit directly to `main`.
 - Open a PR for review — don't push straight to `main` unless a maintainer
   explicitly asks for it.
-- The gate above (validation + `Invoke-Pester -Path ./tests`) must pass before
-  merge. CI (`.github/workflows/validate.yml`) runs the same two steps.
+- The gate above (catalog validation, Pester and Python tests) must pass before
+  merge. CI (`.github/workflows/validate.yml`) runs the same checks.
 - For a new or changed artifact, manually verify the profile combinations that
   should select and exclude it — see the
   [checklist](docs/authoring-artifacts.md#checklist) in the authoring guide.
@@ -53,6 +57,6 @@ commits.
 
 Before announcing a new tag, tick each item:
 
-- [ ] Validation and `Invoke-Pester -Path ./tests` pass on the tagged commit
+- [ ] Validation, `Invoke-Pester -Path ./tests` and the Python script tests pass on the tagged commit
 - [ ] New row in the README [Tags](README.md#tags) table
 - [ ] Refresh the shared catalog map so its version and skill list match the tag. Every artifact added in the release needs an entry in `catalog-map/groups.json` and Russian text in `catalog-map/ru.json` first (`build.js` warns about missing ones, and about Russian text written for an older artifact version). The command is in [`catalog-map/README.md`](catalog-map/README.md#update-after-a-catalog-release); only the owner of the Apps Script project can run it
