@@ -208,7 +208,7 @@ anything to review, 0 when the batch is clean, and `--json` gives the same repor
 for further processing. A completely absent requested `--unit` is reported as
 missing, with `baseline: null` in JSON. An empty selection also exits 1, even when
 there are no observed combinations from which to infer coverage. Literal state
-keys require review even when only one unit uses them. It needs Python 3.8 or
+keys require review even when only one unit uses them. It needs Python 3.9 or
 later and nothing else.
 
 The goal is an exact match between intent and report: every `VARIANT` is a

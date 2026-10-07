@@ -23,11 +23,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Artifact scripts promise Python 3.9+, so the tests run on that floor as
+      # well as on a current version. The last version listed becomes `python`.
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: |
+            3.9
+            3.12
 
-      - name: Test Terragrunt unit comparison
+      - name: Test artifact scripts on Python 3.9
+        run: python3.9 -B -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Test artifact scripts on Python 3.12
         run: python -B -m unittest discover -s tests -p 'test_*.py' -v
 
       - name: Install Pester

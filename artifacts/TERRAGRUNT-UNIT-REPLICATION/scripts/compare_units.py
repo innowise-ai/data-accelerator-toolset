@@ -3,7 +3,7 @@
 or other path dimension.
 
 Reads only. Prints a report and exits 1 when anything needs review, 0 when the
-batch is clean, 2 on a usage error. Python 3.8+, standard library only.
+batch is clean, 2 on a usage error. Python 3.9+, standard library only.
 
 Example, for units laid out as live/<tenant>/<env>/<unit>/terragrunt.hcl:
 

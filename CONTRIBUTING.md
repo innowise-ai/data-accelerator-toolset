@@ -11,8 +11,9 @@ documents already own — follow the links instead of expecting a second copy.
 
 ## Dev setup
 
-This repository contains catalog content, PowerShell validation and a Python
-Terragrunt helper. Clone it, install Python 3.8 or later and Pester, and run the gate:
+This repository contains catalog content, PowerShell validation and Python
+helper scripts bundled with some artifacts. Clone it, install Python 3.9 or later
+and Pester, and run the gate:
 
 ```powershell
 Install-Module Pester -RequiredVersion 5.6.1 -Force -Scope CurrentUser
@@ -22,6 +23,10 @@ if (-not $result.IsValid) { throw "Catalog validation failed." }
 Invoke-Pester -Path ./tests
 python -B -m unittest discover -s tests -p 'test_*.py' -v
 ```
+
+The Terraform plan summary and Terragrunt unit comparison tests use Python 3.9+
+and its standard library; they need no Terraform or Terragrunt installation and
+no cloud credentials.
 
 ## Commit messages
 
@@ -39,9 +44,8 @@ commits.
 - Work on a branch off `main`; never commit directly to `main`.
 - Open a PR for review — don't push straight to `main` unless a maintainer
   explicitly asks for it.
-- The gate above (catalog validation, Pester and Python unittest) must pass before
-  merge. CI (`.github/workflows/validate.yml`) runs the same checks. The Terragrunt
-  helper tests need Python 3.8 or later, with no extra packages.
+- The gate above (catalog validation, Pester and Python tests) must pass before
+  merge. CI (`.github/workflows/validate.yml`) runs the same checks.
 - For a new or changed artifact, manually verify the profile combinations that
   should select and exclude it — see the
   [checklist](docs/authoring-artifacts.md#checklist) in the authoring guide.
@@ -50,3 +54,11 @@ commits.
 - Commits are authored under your own git identity, with clear human-style
   messages. Don't add AI co-author trailers (`Co-Authored-By: Claude`/`Codex`/
   etc.) or "Generated with" lines, regardless of what wrote the change.
+
+## Releasing
+
+Before announcing a new tag, tick each item:
+
+- [ ] Validation, `Invoke-Pester -Path ./tests` and the Python script tests pass on the tagged commit
+- [ ] New row in the README [Tags](README.md#tags) table
+- [ ] Refresh the shared catalog map so its version and skill list match the tag. Every artifact added in the release needs an entry in `catalog-map/groups.json` and Russian text in `catalog-map/ru.json` first (`build.js` warns about missing ones, and about Russian text written for an older artifact version). The command is in [`catalog-map/README.md`](catalog-map/README.md#update-after-a-catalog-release); only the owner of the Apps Script project can run it

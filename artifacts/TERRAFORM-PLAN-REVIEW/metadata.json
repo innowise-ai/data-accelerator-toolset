@@ -1,0 +1,22 @@
+{
+  "id": "TERRAFORM-PLAN-REVIEW",
+  "version": "0.1.0",
+  "source_path": "artifacts/TERRAFORM-PLAN-REVIEW",
+  "applies_to": {
+    "frameworks": ["terraform"]
+  },
+  "strength": "on-demand",
+  "topics": ["code-review", "security"],
+  "scope": "project",
+  "presentation": {
+    "name": "Review a Terraform plan in plain language before apply",
+    "summary": "Reads a Terraform plan before it is applied and restates each change in plain language, so a reviewer without deep Terraform knowledge can approve or stop it.",
+    "benefits": [
+      "Lists every destroy and replacement with the reason Terraform recorded for it",
+      "Flags changes that lose data or identity, and in-place updates that are not harmless",
+      "Checks IAM, trust and bucket policy changes on AWS for wildcards and wrong ARNs",
+      "Catches Terragrunt inputs that are silently dropped and plans built on mock outputs",
+      "Summarises a plan with a script that never prints secret values and fails on destroys"
+    ]
+  }
+}
