@@ -56,10 +56,12 @@ remote_state {
 }
 ```
 
-With this form the state location is the unit's directory path. That one fact
-decides most of what follows: a copied unit gets its own state automatically, and a
-moved or renamed unit points at an empty state. If instead a unit declares a
-literal `key`, every copy of that unit shares the template's state, and the first
+With this form the key follows the unit's path relative to its included config.
+A copy at a different relative path gets a different key; moving to another
+repository while preserving that relative path and backend keeps the same state.
+A changed key may be empty or may already belong to another unit: check before
+using it. If instead a unit declares a literal `key`, every copy using the same
+backend and workspace shares the template's state, and the first
 `apply` from a copy will try to reshape the template's resources into the copy's.
 
 **Where per-tenant and per-environment values come from.** Many layouts keep them
@@ -182,9 +184,12 @@ them by unit name, and for each group reports:
 - `FOREIGN`: a line that names another tenant's or environment's value, the
   signature of a copy-paste from the wrong place;
 - `VARIANT`: units whose content differs from the baseline once their own names are
-  replaced with `{tenant}`, `{env}` and so on, with the diff;
-- `SHARED STATE KEY` and `LITERAL STATE KEY`: literal state keys, and any shared by
-  two units.
+  replaced with `{tenant}`, `{env}` and so on, with the diff. Literal `source`
+  strings (including their `ref`) and source heredocs are compared unchanged;
+- `SHARED STATE KEY` and `LITERAL STATE KEY`: literal `key` values inside a
+  `remote_state` block or a `backend` block (including one in generated
+  contents), and any shared by two units. A module input that happens to be named
+  `key` is not counted.
 
 ```bash
 python scripts/compare_units.py --root live --layout "{tenant}/{env}/{unit}" \
@@ -200,7 +205,11 @@ anywhere in the tree, which finds holes but cannot tell an intended absence from
 missing unit. `--baseline` names the template, so variants are measured against
 the unit you chose rather than against the most common one. It exits 1 when there is
 anything to review, 0 when the batch is clean, and `--json` gives the same report
-for further processing. It needs Python 3.8 or later and nothing else.
+for further processing. A completely absent requested `--unit` is reported as
+missing, with `baseline: null` in JSON. An empty selection also exits 1, even when
+there are no observed combinations from which to infer coverage. Literal state
+keys require review even when only one unit uses them. It needs Python 3.8 or
+later and nothing else.
 
 The goal is an exact match between intent and report: every `VARIANT` is a
 difference you meant, and there is no `MISSING`, `UNEXPECTED` or `FOREIGN` you
@@ -236,8 +245,9 @@ broken files and nothing else.
 ## Moving a service between repositories
 
 Consolidating a service whose units are spread across several repositories is a
-different risk from copying. The resources already exist, and the state recording
-them is the thing being moved. Moving the files is the easy half.
+different risk from copying. The resources already exist, and their state may
+need to move or may stay at the same backend address. Moving the files is the easy
+half.
 
 **Inventory first.** Before moving anything, list for each unit: its current
 path, its state location (bucket and key as resolved, not as written), the
@@ -247,11 +257,14 @@ other repositories that read its outputs), and which pipeline or Atlantis projec
 applies it. Units that read this one's outputs will break when its state location
 changes, and they are often in a repository nobody opened.
 
-**Moving files and moving state are separate steps.** Moving a unit directory with
-a path-derived key does not move its state; it points the unit at a new, empty
-key. The next plan offers to create every resource again, and on resources with
-fixed names that apply fails halfway with half-created duplicates. Do the move in
-this order:
+**Moving files and moving state are separate steps.** Compare the complete,
+resolved state addresses at the source and destination: backend type and endpoint
+or account, bucket/container and key, and workspace where applicable. A different
+repository path does not prove a different state address. If those addresses are
+identical, reuse the existing state; do not push, copy or delete it. If they differ,
+moving files alone does not transfer state. An empty destination would plan to
+recreate resources, while an occupied destination may manage unrelated resources.
+Do the move in this order:
 
 1. Stop applies for the affected units in both places (an Atlantis lock, a
    pipeline freeze, or the team's agreement).
@@ -259,23 +272,34 @@ this order:
    from the old location.
 3. Move or copy the unit files to the new location, with the edits the new
    location needs.
-4. Establish the state at the new location. For a whole unit moving intact, push
-   the backup into the new, empty key (`terragrunt state push`), or copy the state
-   object in the backend if the team prefers that. For resources being split or
-   merged between units, use `import` blocks at the destination and `removed`
+4. Recheck the resolved addresses after editing the files. If identical, skip
+   state transfer and continue to the plan. If different, establish the state at
+   the destination. For a whole unit moving intact, verify the destination is
+   empty before pushing the backup (`terragrunt state push`) or copying the state
+   object in the backend. Stop if it is occupied; do not overwrite it. For
+   resources being split or merged between units, use `import` blocks at the
+   destination and `removed`
    blocks with `lifecycle { destroy = false }` at the source (Terraform 1.7 or
    later; check the release notes for OpenTofu), rather than `state mv` across
    backends.
 5. Plan at the new location. It must show no changes, or only the edits you
    intended. Anything that wants to create or destroy means the state did not land
    where the unit reads it.
-6. Remove the unit from the old location, and remove its state from the old key
-   only after step 5 is clean. Never run `destroy` at the old location to clean it
-   up: it destroys the real resources the new location now manages.
+6. Retire the old unit configuration and pipeline ownership after step 5 is
+   clean. Delete the old state object only for a whole-unit transfer to a
+   verified different state address. When both configurations use the same
+   address, keep that state object: the destination still needs it. For a partial
+   transfer, retain the source state and configuration for the remaining
+   resources. Never run `destroy` at the old location to clean up moved resources:
+   it destroys the real resources the new location now manages.
 7. Update every consumer found in the inventory, then lift the freeze.
 
-Each state-changing command in steps 2 to 6 is shown and confirmed individually,
-per [What this skill changes](#what-this-skill-changes). Do one service end to end
+Each state-changing command in steps 4 and 6 (pushing or copying state, applying
+`import` or `removed` blocks, deleting the old state object) is shown and
+confirmed individually. The backup in step 2 only reads state, but it writes a
+file holding everything the state records, secrets included: keep it out of the
+repository and delete it once the move is verified. This follows
+[What this skill changes](#what-this-skill-changes). Do one service end to end
 before starting the next. The second service will reuse the sequence, not the
 specific commands.
 

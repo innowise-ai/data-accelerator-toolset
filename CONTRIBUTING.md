@@ -11,8 +11,8 @@ documents already own — follow the links instead of expecting a second copy.
 
 ## Dev setup
 
-This repository is JSON content plus PowerShell tooling — there is no CLI to
-install. Clone it, install Pester once, and run the gate:
+This repository contains catalog content, PowerShell validation and a Python
+Terragrunt helper. Clone it, install Python 3.8 or later and Pester, and run the gate:
 
 ```powershell
 Install-Module Pester -RequiredVersion 5.6.1 -Force -Scope CurrentUser
@@ -20,6 +20,7 @@ Install-Module Pester -RequiredVersion 5.6.1 -Force -Scope CurrentUser
 $result = ./scripts/validate-catalog.ps1 -IndexPath ./index.json -CatalogRoot .
 if (-not $result.IsValid) { throw "Catalog validation failed." }
 Invoke-Pester -Path ./tests
+python -B -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
 ## Commit messages
@@ -38,8 +39,9 @@ commits.
 - Work on a branch off `main`; never commit directly to `main`.
 - Open a PR for review — don't push straight to `main` unless a maintainer
   explicitly asks for it.
-- The gate above (validation + `Invoke-Pester -Path ./tests`) must pass before
-  merge. CI (`.github/workflows/validate.yml`) runs the same two steps.
+- The gate above (catalog validation, Pester and Python unittest) must pass before
+  merge. CI (`.github/workflows/validate.yml`) runs the same checks. The Terragrunt
+  helper tests need Python 3.8 or later, with no extra packages.
 - For a new or changed artifact, manually verify the profile combinations that
   should select and exclude it — see the
   [checklist](docs/authoring-artifacts.md#checklist) in the authoring guide.

@@ -22,6 +22,15 @@ from collections import defaultdict
 
 SKIP_DIRS = {".terragrunt-cache", ".terragrunt-stack", ".git", ".terraform"}
 WORD = r"A-Za-z0-9"
+# Keep quoted strings and heredocs opaque when recognizing comments or sources.
+HCL_STRING = r'"(?:\\.|[^"\\])*"'
+HCL_HEREDOC = r'<<-?([A-Za-z_][A-Za-z0-9_]*)[^\n]*\n.*?^[ \t]*\1[ \t]*(?=\r?$)'
+HCL_COMMENT = r'\#[^\n]*|//[^\n]*|/\*.*?\*/'
+HCL_TEXT = re.compile(
+    HCL_HEREDOC + r'|' + HCL_STRING + r'|(?P<comment>' + HCL_COMMENT + r')',
+    re.MULTILINE | re.DOTALL,
+)
+SOURCE_VALUE = re.compile(r'\bsource\s*=\s*\Z')
 
 
 def parse_layout(layout):
@@ -82,13 +91,36 @@ def boundary_pattern(value):
 
 
 def normalize(text, dims):
-    """Replace this unit's own dimension values with {name} tokens, longest value first."""
+    """Normalize dimension values, preserving literal module sources and their refs."""
     lines = [line.rstrip() for line in text.replace("\r\n", "\n").split("\n")]
     out = "\n".join(lines).strip("\n")
-    for name, value in sorted(dims.items(), key=lambda item: -len(item[1])):
-        if name != "unit":
-            out = boundary_pattern(value).sub("{" + name + "}", out)
-    return out
+    replacements = [(boundary_pattern(value), "{" + name + "}")
+                    for name, value in sorted(dims.items(), key=lambda item: -len(item[1]))
+                    if name != "unit"]
+
+    def replace(part):
+        for pattern, token in replacements:
+            part = pattern.sub(token, part)
+        return part
+
+    # Use spans, not sentinel strings that might themselves match a dimension.
+    parts, start, previous_end = [], 0, 0
+    for match in HCL_TEXT.finditer(out):
+        if match.lastgroup == "comment":
+            continue
+        if SOURCE_VALUE.search(strip_comments(out[previous_end:match.start()])):
+            parts.extend((replace(out[start:match.start()]), match.group()))
+            start = match.end()
+        previous_end = match.end()
+    parts.append(replace(out[start:]))
+    return "".join(parts)
+
+
+def strip_comments(text):
+    """Remove HCL comments without interpreting comment markers inside strings."""
+    return HCL_TEXT.sub(
+        lambda match: re.sub(r'[^\r\n]', ' ', match.group())
+        if match.lastgroup == "comment" else match.group(), text)
 
 
 def label(dims):
@@ -111,12 +143,37 @@ def foreign_values(normalized, dims, observed):
 
 
 LITERAL_KEY = re.compile(r'^\s*key\s*=\s*"([^"$]*)"\s*$', re.MULTILINE)
+# A Terragrunt remote_state block, or a Terraform backend block (also inside generated contents).
+STATE_BLOCK = re.compile(r'\b(?:remote_state|backend\s+"[^"\n]*")\s*\{')
+
+
+def block_body(text, open_brace):
+    """Text between the brace at open_brace and its match; quoted strings are skipped."""
+    depth, index = 0, open_brace
+    while index < len(text):
+        char = text[index]
+        if char == '"':
+            index += 1
+            while index < len(text) and text[index] not in '"\n':
+                index += 2 if text[index] == "\\" else 1
+        elif char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return text[open_brace + 1:index]
+        index += 1
+    return text[open_brace + 1:]
 
 
 def literal_state_keys(text):
-    if "remote_state" not in text and "backend" not in text:
-        return []
-    return LITERAL_KEY.findall(text)
+    """Literal `key` values inside state configuration only, so a module input named
+    `key` (a KMS alias, an object key) is not mistaken for a state key."""
+    text = strip_comments(text)
+    keys = []
+    for match in STATE_BLOCK.finditer(text):
+        keys.extend(LITERAL_KEY.findall(block_body(text, match.end() - 1)))
+    return keys
 
 
 def main(argv=None):
@@ -189,10 +246,12 @@ def main(argv=None):
     groups = defaultdict(list)
     for unit in units:
         groups[unit["dims"]["unit"]].append(unit)
+    for name in args.unit:
+        groups.setdefault(name, [])
 
     report = {"root": args.root, "layout": args.layout, "unit_count": len(units),
               "coverage_from": coverage_source, "unmatched_files": unmatched, "units": {}, "shared_state_keys": []}
-    needs_review = bool(unmatched)
+    needs_review = bool(unmatched) or not units
 
     for key, paths in sorted(keys.items()):
         if len(paths) > 1:
@@ -214,7 +273,7 @@ def main(argv=None):
         chosen = [u for u in members if os.path.normcase(os.path.abspath(u["path"])) in baselines]
         ordered = sorted(variants.items(), key=lambda item: (
             not any(u in chosen for u in item[1]), -len(item[1]), item[1][0]["path"]))
-        baseline_text, baseline_units = ordered[0]
+        baseline_text, baseline_units = ordered[0] if ordered else ("", [])
         if chosen:
             baseline_units = sorted(baseline_units, key=lambda u: u not in chosen)
 
@@ -223,7 +282,7 @@ def main(argv=None):
             "missing": [dict(zip(dim_names, c)) for c in missing],
             "unexpected": unexpected,
             "baseline": {"count": len(baseline_units), "example": baseline_units[0]["path"],
-                         "chosen": bool(chosen)},
+                         "chosen": bool(chosen)} if baseline_units else None,
             "variants": [],
             "foreign_values": [],
             "literal_state_keys": sorted(u["path"] for u in members if literal_state_keys(u["text"])),
@@ -241,7 +300,8 @@ def main(argv=None):
             for hit in foreign_values(unit["normalized"], unit["dims"], observed):
                 entry["foreign_values"].append(dict(hit, file=unit["path"], unit=label(unit["dims"])))
 
-        if missing or unexpected or entry["variants"] or entry["foreign_values"]:
+        if (not members or missing or unexpected or entry["variants"]
+                or entry["foreign_values"] or entry["literal_state_keys"]):
             needs_review = True
         report["units"][name] = entry
 
@@ -255,6 +315,8 @@ def main(argv=None):
 def print_text(report, dim_names):
     print(f"{report['unit_count']} unit files under {report['root']} matched {report['layout']}")
     print(f"coverage compared against {report['coverage_from']} combinations of: {', '.join(dim_names) or '(none)'}")
+    if not report["unit_count"]:
+        print("NO UNITS: no selected unit files were found; the batch cannot be verified")
     if report["unmatched_files"]:
         print(f"\nfiles that do not fit the layout ({len(report['unmatched_files'])}):")
         for path in report["unmatched_files"]:
@@ -264,9 +326,13 @@ def print_text(report, dim_names):
         for path in item["files"]:
             print(f"  {path}")
     for name, entry in report["units"].items():
-        source = "chosen" if entry["baseline"]["chosen"] else "most common"
-        print(f"\n== {name}: {entry['instances']} instances, {entry['baseline']['count']} identical to "
-              f"baseline ({source}: {entry['baseline']['example']})")
+        if entry["baseline"] is None:
+            print(f"\n== {name}: 0 instances; no baseline available")
+            print(f"  MISSING   unit={name} (absent everywhere)")
+        else:
+            source = "chosen" if entry["baseline"]["chosen"] else "most common"
+            print(f"\n== {name}: {entry['instances']} instances, {entry['baseline']['count']} identical to "
+                  f"baseline ({source}: {entry['baseline']['example']})")
         for combo in entry["missing"]:
             print(f"  MISSING   {' '.join(f'{k}={v}' for k, v in combo.items())}")
         for path in entry["unexpected"]:
