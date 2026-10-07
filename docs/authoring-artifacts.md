@@ -286,7 +286,7 @@ then every TypeScript project would get it, asked for or not. That is a defensib
 
 ## Check your work before pushing
 
-Both commands run in CI ([`.github/workflows/validate.yml`](../.github/workflows/validate.yml)). Run them locally first.
+All three checks below run in CI ([`.github/workflows/validate.yml`](../.github/workflows/validate.yml)). Run them locally first.
 
 ### The validator
 
@@ -316,7 +316,7 @@ Errors        : {Artifact TS-REVIEW-CHECKS declares 'TypeScript' in dimension 'l
 
 The script returns an object; it does not set a non-zero exit code by itself. Check `IsValid`, as CI does.
 
-### The test suite
+### The validator test suite
 
 Pester 5.6.1, matching CI:
 
@@ -340,6 +340,16 @@ Tests Passed: <all of them>, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0
 The run prints a wall of `ERROR:` lines. That is expected — the suite feeds deliberately broken indexes to the validator and asserts it complains. Read the final tally, not the noise.
 
 You only need this suite if you changed the validator. Adding an artifact does not require it, but it is cheap and it is what CI runs.
+
+### Script tests
+
+Some artifacts ship scripts (`TERRAFORM-PLAN-REVIEW/scripts/plan_summary.py`). Their tests live in `tests/test_*.py`, use only the Python standard library, and need no external tools or credentials:
+
+```powershell
+python -B -m unittest discover -s tests -p 'test_*.py' -v
+```
+
+Run them when you change an artifact's script, and add a test for every bug you fix in one. CI runs them on Python 3.9, the oldest version the scripts support, and on 3.12. If your script needs a newer Python, say so in its docstring and raise the CI version with it.
 
 ## Troubleshooting
 

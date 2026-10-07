@@ -23,7 +23,7 @@ Invoke-Pester -Path ./tests
 python -B -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-The Terraform plan summary tests use Python 3.8+ and its standard library; they
+The Terraform plan summary tests use Python 3.9+ and its standard library; they
 need no Terraform installation or cloud credentials.
 
 ## Commit messages

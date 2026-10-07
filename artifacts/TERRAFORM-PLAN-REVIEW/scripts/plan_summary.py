@@ -7,7 +7,7 @@ forgotten, which resources drifted outside Terraform, and which changes touch
 stateful or access-control resources. Prints attribute paths without values and
 hides paths inside marked sensitive objects: the JSON plan holds secrets in plain text.
 
-Standard library only. Python 3.8+.
+Standard library only. Python 3.9+.
 
 Usage:
     terraform plan -out=tfplan
