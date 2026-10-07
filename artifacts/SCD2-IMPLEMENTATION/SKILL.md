@@ -1,6 +1,6 @@
 ---
 name: scd2-implementation
-description: Implement Slowly Changing Dimension Type 2 in SQL - validity intervals, change detection, and the idempotency traps. Use when building or fixing a dimension that must keep the history of changed attributes.
+description: Implement Slowly Changing Dimension Type 2 using the project's database dialect and schema, with validity intervals, null-safe change detection, and idempotency checks. Use when building or fixing a dimension that must keep the history of changed attributes.
 ---
 
 # SCD2 implementation
@@ -8,9 +8,54 @@ description: Implement Slowly Changing Dimension Type 2 in SQL - validity interv
 Type 2 keeps history: instead of overwriting a changed attribute, close the current
 row and open a new one. Every row is a version with a validity interval.
 
-The SQL below is PostgreSQL. The merge, the change detection and the checks also run
-on Snowflake as written; the few constructs that do not are covered in
-[Running it on Snowflake](#running-it-on-snowflake).
+Apply the workflow to the project's database and schema. The SQL blocks below are
+PostgreSQL reference examples, not a portable script. Names such as
+`dds.dim_customers`, `raw.customers` and `customer_id` are illustrative.
+
+## First: identify the database and map the schema
+
+Before writing SQL, inspect project configuration, migrations, existing queries and,
+when available, read-only database metadata. Establish:
+
+- The database engine and version, SQL client or dbt adapter, and transaction support
+  of the target tables. Do not infer the engine from table names or this example.
+- The source relation and history target, including their database/schema qualifiers;
+  the business key (possibly composite); tracked attributes; effective timestamp;
+  validity columns; current-row convention; and any audit or surrogate-key columns.
+- The input shape: current-state snapshot or change events, uniqueness per key in a
+  batch, ordering and timestamp precision/time zone. Distinguish the extraction
+  watermark from the business effective time if the project uses separate columns.
+- The handling of late events, deletes and concurrent loads of the same keys. Reuse
+  established project rules; identify missing rules that affect history correctness.
+
+Summarize the engine/version and the source-to-target column mapping before
+implementation. Ask only for facts that cannot be established from the project;
+do not silently default to PostgreSQL or invent missing columns. If `customers_db`
+is the user's table, determine whether it is the source or history target and keep
+that name. Do not rename it or create `dds.dim_customers` just to match the example.
+
+## Adapt, implement, and verify
+
+1. Choose an implementation supported by that engine/version and the input contract.
+   The reference merge assumes a stable batch with one row per business key,
+   chronological new versions (or an identical retry of the latest batch), and
+   serialized loads of overlapping keys.
+   Validate these assumptions before writes; otherwise deduplicate identical events,
+   process distinct changes in order, or implement interval splitting as required.
+   A transaction alone does not guarantee that concurrent loads cannot duplicate keys.
+2. Translate all SQL to the target dialect: identifiers, null-safe comparisons,
+   update/join syntax, temporal types, defaults, indexes, transaction boundaries,
+   parameter binding and validation queries. Preserve the invariants below. Check
+   version-specific support in official engine/driver documentation; renaming tables
+   alone is not a dialect conversion. See [Dialect adaptation](#dialect-adaptation).
+3. Run the adapted implementation in an isolated fixture on the target engine/version.
+   Cover new, unchanged and changed keys, changes into/out of `NULL`, and window
+   boundaries. Load the identical batch twice and compare row values and their
+   multiplicities, total count and open-version counts per key; run all invariants.
+   Test late/multiple events or their rejection according to the chosen contract.
+4. Deliver the mapped SQL and validation results with the engine/version and remaining
+   assumptions. If execution is unavailable, label the implementation unverified on
+   that engine; a PostgreSQL test does not establish MySQL or Snowflake compatibility.
 
 ## Table shape
 
@@ -68,7 +113,8 @@ double-write behind what looks like rounding.
 
 ## Change detection
 
-Compare with `IS DISTINCT FROM`, never `<>` or `!=`:
+Use a null-safe difference test for the selected dialect, rather than a plain
+`<>` or `!=`. In PostgreSQL this is `IS DISTINCT FROM`:
 
 ```sql
 WHERE d.full_name IS DISTINCT FROM n.full_name
@@ -96,7 +142,8 @@ md5(concat_ws('|', coalesce(full_name, '<NULL>'),
 
 ## The merge
 
-Three steps, one transaction.
+PostgreSQL reference: three steps, one transaction, under the input assumptions
+established above. Map the identifiers and adapt the syntax before using it elsewhere.
 
 ```sql
 BEGIN;
@@ -170,10 +217,10 @@ makes it a no-op the second time:
 - **Step 3** inserts only keys with no rows at all, and after the first run the key
   has one.
 
-The `NOT EXISTS` is preferred over collecting the keys closed in this run into a temp
-table because it states the invariant itself - at most one open version per key. It
-needs no session state, runs the same in any warehouse, and keeps holding if step 1
-is changed later.
+In this reference, `NOT EXISTS` avoids collecting keys closed in this run into a
+temporary table. Under the stated input and serialization assumptions it prevents
+opening another version when one is already open. It is not a uniqueness constraint
+and does not make arbitrary changes to step 1 or concurrent loads safe.
 
 Test it rather than trusting the argument. Load a window, snapshot the table, run the
 merge again with the same `:start_ts` and `:end_ts`, and compare:
@@ -248,17 +295,36 @@ overlap check pairs versions by ordering on `actual_from`, so it needs no physic
 row id; exact duplicates, which that ordering cannot see, are what the second check
 is for.
 
-## Running it on Snowflake
+## Dialect adaptation
 
-Everything above except the table definition runs unchanged. Snowflake accepts
-`timestamptz` as a synonym for `TIMESTAMP_TZ`, supports `IS DISTINCT FROM`,
-`UPDATE ... FROM`, `md5` and `concat_ws`, and runs the three statements as one
-transaction between `BEGIN` and `COMMIT`. The differences:
+These are starting points for adapting the reference, not a list of tested engines.
+For any other SQL engine, use its version-specific documentation and the same
+mapping and verification workflow.
 
-- **No partial index.** Snowflake has no indexes. Drop the `CREATE INDEX`. On a large
-  dimension `CLUSTER BY (customer_id)` is the nearest equivalent, worth adding only
-  once query profiles show poor pruning.
+### Snowflake
+
+- **Index strategy.** For a standard Snowflake table, omit the PostgreSQL partial
+  index. Choose clustering only when query profiles justify it; do not translate
+  indexes mechanically into clustering keys.
 - **`DEFAULT now()`** becomes `DEFAULT current_timestamp()`.
+- Adapt timestamp types and client parameters, then verify the complete transaction
+  and invariant queries on the target account.
+
+### MySQL
+
+- Rewrite `UPDATE ... FROM` using the supported joined-update form; see
+  [UPDATE](https://dev.mysql.com/doc/refman/8.4/en/update.html).
+- Use `NOT (a <=> b)` for null-safe difference; see
+  [comparison operators](https://dev.mysql.com/doc/refman/8.4/en/comparison-operators.html).
+- Replace PostgreSQL temporal types and partial indexes with a design supported by
+  the actual version. Choose `DATETIME`/`TIMESTAMP` precision and a time-zone policy
+  explicitly; see [temporal types](https://dev.mysql.com/doc/refman/8.4/en/date-and-time-types.html).
+- Verify transactional storage, target-table read/write restrictions and support for
+  the test queries (including `EXCEPT`) in the deployed version. Use an equivalent
+  comparison preserving duplicate counts if a set operator is unavailable.
+
+### Client parameters
+
 - **Parameter syntax belongs to the client, not the SQL.** The examples use
   SQLAlchemy-style named binds (`:start_ts`, `:end_ts`). In psql, replace them with
   `:'start_ts'` and `:'end_ts'`: psql substitutes variables into the SQL text, and
@@ -270,7 +336,9 @@ transaction between `BEGIN` and `COMMIT`. The differences:
 
 ## Prefer the built-in
 
-If the warehouse already runs dbt, `snapshot` implements all of this:
+If the project already runs dbt with a suitable adapter, consider a snapshot for
+tracking successive source states. Adapt the configuration to the installed dbt
+version and map the source and key; this is a reference example:
 
 ```sql
 {% snapshot customers_snapshot %}
@@ -286,7 +354,7 @@ dbt maintains `dbt_valid_from` / `dbt_valid_to` (`NULL` = current) and a
 where there is none, `strategy='check'` with `check_cols` compares the columns
 directly and is the equivalent of the `IS DISTINCT FROM` block above.
 
-Hand-write the merge when there is no dbt, when the source has no reliable change
-timestamp and the table is too wide for `check_cols`, or when late-arriving data
-needs interval splitting. Otherwise use the snapshot - the traps above are already
-handled in it.
+Use custom SQL when the project's requirements exceed the snapshot's behavior,
+such as replaying every event in a batch or splitting historical intervals for late
+events. A snapshot cannot recover intermediate states absent from its input. Verify
+the chosen implementation against the same input contract and invariants.
