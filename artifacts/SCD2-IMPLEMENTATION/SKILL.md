@@ -259,9 +259,14 @@ transaction between `BEGIN` and `COMMIT`. The differences:
   dimension `CLUSTER BY (customer_id)` is the nearest equivalent, worth adding only
   once query profiles show poor pruning.
 - **`DEFAULT now()`** becomes `DEFAULT current_timestamp()`.
-- **Bind syntax belongs to the client, not the SQL.** `:start_ts` is the psql and
-  SQLAlchemy form; the Snowflake Python connector takes `%(start_ts)s` or `?`. The
-  rule about binding instead of interpolating does not change.
+- **Parameter syntax belongs to the client, not the SQL.** The examples use
+  SQLAlchemy-style named binds (`:start_ts`, `:end_ts`). In psql, replace them with
+  `:'start_ts'` and `:'end_ts'`: psql substitutes variables into the SQL text, and
+  this form quotes and escapes their values as SQL literals. Bare `:start_ts`
+  inserts text verbatim; it is not a bound parameter. The Snowflake Python
+  connector uses `%(start_ts)s` or, when configured for `qmark`, `?`. In application
+  code, pass values through the client's parameter API rather than interpolating
+  them into SQL strings.
 
 ## Prefer the built-in
 
