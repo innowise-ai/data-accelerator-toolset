@@ -1,0 +1,5 @@
+# Built from ../index.json; not committed.
+dist/page.html
+
+# Local clasp state (scriptId). Each maintainer has their own.
+.clasp.json
