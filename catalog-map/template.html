@@ -158,6 +158,7 @@ try { if (localStorage.getItem('skillmap-view') === 'matrix') st.view = 'matrix'
 const $ = id => document.getElementById(id);
 const tr = k => T[st.lang][k];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const L = (a,f) => (st.lang==='ru' && a.ru) ? a.ru[f] : a[f];
 const apList = a => [...(a.ap.frameworks||[]), ...(a.ap.languages||[])];
 const apKey = a => [...(a.ap.frameworks||[]).map(x=>'fw:'+x), ...(a.ap.languages||[]).map(x=>'lang:'+x)];
 const topics = [...new Set(DATA.flatMap(a=>a.t))].sort();
@@ -171,7 +172,7 @@ function buildChips(el, items, set, labelFn){
     b.setAttribute('aria-pressed', set.has(v)); render(); };
 }
 function match(a){
-  if (st.q){ const h=(a.id+' '+a.n+' '+a.sum).toLowerCase(); if(!h.includes(st.q)) return false; }
+  if (st.q){ const h=(a.id+' '+a.n+' '+a.sum+' '+(a.ru?a.ru.n+' '+a.ru.sum:'')).toLowerCase(); if(!h.includes(st.q)) return false; }
   if (st.topics.size && ![...st.topics].every(t=>a.t.includes(t))) return false;
   if (st.ap.size && ![...st.ap].some(k=>apKey(a).includes(k))) return false;
   return true;
@@ -185,14 +186,14 @@ function tagsOf(a){
 function item(a, g){
   const open = st.open.has(a.id);
   const det = open ? `<div class="detail">
-    <div><h3>${tr('what')}</h3><p>${esc(a.sum)}</p></div>
-    <div><h3>${tr('benefits')}</h3><ul>${a.b.map(b=>`<li>${esc(b)}</li>`).join('')}</ul></div>
+    <div><h3>${tr('what')}</h3><p>${esc(L(a,'sum'))}</p></div>
+    <div><h3>${tr('benefits')}</h3><ul>${L(a,'b').map(b=>`<li>${esc(b)}</li>`).join('')}</ul></div>
     <div><h3>${tr('where')}</h3><p class="mono"><a href="${REPO}/blob/${esc(REF)}/${esc(a.p)}/SKILL.md" target="_blank" rel="noopener">${esc(a.p)}/SKILL.md</a></p>
     <h3>${tr('ver')}</h3><p class="mono">${esc(a.v)}</p></div></div>` : '';
   return `<div class="item" style="--gc:var(${g.c});--gs:var(${g.s})">
     <button data-id="${esc(a.id)}" aria-expanded="${open}">
       <span class="iid">${esc(a.id)}</span>
-      <span class="iname">${esc(a.n)}</span>
+      <span class="iname">${esc(L(a,'n'))}</span>
       <span class="tags">${tagsOf(a)}</span>
     </button>${det}</div>`;
 }

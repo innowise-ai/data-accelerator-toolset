@@ -8,11 +8,15 @@ const path = require('path');
 const here = __dirname;
 const index = JSON.parse(fs.readFileSync(path.join(here, '..', 'index.json'), 'utf8'));
 const groups = JSON.parse(fs.readFileSync(path.join(here, 'groups.json'), 'utf8'));
+const ru = JSON.parse(fs.readFileSync(path.join(here, 'ru.json'), 'utf8'));
 const template = fs.readFileSync(path.join(here, 'template.html'), 'utf8');
 
 const known = new Set(index.artifacts.map(a => a.id));
 const warnings = [];
 
+for (const id of Object.keys(ru)) {
+  if (!known.has(id)) warnings.push(`ru.json lists ${id}, which is not in index.json`);
+}
 for (const id of Object.keys(groups)) {
   if (!known.has(id)) warnings.push(`groups.json lists ${id}, which is not in index.json`);
 }
@@ -24,7 +28,11 @@ const data = index.artifacts.map(a => {
     g = ['General', 'Other'];
   }
   const p = a.presentation || {};
+  const r = ru[a.id];
+  if (!r) warnings.push(`${a.id} has no Russian text in ru.json; the RU view shows English for it`);
+  else if (r.v !== a.version) warnings.push(`${a.id} is ${a.version} in index.json but its Russian text was written for ${r.v}; re-check ru.json`);
   return {
+    ru: r ? { n: r.n, sum: r.sum, b: r.b } : null,
     id: a.id,
     v: a.version,
     p: a.source_path,

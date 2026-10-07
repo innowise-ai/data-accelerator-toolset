@@ -14,6 +14,8 @@ node build.js && clasp push -f && clasp update-deployment AKfycbx3VvBBbugxxs35na
 
 Use `update-deployment`, not `create-deployment`: the second one creates another link, and the old link keeps serving the old page. `push` alone publishes nothing, because `/exec` serves the last deployed version.
 
+Russian names, summaries and benefits live in `ru.json`, keyed by artifact id, with the artifact version they were written for. `build.js` warns when an artifact has no Russian text or when its version moved since the text was written; until then the RU view shows English for it.
+
 `build.js` warns when an artifact in `index.json` has no entry in `groups.json`. Add the id to `groups.json` as `["<group>", "<subgroup>"]`. Groups are `Data engineering`, `Containers` and `General`; a new subgroup name shows in English in both languages unless you add it to `SUB_RU` in `template.html`.
 
 ## Link
