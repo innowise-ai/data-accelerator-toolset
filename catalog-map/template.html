@@ -7,6 +7,7 @@
   --accent:#1f5fd6; --accent-soft:#e3ecfc;
   --g-de:#1f5fd6; --g-de-soft:#e3ecfc;
   --g-ct:#a35a00; --g-ct-soft:#fbeed8;
+  --g-ic:#7a3db8; --g-ic-soft:#efe4fa;
   --g-gn:#2c7a4b; --g-gn-soft:#def2e6;
   --warn:#b3261e; --warn-soft:#fbe4e2;
   --code:#eef1f5;
@@ -18,6 +19,7 @@
   --accent:#6b9cff; --accent-soft:#1b2a47;
   --g-de:#6b9cff; --g-de-soft:#1b2a47;
   --g-ct:#e8a045; --g-ct-soft:#3a2a12;
+  --g-ic:#b98af0; --g-ic-soft:#2c1d42;
   --g-gn:#5cc489; --g-gn-soft:#14301f;
   --warn:#ff8a80; --warn-soft:#3d1c1a; --code:#1f2935; color-scheme:dark}}
 :root[data-theme="dark"]{
@@ -25,6 +27,7 @@
   --accent:#6b9cff; --accent-soft:#1b2a47;
   --g-de:#6b9cff; --g-de-soft:#1b2a47;
   --g-ct:#e8a045; --g-ct-soft:#3a2a12;
+  --g-ic:#b98af0; --g-ic-soft:#2c1d42;
   --g-gn:#5cc489; --g-gn-soft:#14301f;
   --warn:#ff8a80; --warn-soft:#3d1c1a; --code:#1f2935; color-scheme:dark}
 *{box-sizing:border-box}
@@ -138,16 +141,17 @@ const T = {
       tree:'Tree', matrix:'Topic matrix', search:'Search by id, name or description', reset:'Reset', fTopic:'Topic', fAp:'Applies to',
       of:'of', none:'Nothing found. Reset the filters.', any:'any project', what:'What it does', benefits:'What you get', where:'Path in repo', ver:'Version',
       colSkill:'skill', colAp:'applies to',
-      s1:'skills', s2:'data engineering', s3:'containers', s4:'general, any stack', lang:'lang '},
+      s1:'skills', s2:'data engineering', s3:'containers', s5:'infrastructure as code', s4:'general, any stack', lang:'lang '},
   ru:{title:'Карта каталога скиллов', forVersion:'Собрано для версии каталога', repo:'Toolset на GitHub', sub:'38 скиллов из Data Accelerator toolset по областям. Фильтруйте по теме, фреймворку или языку, на которые рассчитан скилл, и открывайте любой скилл, чтобы увидеть, что он делает.',
       tree:'Дерево', matrix:'Матрица тем', search:'Поиск по id, названию или описанию', reset:'Сбросить', fTopic:'Тема', fAp:'Применимость',
       of:'из', none:'Ничего не найдено. Сбросьте фильтры.', any:'любой проект', what:'Что делает', benefits:'Что даёт', where:'Путь в репо', ver:'Версия',
       colSkill:'скилл', colAp:'применимость',
-      s1:'скиллов', s2:'data engineering', s3:'контейнеры', s4:'общие, любой стек', lang:'язык '}
+      s1:'скиллов', s2:'data engineering', s3:'контейнеры', s5:'инфраструктура как код', s4:'общие, любой стек', lang:'язык '}
 };
 const GROUPS = [
   {k:'Data engineering', t:{en:'Data engineering', ru:'Data engineering'}, c:'--g-de', s:'--g-de-soft'},
   {k:'Containers', t:{en:'Containers', ru:'Контейнеры'}, c:'--g-ct', s:'--g-ct-soft'},
+  {k:'Infrastructure as code', t:{en:'Infrastructure as code', ru:'Инфраструктура как код'}, c:'--g-ic', s:'--g-ic-soft'},
   {k:'General', t:{en:'General, any stack', ru:'Общие, любой стек'}, c:'--g-gn', s:'--g-gn-soft'}
 ];
 const SUB_RU = {'Pipelines, SQL and data safety':'Pipelines, SQL и безопасность данных','Review and testing':'Review и тесты','Development process':'Процесс разработки','Docs and writing':'Документы и текст'};
@@ -218,7 +222,7 @@ function renderMatrix(list){
 }
 function stats(){
   const n = f => DATA.filter(f).length;
-  $('stats').innerHTML = [[DATA.length,'s1'],[n(a=>a.g==='Data engineering'),'s2'],[n(a=>a.g==='Containers'),'s3'],[n(a=>a.g==='General'),'s4']]
+  $('stats').innerHTML = [[DATA.length,'s1'],[n(a=>a.g==='Data engineering'),'s2'],[n(a=>a.g==='Containers'),'s3'],[n(a=>a.g==='Infrastructure as code'),'s5'],[n(a=>a.g==='General'),'s4']]
     .map(([v,l])=>`<div class="panel stat"><b>${v}</b><span>${tr(l)}</span></div>`).join('');
 }
 function i18n(){
