@@ -71,11 +71,19 @@ dependency "queue" {
 }
 ```
 
-A plan built on mock outputs shows the mock values, not the ones apply will use. A
-policy granting access to `...:mock` tells the reviewer nothing about the real ARN.
-Check whether each dependency was already applied; where it was not, review the
-expression, not the planned value. `mock_outputs_allowed_terraform_commands` should
-exclude `apply`, so apply cannot run on placeholders.
+A plan built on mock outputs shows the mock values, and a saved plan keeps them: the
+placeholders are written into the plan file, and applying that file applies them,
+whatever happened to the dependency since. A policy granting access to `...:mock`
+tells the reviewer nothing about the real ARN, and applied from a saved plan it
+grants access to `...:mock`. Excluding `apply` from
+`mock_outputs_allowed_terraform_commands` stops a fresh `terragrunt apply` from
+using mocks; it does not reach into a plan file that already holds them.
+
+So check whether each dependency was already applied. Where it was not, the plan is
+not reviewable as final: apply the dependency first, then re-plan the consumer with
+the real outputs and review that plan. Never approve or apply a saved plan that
+contains mock values. The Terragrunt documentation warns about exactly this for
+saved plans and has no built-in safeguard against it.
 
 ### Running across units
 
@@ -116,9 +124,15 @@ override. Three gaps to check:
   before the last commit approved a plan that no longer exists. Unless branch
   protection dismisses stale approvals, the old approval still satisfies `approved`.
   Re-read the latest plan comment before approving or applying.
-- **`undiverged`** requires the branch to be up to date with the base. Without it, a
-  plan can be built against code that is missing a change already merged and
-  applied, and apply then reverts that change.
+- **`undiverged`** blocks apply when the base branch has changed since the most recent
+  plan. It works only with `--checkout-strategy merge`, where Atlantis plans a
+  temporary merge of the pull request into the base. It does not require the pull
+  request branch itself to be up to date. With the default `branch` strategy,
+  Atlantis plans the pull request branch as it is, and `undiverged` gives no
+  protection: a plan can be built against code that is missing a change already
+  merged and applied, and apply then reverts that change. Check the server's
+  checkout strategy before relying on the requirement. Under `branch`, ask for the
+  pull request to be rebased onto the base and re-planned before apply.
 - **Who may comment `atlantis apply`.** By default anyone who can comment and passes
   the requirements. Team allowlists and policy checks narrow it. This is a project
   fact, not something to assume.

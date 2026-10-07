@@ -47,9 +47,11 @@ python scripts/plan_summary.py plan.json      # path relative to this skill
 
 The script groups every resource by what will happen to it, gives the reason
 Terraform recorded, flags destroyed stateful resources and every access-control
-change, and lists drift. It exits `2` when anything is destroyed or replaced, `0`
-when nothing is, and `1` when it cannot read the input, so it can gate a pipeline as
-well as inform a reviewer. Pass `--stateful <type>` (globs allowed) for resource
+change, and lists drift. It exits `0` only when the plan is complete and nothing is
+destroyed or replaced: `2` means something is, `3` that the plan errored or is
+incomplete and so cannot show it, and `1` that the input is unreadable or is not a
+saved plan (state JSON, from `terraform show -json` without a plan file, is
+rejected). That lets it gate a pipeline as well as inform a reviewer. Pass `--stateful <type>` (globs allowed) for resource
 types the project treats as stateful beyond its built-in list.
 
 Review the plan that will be applied. In Atlantis that is the plan comment for the
@@ -222,7 +224,7 @@ cover.
 
 | Check | Command or pattern | Finding when |
 |---|---|---|
-| Anything destroyed or replaced | `python scripts/plan_summary.py plan.json` | Exit code `2`; read every line it lists |
+| Anything destroyed or replaced | `python scripts/plan_summary.py plan.json` | Exit code `2`; read every line it lists. Exit `3`: the plan is not final, re-plan |
 | Plan has changes at all | `terraform plan -detailed-exitcode` | Exit `2` on a change described as a no-op refactor |
 | Formatting and syntax | `terraform fmt -check -recursive`, `terraform validate` | Non-zero exit |
 | Replacements in console output | search for `must be replaced` and `forces replacement` | Any hit not explained in the pull request |
@@ -242,8 +244,8 @@ A generic review cannot know a project's layout. These are the facts to bind wit
   lives, and which paths Atlantis or CI plans.
 - **Environments:** which directory, workspace or account is which environment, and
   which one is production.
-- **Who may apply:** the approval rule (Atlantis `apply_requirements`, `CODEOWNERS`,
-  branch protection) and who can run apply.
+- **Who may apply:** the approval rule (Atlantis `apply_requirements` and the server's
+  `--checkout-strategy`, `CODEOWNERS`, branch protection) and who can run apply.
 - **Where plans and logs live:** pull request comments, CI artifacts, the Atlantis UI;
   and where state lives, which is not to be read casually.
 - **Project stateful types:** resource types to pass as `--stateful`, such as warehouse

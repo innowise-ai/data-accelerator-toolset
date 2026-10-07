@@ -17,8 +17,9 @@ Usage:
 
 Exit codes:
     0  nothing is destroyed or replaced
-    1  the input could not be read
+    1  the input could not be read, or is not a saved plan
     2  at least one resource is destroyed or replaced
+    3  the plan errored or is incomplete, so it cannot show that nothing is destroyed
 """
 
 import argparse
@@ -102,6 +103,18 @@ def is_empty(value):
     return value is None or value == {} or value == [] or value == ""
 
 
+def contains_unknown(marker):
+    # after_unknown mirrors the value's shape: an attribute holding a list of
+    # objects is unknown wherever any nested leaf is true.
+    if marker is True:
+        return True
+    if isinstance(marker, dict):
+        return any(contains_unknown(v) for v in marker.values())
+    if isinstance(marker, list):
+        return any(contains_unknown(v) for v in marker)
+    return False
+
+
 def changed_attributes(change):
     """Top-level attribute names whose value changes or becomes unknown."""
     before = change.get("before") or {}
@@ -112,7 +125,7 @@ def changed_attributes(change):
     changed = []
     pending = []
     for key in sorted(set(before) | set(after) | set(unknown)):
-        if unknown.get(key) is True:
+        if contains_unknown(unknown.get(key)):
             pending.append(key)
         elif before.get(key) != after.get(key) and not (
             is_empty(before.get(key)) and is_empty(after.get(key))
@@ -150,9 +163,13 @@ def main():
     args = parser.parse_args()
 
     plan = load(args.plan_json)
-    if "resource_changes" not in plan and "format_version" not in plan:
+    # Every plan, including one with no changes, has planned_values. State JSON
+    # (`terraform show -json` without a plan file) shares format_version but has
+    # none, and summarising it would report "nothing destroyed".
+    if not isinstance(plan, dict) or "planned_values" not in plan:
         print(
-            "This does not look like `terraform show -json` output for a saved plan.",
+            "Not `terraform show -json <planfile>` output: no planned_values. "
+            "State JSON, from `terraform show -json` without a plan file, is not a plan.",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -243,8 +260,8 @@ def main():
         target = planned.get(address, {}).get("change", {})
         undone = []
         if classify(target.get("actions", [])) == "update":
-            planned_changes, _ = changed_attributes(target)
-            undone = [k for k in drifted if k in planned_changes]
+            planned_changes, planned_pending = changed_attributes(target)
+            undone = [k for k in drifted if k in planned_changes or k in planned_pending]
         if undone:
             reverted.append("%s  [%s]" % (address, ", ".join(undone)))
             flags.append(
@@ -312,6 +329,8 @@ def main():
         lines.extend("  " + item for item in absorbed)
 
     print("\n".join(lines))
+    if warnings:
+        return 3
     return 2 if destroyed else 0
 
 
