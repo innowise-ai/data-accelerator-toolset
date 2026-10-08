@@ -6,6 +6,50 @@ This is the task-shaped companion to [`README.md`](../README.md), which is the r
 
 For a shipped artifact to copy from, read [`artifacts/ETL-DECOMPOSITION`](../artifacts/ETL-DECOMPOSITION) — one dimension, one topic, `on-demand`, which is the shape most artifacts should have.
 
+## What belongs in the catalog
+
+**Scope is the whole big-data stack**, not only the frameworks and topics the
+vocabulary holds today. The vocabulary describes what exists; a value it lacks
+is part of the work of adding an artifact (see [The current
+vocabulary](#the-current-vocabulary)), not a reason to turn the artifact down.
+Power BI is out of scope, which is why `power-bi` is deliberately absent from
+`frameworks`.
+
+**The catalog assumes open-source tooling, dbt Core in particular.**
+`DBT-COLUMN-LINEAGE` is the single artifact that needs dbt Cloud and an MCP
+server. Content that only works on dbt Cloud, Fusion or another paid tier, or
+that mostly wraps a vendor CLI, is tooling rather than knowledge and does not
+fit.
+
+**An artifact ships no agent hooks or settings.** It is `SKILL.md` plus
+metadata, installed into a skills directory for Claude Code, Codex and Cursor
+alike. Hooks live in agent settings, which the installer does not write, and
+they exist in Claude Code only. A skill that writes to a database instead says
+in `SKILL.md` what it changes, reads by default, confirms each write, and
+recommends a least-privilege role. The database role is the real boundary.
+
+**Write prose that explains why.** A rule the reader understands survives cases
+the author did not foresee; a Do/Don't list does not. "Don't put heavy logic in
+the DAG file" is the shape to avoid. Explaining the scheduler's parse loop that
+makes it matter is the shape to aim for. This is also why a popular external
+skill is often rejected as a duplicate even where our coverage of the topic is
+thinner.
+
+### Adopting a third-party skill
+
+Check a candidate in this order, cheapest disqualifier first: licence, its path
+in the source repository, the body of its `SKILL.md`, coupling to a CLI or paid
+product, and install count last. Install count and vendor reputation predict
+neither relevance nor whether the licence lets us use it.
+
+- Read the licence with `gh api repos/OWNER/REPO --jq '.license.spdx_id'`.
+  `NOASSERTION` means a non-standard licence, not a missing one; open `LICENSE`.
+- GPL-3.0 and licences restricted to a vendor's own services block adoption
+  into this MIT catalog. Apache-2.0 is usable but needs its own section in
+  [`NOTICE`](../NOTICE) with the full licence text and a note of what was
+  modified.
+- Defects found in the source are fixed during adaptation, not carried over.
+
 ## The five decisions
 
 Everything else about an artifact is mechanical. These five determine whether anyone ever sees it.
@@ -175,6 +219,14 @@ a stretch, and the accurate name would be something like `tools`. Renaming a
 the loose name is kept deliberately rather than paid for with a schema bump.
 
 A value not in the vocabulary is a CI failure. That is deliberate: the alternative is an artifact that passes review and then matches nothing forever, with no error anywhere.
+
+Adding a value is half of a contract; the installer holds the other half. The
+installer reads the vocabulary from the index, but its project scanner detects
+only the values it was written for, so a new value reaches a profile through the
+questionnaire alone until the scanner learns it. Say in the PR that the
+vocabulary changed, so the release notes carry it and an installer issue can be
+filed. A new topic is also not applied to existing artifacts by itself: check
+which of them, including ones merged in parallel, should declare it.
 
 ## Hard rules
 
