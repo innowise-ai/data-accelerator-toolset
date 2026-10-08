@@ -1,6 +1,6 @@
 ---
 name: terraform-plan-review
-description: Read a Terraform plan before it is applied - what it destroys or replaces, what drifted, what changes access - and restate it per resource in plain language, so a reviewer without deep Terraform knowledge can approve or stop it. Use when an agent has written or proposes a Terraform or Terragrunt change, or when someone has to approve a plan, including in Atlantis.
+description: Read a Terraform plan before it is applied - what it destroys or replaces, what drifted, what changes access - and restate it per resource in plain language, so a reviewer without deep Terraform knowledge can approve or stop it. Use when someone asks to review, explain or approve a Terraform or Terragrunt plan (including an Atlantis plan comment), asks whether a change is safe to apply or what applying it will do, or before an agent hands an infrastructure change over for apply. Not for writing, formatting, explaining or refactoring Terraform code when nobody has asked what applying it would do.
 ---
 
 # Review a Terraform plan before it is applied
@@ -10,8 +10,9 @@ rename in the code can destroy a bucket, and a long diff can change nothing at a
 When an agent writes the Terraform and a person approves it, the person is usually
 reviewing "on a logical level": does this look like what we asked for. That works
 only if someone has turned the plan into statements a non-specialist can check.
-This skill is that step. The agent uses it before proposing a change, and the
-reviewer uses it before approving one.
+This skill is that step. The agent uses it before handing a change over for apply,
+and the reviewer uses it before approving one. It is not a step in writing or
+explaining Terraform code.
 
 Review the plan first and read the code to explain it, not the other way round. A
 finding in the code matters because of what it does to the plan.
@@ -23,6 +24,10 @@ Nothing, by default. Reading code and plans, and running `terraform fmt -check`,
 `plan` does even so: it takes the state lock, calls the provider's read APIs with
 real credentials, and in Terragrunt a `run --all` plan touches every unit below the
 current directory. Plan only the units and the environment the change targets.
+
+If a saved plan or its JSON form already exists, review that rather than planning
+again. Run `plan` yourself only when the person asked for a review, a safety check or
+an apply, not to answer a question about the code.
 
 Never run `apply`, `destroy`, `import`, `state rm`, `state mv`, `state push`,
 `taint`, `untaint`, `force-unlock` or `init -upgrade`, and never comment
