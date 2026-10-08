@@ -187,6 +187,11 @@ class CompareUnitsTests(unittest.TestCase):
         self.assertEqual(dev["within"], {"env": "dev"})
         self.assertEqual(dev["baseline"]["count"], 2)
         self.assertEqual(dev["variants"][0]["files"], [str(self.root / "globex/dev/queue/terragrunt.hcl")])
+        # Headers name the files, so '-' lines cannot be read as the variant's content.
+        header = dev["variants"][0]["diff"][:2]
+        self.assertTrue(header[0].startswith("--- " + dev["baseline"]["example"]))
+        self.assertIn("baseline", header[0])
+        self.assertTrue(header[1].startswith("+++ " + str(self.root / "globex/dev/queue/terragrunt.hcl")))
         self.assertEqual(report["units"]["queue [env=prod]"]["variants"], [])
 
     def test_within_reports_missing_units_in_their_own_slice(self):

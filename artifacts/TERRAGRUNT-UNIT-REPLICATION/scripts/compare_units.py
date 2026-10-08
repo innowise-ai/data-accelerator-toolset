@@ -315,8 +315,14 @@ def main(argv=None):
             "literal_state_keys": sorted(u["path"] for u in members if literal_state_keys(u["text"])),
         }
         for text, same in ordered[1:]:
-            diff = list(difflib.unified_diff(baseline_text.split("\n"), text.split("\n"),
-                                             "baseline", "variant", n=1, lineterm=""))
+            # Name both files in the headers: '-' lines are the baseline's, not the variant's.
+            variant_path = sorted(u["path"] for u in same)[0]
+            diff = list(difflib.unified_diff(
+                baseline_text.split("\n"), text.split("\n"),
+                f"{baseline_units[0]['path']} (baseline: '-' lines are only here)",
+                f"{variant_path}" + (f" and {len(same) - 1} more" if len(same) > 1 else "")
+                + " ('+' lines are only here)",
+                n=1, lineterm=""))
             entry["variants"].append({
                 "count": len(same),
                 "files": sorted(u["path"] for u in same),
