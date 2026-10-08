@@ -8,6 +8,10 @@
   "strength": "on-demand",
   "topics": ["code-review", "security", "infrastructure"],
   "scope": "project",
+  "requires": {
+    "tools": ["Python 3.9+ (standard library only)", "Terraform CLI, or Terragrunt, to produce the JSON plan"],
+    "access": ["Provider credentials for the target environment, when the plan has to be made rather than an existing one reviewed"]
+  },
   "presentation": {
     "name": "Review a Terraform plan in plain language before apply",
     "summary": "Reads a Terraform plan before it is applied and restates each change in plain language, so a reviewer without deep Terraform knowledge can approve or stop it.",
