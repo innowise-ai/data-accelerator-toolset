@@ -758,7 +758,7 @@
     },
     {
       "id": "TERRAFORM-PLAN-REVIEW",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/TERRAFORM-PLAN-REVIEW",
       "applies_to": {
         "frameworks": ["terraform"]
