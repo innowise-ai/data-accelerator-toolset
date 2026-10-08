@@ -103,6 +103,9 @@ history, ask.
 
 Prefer a template from the same environment tier as the targets. A production unit
 copied into development usually carries production sizing, and the reverse is worse.
+For the same reason, compare candidates within one environment as well as across
+all of them (see [Verify the batch](#verify-the-batch)): a run that mixes
+environments can hide a dev unit that carries production values.
 
 ## Separate what varies from what must not
 
@@ -210,6 +213,24 @@ missing, with `baseline: null` in JSON. An empty selection also exits 1, even wh
 there are no observed combinations from which to infer coverage. Literal state
 keys require review even when only one unit uses them. It needs Python 3.9 or
 later and nothing else.
+
+**Compare within one environment, not only across all of them.** When units
+legitimately differ by environment (retention, instance size, replica count
+written as literals), one run across every environment measures dev units
+against a baseline that is mostly production. Each correct dev value then shows up
+as a `VARIANT`, and a dev unit that wrongly carries the production value matches
+the baseline and disappears from the report. Run the script once over the whole
+tree for coverage (`MISSING`, `UNEXPECTED`), then once per environment, with the
+environment written as a literal segment of the layout, for drift:
+
+```bash
+python scripts/compare_units.py --root live --layout "{tenant}/dev/{unit}" --unit queue
+python scripts/compare_units.py --root live --layout "{tenant}/prod/{unit}" --unit queue
+```
+
+The same applies to any other dimension the values legitimately vary by, such as
+region. The per-environment runs only find drift between tenants; whether dev as a
+whole has the right values is still a question for the template.
 
 The goal is an exact match between intent and report: every `VARIANT` is a
 difference you meant, and there is no `MISSING`, `UNEXPECTED` or `FOREIGN` you
