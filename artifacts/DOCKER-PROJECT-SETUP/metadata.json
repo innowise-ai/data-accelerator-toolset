@@ -6,6 +6,9 @@
   "strength": "on-demand",
   "topics": ["containerization"],
   "scope": "project",
+  "requires": {
+    "tools": ["Docker with Compose v2 (docker compose)"]
+  },
   "presentation": {
     "name": "Add a first Docker setup to a Python data project",
     "summary": "Adds a first working Docker setup to a Python data project, with its dependencies as Compose services.",

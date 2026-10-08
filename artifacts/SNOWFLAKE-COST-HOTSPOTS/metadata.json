@@ -8,6 +8,9 @@
   "strength": "on-demand",
   "topics": ["performance"],
   "scope": "project",
+  "requires": {
+    "access": ["A Snowflake connection the agent can run SQL through", "A role that can read SNOWFLAKE.ACCOUNT_USAGE"]
+  },
   "presentation": {
     "name": "Find Snowflake queries worth optimising",
     "summary": "Finds the Snowflake queries actually worth optimising and reads the metrics that point at a fix.",

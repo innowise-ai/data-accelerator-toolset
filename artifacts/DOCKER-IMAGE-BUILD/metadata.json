@@ -8,6 +8,9 @@
   "strength": "on-demand",
   "topics": ["containerization"],
   "scope": "project",
+  "requires": {
+    "tools": ["Docker with BuildKit (docker buildx)"]
+  },
   "presentation": {
     "name": "Build Python data images that cache well and keep secrets out",
     "summary": "Builds Python data images that keep credentials out of layers, cache well and run as non-root.",

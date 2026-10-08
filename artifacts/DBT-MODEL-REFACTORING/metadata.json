@@ -8,6 +8,10 @@
   "strength": "on-demand",
   "topics": ["refactoring"],
   "scope": "project",
+  "requires": {
+    "tools": ["dbt Core CLI with the project's warehouse adapter"],
+    "access": ["Warehouse credentials in profiles.yml for a target the agent may build into"]
+  },
   "presentation": {
     "name": "Refactor a dbt model and prove output is unchanged",
     "summary": "Restructures a dbt model while proving its output did not change.",
