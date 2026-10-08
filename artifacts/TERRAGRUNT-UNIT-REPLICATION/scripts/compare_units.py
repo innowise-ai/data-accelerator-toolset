@@ -188,6 +188,9 @@ def main(argv=None):
     parser.add_argument("--baseline", action="append", default=[], metavar="PATH",
                         help="unit file to diff the others of its unit name against; repeatable, one per "
                              "unit name (default: the most common variant, which is not proof of correctness)")
+    parser.add_argument("--within", action="append", default=[], metavar="DIM",
+                        help="compare units only against others with the same value of DIM (e.g. env), "
+                             "so values that legitimately differ by DIM cannot hide drift; repeatable")
     parser.add_argument("--max-diff-lines", type=int, default=40)
     parser.add_argument("--json", action="store_true", help="print the report as JSON")
     args = parser.parse_args(argv)
@@ -204,6 +207,11 @@ def main(argv=None):
         unknown = set(expected) - set(dim_names)
         if unknown:
             raise ValueError(f"--expect names {sorted(unknown)} that the layout does not capture")
+        within = list(dict.fromkeys(args.within))
+        unknown = set(within) - set(dim_names)
+        if unknown:
+            raise ValueError(f"--within names {sorted(unknown)} that the layout does not capture "
+                             "as a dimension ({unit} cannot be used)")
     except ValueError as error:
         parser.error(str(error))
 
@@ -243,11 +251,23 @@ def main(argv=None):
     if args.unit:
         units = [u for u in units if u["dims"]["unit"] in set(args.unit)]
 
+    # A slice is one unit name plus one value of each --within dimension; units are
+    # compared, and coverage is counted, only inside their slice.
+    within_index = [dim_names.index(n) for n in within]
+
+    def slice_of(values):
+        return tuple(values[i] for i in within_index)
+
     groups = defaultdict(list)
     for unit in units:
-        groups[unit["dims"]["unit"]].append(unit)
-    for name in args.unit:
-        groups.setdefault(name, [])
+        values = tuple(unit["dims"][n] for n in dim_names)
+        groups[(unit["dims"]["unit"], slice_of(values))].append(unit)
+    names = {unit["dims"]["unit"] for unit in units} | set(args.unit)
+    for name in names:
+        for combo in combos:
+            groups.setdefault((name, slice_of(combo)), [])
+        if not any(key[0] == name for key in groups):
+            groups[(name, ())] = []
 
     report = {"root": args.root, "layout": args.layout, "unit_count": len(units),
               "coverage_from": coverage_source, "unmatched_files": unmatched, "units": {}, "shared_state_keys": []}
@@ -258,10 +278,12 @@ def main(argv=None):
             report["shared_state_keys"].append({"key": key, "files": paths})
             needs_review = True
 
-    for name in sorted(groups):
-        members = groups[name]
+    for name, slice_values in sorted(groups):
+        members = groups[(name, slice_values)]
+        slice_dims = dict(zip(within, slice_values))
         present = {tuple(u["dims"][n] for n in dim_names) for u in members}
-        missing = sorted(combos - present)
+        in_slice = {c for c in combos if slice_of(c) == slice_values} if slice_dims else combos
+        missing = sorted(in_slice - present)
         unexpected = sorted(u["path"] for u in members
                             if any(n in expected and u["dims"][n] not in expected[n] for n in dim_names))
 
@@ -278,11 +300,16 @@ def main(argv=None):
             baseline_units = sorted(baseline_units, key=lambda u: u not in chosen)
 
         entry = {
+            "unit": name,
+            "within": slice_dims,
             "instances": len(members),
             "missing": [dict(zip(dim_names, c)) for c in missing],
             "unexpected": unexpected,
             "baseline": {"count": len(baseline_units), "example": baseline_units[0]["path"],
-                         "chosen": bool(chosen)} if baseline_units else None,
+                         "chosen": bool(chosen),
+                         # No variant is more common than another: the baseline is just the first by path.
+                         "tied": not chosen and len(ordered) > 1 and len(ordered[1][1]) == len(baseline_units)}
+                        if baseline_units else None,
             "variants": [],
             "foreign_values": [],
             "literal_state_keys": sorted(u["path"] for u in members if literal_state_keys(u["text"])),
@@ -303,7 +330,8 @@ def main(argv=None):
         if (not members or missing or unexpected or entry["variants"]
                 or entry["foreign_values"] or entry["literal_state_keys"]):
             needs_review = True
-        report["units"][name] = entry
+        report_key = name + (" [" + label(slice_dims) + "]" if slice_dims else "")
+        report["units"][report_key] = entry
 
     if args.json:
         print(json.dumps(report, indent=2))
@@ -328,9 +356,15 @@ def print_text(report, dim_names):
     for name, entry in report["units"].items():
         if entry["baseline"] is None:
             print(f"\n== {name}: 0 instances; no baseline available")
-            print(f"  MISSING   unit={name} (absent everywhere)")
+            if not entry["missing"]:
+                print(f"  MISSING   unit={entry['unit']} (absent everywhere)")
         else:
-            source = "chosen" if entry["baseline"]["chosen"] else "most common"
+            if entry["baseline"]["chosen"]:
+                source = "chosen"
+            elif entry["baseline"]["tied"]:
+                source = "no most common variant, first by path; pass --baseline"
+            else:
+                source = "most common"
             print(f"\n== {name}: {entry['instances']} instances, {entry['baseline']['count']} identical to "
                   f"baseline ({source}: {entry['baseline']['example']})")
         for combo in entry["missing"]:

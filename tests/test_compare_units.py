@@ -164,6 +164,64 @@ class CompareUnitsTests(unittest.TestCase):
                 self.assertIn("ref=prod", diff)
                 self.assertNotIn("ref={env}", diff)
 
+    def write_queue_batch(self):
+        """Dev keeps 1 day, prod 7; globex dev wrongly carries the prod value."""
+        for tenant in ("acme", "globex", "initech"):
+            for env, days in (("dev", 1), ("prod", 7)):
+                if (tenant, env) == ("globex", "dev"):
+                    days = 7
+                self.write_unit(f"{tenant}/{env}/queue", f'inputs = {{ retention_days = {days} }}\n')
+
+    def test_mixed_environments_hide_drift_that_within_reports(self):
+        self.write_queue_batch()
+        code, report = self.run_cli()
+        self.assertEqual(code, 1)
+        hidden = report["units"]["queue"]["variants"]
+        self.assertNotIn(str(self.root / "globex/dev/queue/terragrunt.hcl"),
+                         [path for v in hidden for path in v["files"]])
+
+        code, report = self.run_cli("--within", "env")
+        self.assertEqual(code, 1)
+        self.assertEqual(sorted(report["units"]), ["queue [env=dev]", "queue [env=prod]"])
+        dev = report["units"]["queue [env=dev]"]
+        self.assertEqual(dev["within"], {"env": "dev"})
+        self.assertEqual(dev["baseline"]["count"], 2)
+        self.assertEqual(dev["variants"][0]["files"], [str(self.root / "globex/dev/queue/terragrunt.hcl")])
+        self.assertEqual(report["units"]["queue [env=prod]"]["variants"], [])
+
+    def test_within_reports_missing_units_in_their_own_slice(self):
+        self.write_queue_batch()
+        (self.root / "initech/prod/queue/terragrunt.hcl").unlink()
+        self.write_unit("acme/stage/bucket")
+        code, report = self.run_cli("--within", "env", "--expect", "tenant=acme,globex,initech",
+                                    "--expect", "env=dev,prod,stage")
+        self.assertEqual(code, 1)
+        self.assertEqual(report["units"]["queue [env=prod]"]["missing"],
+                         [{"tenant": "initech", "env": "prod"}])
+        self.assertEqual(report["units"]["queue [env=dev]"]["missing"], [])
+        absent = report["units"]["queue [env=stage]"]
+        self.assertIsNone(absent["baseline"])
+        self.assertEqual(len(absent["missing"]), 3)
+
+    def test_tied_baseline_is_reported_as_tied(self):
+        for tenant, days in (("acme", 1), ("globex", 2)):
+            self.write_unit(tenant + "/dev/queue", f'inputs = {{ retention_days = {days} }}\n')
+        code, report = self.run_cli()
+        self.assertEqual(code, 1)
+        self.assertTrue(report["units"]["queue"]["baseline"]["tied"])
+        code, text = self.run_cli(json_output=False)
+        self.assertIn("no most common variant", text)
+
+    def test_within_rejects_dimensions_the_layout_does_not_capture(self):
+        self.write_unit("acme/dev/queue")
+        for name in ("unit", "region"):
+            with self.subTest(name=name):
+                command = [sys.executable, "-B", str(SCRIPT), "--root", str(self.root),
+                           "--layout", "{tenant}/{env}/{unit}", "--within", name]
+                result = subprocess.run(command, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("--within", result.stderr)
+
     def test_chosen_baseline_still_overrides_majority(self):
         chosen = self.write_unit("acme/dev/s3", 'inputs = { size = 1 }\n')
         for tenant in ("globex", "initech"):

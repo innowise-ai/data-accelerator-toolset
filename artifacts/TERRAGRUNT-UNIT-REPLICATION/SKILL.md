@@ -87,7 +87,8 @@ Do not copy the first instance you find. List every existing instance of the
 module and compare them:
 
 ```bash
-python scripts/compare_units.py --root live --layout "{tenant}/{env}/{unit}" --unit s3-landing
+python scripts/compare_units.py --root live --layout "{tenant}/{env}/{unit}" \
+  --unit s3-landing --within env
 ```
 
 The script (described under [Verify the batch](#verify-the-batch)) groups the
@@ -103,9 +104,9 @@ history, ask.
 
 Prefer a template from the same environment tier as the targets. A production unit
 copied into development usually carries production sizing, and the reverse is worse.
-For the same reason, compare candidates within one environment as well as across
-all of them (see [Verify the batch](#verify-the-batch)): a run that mixes
-environments can hide a dev unit that carries production values.
+For the same reason, compare candidates with `--within env` (see
+[Verify the batch](#verify-the-batch)): a run that mixes environments can hide a
+dev unit that carries production values.
 
 ## Separate what varies from what must not
 
@@ -197,7 +198,7 @@ them by unit name, and for each group reports:
 ```bash
 python scripts/compare_units.py --root live --layout "{tenant}/{env}/{unit}" \
   --expect tenant=acme,globex,initech --expect env=dev,stage,prod \
-  --unit s3-landing --baseline live/acme/dev/s3-landing/terragrunt.hcl
+  --unit s3-landing --within env --baseline live/acme/dev/s3-landing/terragrunt.hcl
 ```
 
 `--layout` takes one entry per directory level below `--root`: a literal, `*` to
@@ -206,7 +207,9 @@ ignore that level, or `{name}` to capture it. `{unit}` is required. Pass
 list; without it, coverage is compared against the combinations that exist
 anywhere in the tree, which finds holes but cannot tell an intended absence from a
 missing unit. `--baseline` names the template, so variants are measured against
-the unit you chose rather than against the most common one. It exits 1 when there is
+the unit you chose rather than against the most common one. When no variant is more
+common than another, the report says so instead of calling the first one the most
+common; pick the template yourself and pass it. It exits 1 when there is
 anything to review, 0 when the batch is clean, and `--json` gives the same report
 for further processing. A completely absent requested `--unit` is reported as
 missing, with `baseline: null` in JSON. An empty selection also exits 1, even when
@@ -214,23 +217,21 @@ there are no observed combinations from which to infer coverage. Literal state
 keys require review even when only one unit uses them. It needs Python 3.9 or
 later and nothing else.
 
-**Compare within one environment, not only across all of them.** When units
-legitimately differ by environment (retention, instance size, replica count
-written as literals), one run across every environment measures dev units
-against a baseline that is mostly production. Each correct dev value then shows up
-as a `VARIANT`, and a dev unit that wrongly carries the production value matches
-the baseline and disappears from the report. Run the script once over the whole
-tree for coverage (`MISSING`, `UNEXPECTED`), then once per environment, with the
-environment written as a literal segment of the layout, for drift:
+**Always pass `--within env`, whatever the task.** This applies even to a task that
+only asks for coverage. When units legitimately differ by environment (retention,
+instance size, replica count written as literals), a run without it measures dev
+units against a baseline that is mostly production. Each correct dev value then
+shows up as a `VARIANT`, and a dev unit that wrongly carries the production value
+matches the baseline and disappears from the report. With `--within env` the
+report has one section per unit and environment (`queue [env=dev]`). Units are
+compared only with others in the same environment, and `MISSING` is listed in the
+section it belongs to. A `--baseline` applies to its own section; the others fall
+back to their most common variant.
 
-```bash
-python scripts/compare_units.py --root live --layout "{tenant}/dev/{unit}" --unit queue
-python scripts/compare_units.py --root live --layout "{tenant}/prod/{unit}" --unit queue
-```
-
-The same applies to any other dimension the values legitimately vary by, such as
-region. The per-environment runs only find drift between tenants; whether dev as a
-whole has the right values is still a question for the template.
+Use the name your layout captures (`{env}`, `{stage}`, `{account}`). Repeat
+`--within` for any other dimension values legitimately vary by, such as region.
+`--within` finds drift between tenants of one environment. Whether dev as a whole
+has the right values is still a question for the template.
 
 The goal is an exact match between intent and report: every `VARIANT` is a
 difference you meant, and there is no `MISSING`, `UNEXPECTED` or `FOREIGN` you
@@ -255,13 +256,22 @@ it cannot run, say that the resolved values were not checked.
 changed directories (`hclfmt` and `hclvalidate` on older releases). These catch
 broken files and nothing else.
 
-**Plans.** When plans may be run, read them against what the change should do:
+**Plans.** Plan every unit you created or changed, not a sample. A unit without a
+plan is not verified. Report it as unverified, never as done, even when the
+script, `fmt` and `validate` are clean. The defects plans catch (a copied state
+key, a dependency on another tenant, a fallback config file) look correct in
+every file-level check. The only exception is a project whose rules say plans may
+not be run here; then say that no plan was run and why.
+
+Read each plan against what the change should do:
 
 - A new unit for a new tenant shows only creates.
 - A new unit that shows **no changes** is reading an existing state, almost always
   a shared or copied state key. Stop.
 - A new unit that shows updates or destroys is reading someone else's state. Stop.
 - Existing units outside the batch show no changes.
+- A plan built on `mock_outputs` has not checked the dependency. Say which inputs
+  were mocked, and plan again once the dependency exists.
 
 ## Moving a service between repositories
 
