@@ -63,7 +63,7 @@ one project gets.
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
-| **Review a Terraform plan in plain language before apply** (`TERRAFORM-PLAN-REVIEW`) | terraform | code-review, security | Reads a Terraform plan before it is applied and restates each change in plain language, so a reviewer without deep Terraform knowledge can approve or stop it. |
+| **Review a Terraform plan in plain language before apply** (`TERRAFORM-PLAN-REVIEW`) | terraform | code-review, security, infrastructure | Reads a Terraform plan before it is applied and restates each change in plain language, so a reviewer without deep Terraform knowledge can approve or stop it. |
 | **Replicate Terragrunt units across tenants without drift** (`TERRAGRUNT-UNIT-REPLICATION`) | terragrunt | infrastructure, refactoring | Adds or moves Terragrunt units in bulk and verifies every tenant and environment got the intended copy. |
 
 ## General skills (11)
