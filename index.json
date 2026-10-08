@@ -758,13 +758,13 @@
     },
     {
       "id": "TERRAFORM-PLAN-REVIEW",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source_path": "artifacts/TERRAFORM-PLAN-REVIEW",
       "applies_to": {
         "frameworks": ["terraform"]
       },
       "strength": "on-demand",
-      "topics": ["code-review", "security"],
+      "topics": ["code-review", "security", "infrastructure"],
       "scope": "project",
       "presentation": {
         "name": "Review a Terraform plan in plain language before apply",
