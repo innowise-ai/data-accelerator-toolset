@@ -52,8 +52,7 @@ commits.
 - Update the docs a change actually affects (README, authoring guide) in the
   same PR — don't leave them to drift.
 - Commits are authored under your own git identity, with clear human-style
-  messages. Don't add AI co-author trailers (`Co-Authored-By: Claude`/`Codex`/
-  etc.) or "Generated with" lines, regardless of what wrote the change.
+  messages.
 
 ## Releasing
 

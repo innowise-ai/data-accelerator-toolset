@@ -20,19 +20,9 @@ what gets selected, so its entry and the artifact's `metadata.json` must agree.
 There is no application to run. The work is writing artifact content and keeping
 the index, the docs and the catalog map consistent with it.
 
-## The gate
-
-Run before every push; CI (`.github/workflows/validate.yml`) runs the same:
-
-```powershell
-$result = ./scripts/validate-catalog.ps1 -IndexPath ./index.json -CatalogRoot .
-if (-not $result.IsValid) { $result.Errors }
-Invoke-Pester -Path ./tests
-python -B -m unittest discover -s tests -p 'test_*.py' -v
-```
-
-Without `-CatalogRoot` the validator checks the index alone and reports
-`PathCount: 0`, which looks like a pass but scanned nothing.
+Before every push, run the gate from
+[CONTRIBUTING.md § Dev setup](CONTRIBUTING.md#dev-setup); CI runs the same
+checks.
 
 ## Rules that are easy to break
 
@@ -45,9 +35,9 @@ Without `-CatalogRoot` the validator checks the index alone and reports
   `frameworks`, `topics` or another dimension needs a line in the release notes
   and a check of whether the installer's scanner detects it. An artifact merged
   before a topic existed does not pick that topic up by itself.
-- **Tags are immutable.** Corrections ship as a new tag. Merged artifacts reach
-  nobody until a release is cut, and releases are batched, so do not propose a
-  version bump per PR.
+- **Releases are batched.** Merged artifacts reach nobody until a tag is cut,
+  but the team collects several merges per release, so do not propose a version
+  bump per PR.
 - **dbt Core is assumed.** `DBT-COLUMN-LINEAGE` is the single artifact that
   needs dbt Cloud and an MCP server. Content that gates on dbt Cloud, Fusion or
   another paid tier does not fit the catalog.
