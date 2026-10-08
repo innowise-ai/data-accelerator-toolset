@@ -3,7 +3,7 @@
   "toolset_ref": "refs/tags/v1.0.0",
   "vocabulary": {
     "languages": ["typescript", "javascript", "python", "csharp", "go", "sql"],
-    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "terraform"],
+    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "terraform", "terragrunt"],
     "layout": ["monorepo", "single"],
     "agents": ["claude-code", "codex", "cursor"],
     "topics": [
@@ -20,7 +20,8 @@
       "writing",
       "development-process",
       "security",
-      "containerization"
+      "containerization",
+      "infrastructure"
     ]
   },
   "artifacts": [
@@ -774,6 +775,27 @@
           "Checks IAM, trust and bucket policy changes on AWS for wildcards and wrong ARNs",
           "Catches Terragrunt inputs that are silently dropped and plans built on mock outputs",
           "Summarises a plan with a script that never prints secret values and fails on destroys"
+        ]
+      }
+    },
+    {
+      "id": "TERRAGRUNT-UNIT-REPLICATION",
+      "version": "0.1.0",
+      "source_path": "artifacts/TERRAGRUNT-UNIT-REPLICATION",
+      "applies_to": {
+        "frameworks": ["terragrunt"]
+      },
+      "strength": "on-demand",
+      "topics": ["infrastructure", "refactoring"],
+      "scope": "project",
+      "presentation": {
+        "name": "Replicate Terragrunt units across tenants without drift",
+        "summary": "Adds or moves Terragrunt units in bulk and verifies every tenant and environment got the intended copy.",
+        "benefits": [
+          "Picks the template unit by comparing every existing instance",
+          "Catches values copied from the wrong tenant, missing units and shared state keys",
+          "Diffs units across tenants with a bundled read-only script",
+          "Keeps state migration a separate, confirmed step when a service moves"
         ]
       }
     },

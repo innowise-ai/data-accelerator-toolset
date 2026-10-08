@@ -11,8 +11,9 @@ documents already own — follow the links instead of expecting a second copy.
 
 ## Dev setup
 
-This repository is JSON content plus PowerShell tooling — there is no CLI to
-install. Clone it, install Pester once, and run the gate:
+This repository contains catalog content, PowerShell validation and Python
+helper scripts bundled with some artifacts. Clone it, install Python 3.9 or later
+and Pester, and run the gate:
 
 ```powershell
 Install-Module Pester -RequiredVersion 5.6.1 -Force -Scope CurrentUser
@@ -23,8 +24,9 @@ Invoke-Pester -Path ./tests
 python -B -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-The Terraform plan summary tests use Python 3.9+ and its standard library; they
-need no Terraform installation or cloud credentials.
+The Terraform plan summary and Terragrunt unit comparison tests use Python 3.9+
+and its standard library; they need no Terraform or Terragrunt installation and
+no cloud credentials.
 
 ## Commit messages
 

@@ -1,0 +1,21 @@
+{
+  "id": "TERRAGRUNT-UNIT-REPLICATION",
+  "version": "0.1.0",
+  "source_path": "artifacts/TERRAGRUNT-UNIT-REPLICATION",
+  "applies_to": {
+    "frameworks": ["terragrunt"]
+  },
+  "strength": "on-demand",
+  "topics": ["infrastructure", "refactoring"],
+  "scope": "project",
+  "presentation": {
+    "name": "Replicate Terragrunt units across tenants without drift",
+    "summary": "Adds or moves Terragrunt units in bulk and verifies every tenant and environment got the intended copy.",
+    "benefits": [
+      "Picks the template unit by comparing every existing instance",
+      "Catches values copied from the wrong tenant, missing units and shared state keys",
+      "Diffs units across tenants with a bundled read-only script",
+      "Keeps state migration a separate, confirmed step when a service moves"
+    ]
+  }
+}

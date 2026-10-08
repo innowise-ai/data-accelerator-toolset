@@ -154,5 +154,9 @@
  "TERRAFORM-PLAN-REVIEW": [
   "Infrastructure as code",
   "Terraform"
+ ],
+ "TERRAGRUNT-UNIT-REPLICATION": [
+  "Infrastructure as code",
+  "Terragrunt"
  ]
 }

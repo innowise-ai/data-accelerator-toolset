@@ -5,9 +5,9 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-39 artifacts today: 23 data-engineering specific (dbt, Snowflake, Airflow,
+40 artifacts today: 23 data-engineering specific (dbt, Snowflake, Airflow,
 Python pipeline code, sensitive data handling, stack-agnostic pipeline quality),
-4 for containers and local environments, 1 for infrastructure as code, and 11
+4 for containers and local environments, 2 for infrastructure as code, and 11
 general skills that apply to any stack. All are `on-demand` except
 `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
 project that uses Docker, because losing a data volume is not something a team
@@ -59,11 +59,12 @@ one project gets.
 | **Build Python data images that cache well and keep secrets out** (`DOCKER-IMAGE-BUILD`) | docker | containerization | Builds Python data images that keep credentials out of layers, cache well and run as non-root. |
 | **Add a first Docker setup to a Python data project** (`DOCKER-PROJECT-SETUP`) | python | containerization | Adds a first working Docker setup to a Python data project, with its dependencies as Compose services. |
 
-## Infrastructure as code (1)
+## Infrastructure as code (2)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
 | **Review a Terraform plan in plain language before apply** (`TERRAFORM-PLAN-REVIEW`) | terraform | code-review, security | Reads a Terraform plan before it is applied and restates each change in plain language, so a reviewer without deep Terraform knowledge can approve or stop it. |
+| **Replicate Terragrunt units across tenants without drift** (`TERRAGRUNT-UNIT-REPLICATION`) | terragrunt | infrastructure, refactoring | Adds or moves Terragrunt units in bulk and verifies every tenant and environment got the intended copy. |
 
 ## General skills (11)
 
