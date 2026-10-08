@@ -14,8 +14,10 @@ The failure this prevents is specific and expensive: someone deletes a workaroun
 because it looks unnecessary, and rediscovers the reason for it in production.
 
 For column-level documentation inside a dbt project, see
-[dbt-model-descriptions](../DBT-MODEL-DESCRIPTIONS/SKILL.md). This covers the
-project level, in any stack.
+[dbt-model-descriptions](../DBT-MODEL-DESCRIPTIONS/SKILL.md). For what a comment in
+the code should say instead, and which facts it hands over to the documents
+described here, see [code-comment-writing](../CODE-COMMENT-WRITING/SKILL.md). This
+covers the project level, in any stack.
 
 ## Write only what the code cannot say
 
@@ -122,7 +124,8 @@ The ones that produce bugs when violated by someone who did not know:
 
 Put each constraint where the person about to violate it will be, not only in a
 central document. A constraint that governs one module belongs next to that module
-as well.
+as well, as a one-line comment at the code it constrains; see
+[code-comment-writing](../CODE-COMMENT-WRITING/SKILL.md).
 
 ## Structure it so it is findable
 

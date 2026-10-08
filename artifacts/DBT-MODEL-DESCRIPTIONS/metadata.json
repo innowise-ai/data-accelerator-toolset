@@ -1,6 +1,6 @@
 {
   "id": "DBT-MODEL-DESCRIPTIONS",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "source_path": "artifacts/DBT-MODEL-DESCRIPTIONS",
   "applies_to": {
     "frameworks": ["dbt"]
