@@ -3,7 +3,7 @@
   "toolset_ref": "refs/tags/v1.1.1",
   "vocabulary": {
     "languages": ["typescript", "javascript", "python", "csharp", "go", "sql"],
-    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "terraform", "terragrunt"],
+    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "terraform", "terragrunt", "dataform", "bigquery"],
     "layout": ["monorepo", "single"],
     "agents": ["claude-code", "codex", "cursor"],
     "topics": [
@@ -63,6 +63,26 @@
           "Reports unverified areas instead of implying the whole change was checked",
           "Accounts for every file in the diff, so a skipped file cannot pass as a reviewed one",
           "Re-checks findings before reporting and drops only those the code disproves"
+        ]
+      }
+    },
+    {
+      "id": "CODE-COMMENT-WRITING",
+      "version": "0.1.0",
+      "source_path": "artifacts/CODE-COMMENT-WRITING",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["documentation"],
+      "scope": "project",
+      "presentation": {
+        "name": "Write code comments in the right place and keep them true",
+        "summary": "Decides what a code comment says and where it goes, and keeps comments true as the code changes.",
+        "benefits": [
+          "Puts each check's comment directly above it, with a failure case traced against the code",
+          "Keeps design arguments, history and runbooks out of the code and in the docs",
+          "Lists the columns a helper generates in every model that uses it",
+          "Updates or removes comments when the code they describe changes",
+          "Covers dbt and Dataform: schema.yml versus SQL comments, Jinja inside comments, pre_operations"
         ]
       }
     },
@@ -245,7 +265,7 @@
     },
     {
       "id": "DBT-MODEL-DESCRIPTIONS",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source_path": "artifacts/DBT-MODEL-DESCRIPTIONS",
       "applies_to": {
         "frameworks": ["dbt"]
@@ -558,7 +578,7 @@
     },
     {
       "id": "PROJECT-DOCUMENTATION",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source_path": "artifacts/PROJECT-DOCUMENTATION",
       "applies_to": {},
       "strength": "on-demand",

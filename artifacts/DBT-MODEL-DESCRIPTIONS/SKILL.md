@@ -11,6 +11,10 @@ plausible readings of a column is the right one.
 
 Descriptions live in the `schema.yml` alongside the model — see
 [dbt-layer-boundaries](../DBT-LAYER-BOUNDARIES/SKILL.md) for where that sits.
+Comments in the model's SQL have a different reader, whoever edits the model, and
+hold different facts: a check's failure case, a non-obvious join condition. What goes
+in a comment rather than a description, and why the two should not repeat each
+other, is in [code-comment-writing](../CODE-COMMENT-WRITING/SKILL.md).
 
 ## Write only what the SQL does not say
 

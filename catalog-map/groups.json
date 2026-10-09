@@ -151,6 +151,10 @@
   "General",
   "Docs and writing"
  ],
+ "CODE-COMMENT-WRITING": [
+  "General",
+  "Docs and writing"
+ ],
  "TERRAFORM-PLAN-REVIEW": [
   "Infrastructure as code",
   "Terraform"

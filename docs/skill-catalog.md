@@ -5,9 +5,9 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-40 artifacts today: 23 data-engineering specific (dbt, Snowflake, Airflow,
+41 artifacts today: 23 data-engineering specific (dbt, Snowflake, Airflow,
 Python pipeline code, sensitive data handling, stack-agnostic pipeline quality),
-4 for containers and local environments, 2 for infrastructure as code, and 11
+4 for containers and local environments, 2 for infrastructure as code, and 12
 general skills that apply to any stack. All are `on-demand` except
 `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
 project that uses Docker, because losing a data volume is not something a team
@@ -66,11 +66,12 @@ one project gets.
 | **Review a Terraform plan in plain language before apply** (`TERRAFORM-PLAN-REVIEW`) | terraform | code-review, security, infrastructure | Reads a Terraform plan before it is applied and restates each change in plain language, so a reviewer without deep Terraform knowledge can approve or stop it. |
 | **Replicate Terragrunt units across tenants without drift** (`TERRAGRUNT-UNIT-REPLICATION`) | terragrunt | infrastructure, refactoring | Adds or moves Terragrunt units in bulk and verifies every tenant and environment got the intended copy. |
 
-## General skills (11)
+## General skills (12)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
 | **Review a code change for correctness and risk** (`CODE-CHANGE-REVIEW`) | any | code-review | Reviews a code change for correctness, risk, test coverage and backward compatibility. |
+| **Write code comments in the right place and keep them true** (`CODE-COMMENT-WRITING`) | any | documentation | Decides what a code comment says and where it goes, and keeps comments true as the code changes. |
 | **Check work does what was asked before reporting done** (`COMPLETION-VERIFICATION`) | any | development-process | Checks that work actually does what was asked before it is reported as finished. |
 | **Prove the cause of a code failure before fixing it** (`ERROR-DIAGNOSIS`) | any | debugging | Finds the cause of a failure by narrowing it down and proving it before changing code. |
 | **Turn agreed requirements into a step-by-step plan** (`IMPLEMENTATION-PLANNING`) | any | development-process | Turns agreed requirements into an ordered plan with verifiable steps. |
