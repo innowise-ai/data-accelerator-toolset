@@ -18,7 +18,7 @@ Russian names, summaries and benefits live in `ru.json`, keyed by artifact id, w
 
 An artifact's `requires` from `index.json` shows on its card under "What it needs"; its Russian text is `req` in the same `ru.json` entry, with the same `tools`/`access` keys. `build.js` warns when one side has it and the other does not.
 
-A skill whose id is not in the previous release's `index.json` gets a "new" tag. `build.js` finds that release as the highest `vX.Y.Z` tag older than `toolset_ref` and reads its index with `git show`, so it needs a clone with tags. If that fails it warns and builds with no "new" tags. Skills whose version moved are not marked: most bumps are small edits, and marking them would be noise. The build prints which ids it marked.
+A skill whose id is not in the previous release's `index.json` gets a "new" tag. `build.js` finds that release as the highest `vX.Y.Z` tag older than `toolset_ref` and reads its index with `git show`, so it needs a clone with tags. If that fails it warns and builds with no "new" tags. Skills whose version moved are not marked: most bumps are small edits, and marking them would be noise. The build prints which ids it marked. A "new (N)" chip in the topic row filters to them, and is hidden when the release added nothing.
 
 `build.js` warns when an artifact in `index.json` has no entry in `groups.json`. Add the id to `groups.json` as `["<group>", "<subgroup>"]`. Groups are `Data engineering`, `Containers`, `Infrastructure as code` and `General`; a new subgroup name shows in English in both languages unless you add it to `SUB_RU` in `template.html`.
 

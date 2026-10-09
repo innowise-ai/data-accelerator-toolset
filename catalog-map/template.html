@@ -53,6 +53,8 @@ button{cursor:pointer}
 .frow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .flabel{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);width:92px;flex:none}
 .chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:2px 10px;font-size:12px}
+#f-new:empty{display:none}
+#f-new .chip{color:var(--accent);font-weight:600}
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:#0f151c}}
 :root[data-theme="dark"] .chip[aria-pressed="true"]{color:#0f151c}
@@ -128,7 +130,7 @@ tr.gh td{background:var(--code);font-weight:600;text-align:left;font-family:var(
       <span class="count" id="count"></span>
       <button class="link" id="reset" data-i="reset"></button>
     </div>
-    <div class="frow"><span class="flabel" data-i="fTopic"></span><span id="f-topic" class="frow"></span></div>
+    <div class="frow"><span class="flabel" data-i="fTopic"></span><span id="f-new" class="frow"></span><span id="f-topic" class="frow"></span></div>
     <div class="frow"><span class="flabel" data-i="fAp"></span><span id="f-ap" class="frow"></span></div>
   </section>
 
@@ -160,7 +162,7 @@ const GROUPS = [
   {k:'General', t:{en:'General, any stack', ru:'Общие, любой стек'}, c:'--g-gn', s:'--g-gn-soft'}
 ];
 const SUB_RU = {'Pipelines, SQL and data safety':'Pipelines, SQL и безопасность данных','Review and testing':'Review и тесты','Development process':'Процесс разработки','Docs and writing':'Документы и текст'};
-const st = {q:'', topics:new Set(), ap:new Set(), view:'tree', lang:'en', open:new Set()};
+const st = {q:'', topics:new Set(), ap:new Set(), nw:new Set(), view:'tree', lang:'en', open:new Set()};
 try { if (localStorage.getItem('skillmap-view') === 'matrix') st.view = 'matrix';
       if (localStorage.getItem('skillmap-lang') === 'ru') st.lang = 'ru'; } catch(e){}
 
@@ -184,7 +186,8 @@ function buildChips(el, items, set, labelFn){
     b.setAttribute('aria-pressed', set.has(v)); render(); };
 }
 function match(a){
-  if (st.q){ const h=(a.id+' '+a.n+' '+a.sum+' '+(a.ru?a.ru.n+' '+a.ru.sum:'')+' '+rqText(a)).toLowerCase(); if(!h.includes(st.q)) return false; }
+  if (st.q){ const h=(a.id+' '+a.n+' '+a.sum+' '+(a.ru?a.ru.n+' '+a.ru.sum:'')+' '+rqText(a)+(a.nw?' '+T.en.nw+' '+T.ru.nw:'')).toLowerCase(); if(!h.includes(st.q)) return false; }
+  if (st.nw.size && !a.nw) return false;
   if (st.topics.size && ![...st.topics].every(t=>a.t.includes(t))) return false;
   if (st.ap.size && ![...st.ap].some(k=>apKey(a).includes(k))) return false;
   return true;
@@ -247,6 +250,9 @@ function i18n(){
   document.querySelectorAll('[data-i]').forEach(e=>e.textContent = tr(e.dataset.i));
   document.querySelectorAll('[data-ph]').forEach(e=>e.placeholder = tr(e.dataset.ph));
   $('l-en').setAttribute('aria-pressed', st.lang==='en'); $('l-ru').setAttribute('aria-pressed', st.lang==='ru');
+  // No chip when the release added nothing; the filter would show an empty list.
+  const nNew = DATA.filter(a=>a.nw).length;
+  buildChips($('f-new'), nNew ? ['new'] : [], st.nw, ()=>`${tr('nw')} (${nNew})`);
   buildChips($('f-topic'), topics, st.topics, x=>x);
   buildChips($('f-ap'), aps, st.ap, apLabel);
   stats();
@@ -262,7 +268,7 @@ $('main').onclick = e => { const b=e.target.closest('.item>button'); if(!b) retu
   const id=b.dataset.id; st.open.has(id)?st.open.delete(id):st.open.add(id); render();
   const nb=document.querySelector(`.item>button[data-id="${id}"]`); if(nb) nb.focus(); };
 $('q').oninput = e => { st.q = e.target.value.trim().toLowerCase(); render(); };
-$('reset').onclick = () => { st.q=''; $('q').value=''; st.topics.clear(); st.ap.clear();
+$('reset').onclick = () => { st.q=''; $('q').value=''; st.topics.clear(); st.ap.clear(); st.nw.clear();
   document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false')); render(); };
 function setView(v){ st.view=v; try{localStorage.setItem('skillmap-view',v);}catch(e){} render(); }
 function setLang(l){ st.lang=l; try{localStorage.setItem('skillmap-lang',l);}catch(e){} i18n(); render(); }
