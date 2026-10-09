@@ -8,6 +8,10 @@
   "strength": "on-demand",
   "topics": ["debugging"],
   "scope": "project",
+  "requires": {
+    "tools": ["dbt Core CLI with the project's warehouse adapter"],
+    "access": ["Warehouse credentials in profiles.yml for a target the agent may build into"]
+  },
   "presentation": {
     "name": "Diagnose a failing dbt build from compiled SQL",
     "summary": "Diagnoses a failing dbt build from the compiled SQL rather than the error text.",

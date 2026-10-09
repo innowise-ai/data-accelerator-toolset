@@ -8,6 +8,10 @@
   "strength": "on-demand",
   "topics": ["testing", "data-quality"],
   "scope": "project",
+  "requires": {
+    "tools": ["dbt Core CLI with the project's warehouse adapter"],
+    "access": ["Warehouse credentials in profiles.yml for a target the agent may build into"]
+  },
   "presentation": {
     "name": "Pick dbt schema tests for each column role",
     "summary": "Picks dbt schema tests that catch real defects for each column role.",

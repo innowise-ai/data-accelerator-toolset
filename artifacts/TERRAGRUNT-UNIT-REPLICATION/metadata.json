@@ -8,6 +8,9 @@
   "strength": "on-demand",
   "topics": ["infrastructure", "refactoring"],
   "scope": "project",
+  "requires": {
+    "tools": ["Python 3.9+ (standard library only)"]
+  },
   "presentation": {
     "name": "Replicate Terragrunt units across tenants without drift",
     "summary": "Adds or moves Terragrunt units in bulk and verifies every tenant and environment got the intended copy.",

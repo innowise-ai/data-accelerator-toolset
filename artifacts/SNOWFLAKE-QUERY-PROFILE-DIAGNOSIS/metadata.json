@@ -8,6 +8,9 @@
   "strength": "on-demand",
   "topics": ["performance", "debugging"],
   "scope": "project",
+  "requires": {
+    "access": ["A Snowflake connection the agent can run SQL through", "A role that can see the query in query history and read its profile"]
+  },
   "presentation": {
     "name": "Diagnose one Snowflake query from its profile",
     "summary": "Diagnoses one Snowflake query from its profile and operator statistics.",
