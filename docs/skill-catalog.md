@@ -1,7 +1,7 @@
 # Skill catalog
 
 Human-readable index of every artifact in this catalog, generated from
-[`index.json`](../index.json) (`toolset_ref: refs/tags/v1.1.1`, schema version 2).
+[`index.json`](../index.json) (`toolset_ref: refs/tags/v1.2.0`, schema version 2).
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
