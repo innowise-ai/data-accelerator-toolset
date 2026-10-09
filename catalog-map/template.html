@@ -51,10 +51,14 @@ button{cursor:pointer}
 .stat span{color:var(--muted);font-size:12px}
 .filters{padding:14px;display:flex;flex-direction:column;gap:12px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
 .frow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+/* A chip list takes the space beside its label and wraps there, instead of dropping under it. */
+.frow>.frow{flex:1 1 0;min-width:0}
 .flabel{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);width:92px;flex:none}
 .chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:2px 10px;font-size:12px}
-#f-new:empty{display:none}
-#f-new .chip{color:var(--accent);font-weight:600}
+/* The new chip and the topic chips flow as one chip list. */
+#f-new,#f-topic{display:contents}
+.chip.new{font-weight:600}
+.chip.new[aria-pressed="false"]{color:var(--accent)}
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:#0f151c}}
 :root[data-theme="dark"] .chip[aria-pressed="true"]{color:#0f151c}
@@ -130,7 +134,7 @@ tr.gh td{background:var(--code);font-weight:600;text-align:left;font-family:var(
       <span class="count" id="count"></span>
       <button class="link" id="reset" data-i="reset"></button>
     </div>
-    <div class="frow"><span class="flabel" data-i="fTopic"></span><span id="f-new" class="frow"></span><span id="f-topic" class="frow"></span></div>
+    <div class="frow"><span class="flabel" data-i="fTopic"></span><span class="frow"><span id="f-new"></span><span id="f-topic"></span></span></div>
     <div class="frow"><span class="flabel" data-i="fAp"></span><span id="f-ap" class="frow"></span></div>
   </section>
 
@@ -179,8 +183,8 @@ const topics = [...new Set(DATA.flatMap(a=>a.t))].sort();
 const aps = [...new Set(DATA.flatMap(apKey))].sort();
 const apLabel = x => x.startsWith('fw:') ? x.slice(3) : tr('lang') + x.slice(5);
 
-function buildChips(el, items, set, labelFn){
-  el.innerHTML = items.map(i => `<button class="chip" data-v="${esc(i)}" aria-pressed="${set.has(i)}">${esc(labelFn(i))}</button>`).join('');
+function buildChips(el, items, set, labelFn, cls=''){
+  el.innerHTML = items.map(i => `<button class="chip ${cls}" data-v="${esc(i)}" aria-pressed="${set.has(i)}">${esc(labelFn(i))}</button>`).join('');
   el.onclick = e => { const b = e.target.closest('.chip'); if(!b) return;
     const v = b.dataset.v; set.has(v) ? set.delete(v) : set.add(v);
     b.setAttribute('aria-pressed', set.has(v)); render(); };
@@ -252,7 +256,7 @@ function i18n(){
   $('l-en').setAttribute('aria-pressed', st.lang==='en'); $('l-ru').setAttribute('aria-pressed', st.lang==='ru');
   // No chip when the release added nothing; the filter would show an empty list.
   const nNew = DATA.filter(a=>a.nw).length;
-  buildChips($('f-new'), nNew ? ['new'] : [], st.nw, ()=>`${tr('nw')} (${nNew})`);
+  buildChips($('f-new'), nNew ? ['new'] : [], st.nw, ()=>`${tr('nw')} (${nNew})`, 'new');
   buildChips($('f-topic'), topics, st.topics, x=>x);
   buildChips($('f-ap'), aps, st.ap, apLabel);
   stats();
