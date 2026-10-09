@@ -304,3 +304,31 @@ Upstream licence text, reproduced in full:
        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
        See the License for the specific language governing permissions and
        limitations under the License.
+
+
+-------------------------------------------------------------------------------
+code-comments (shared privately by Sofya)
+-------------------------------------------------------------------------------
+
+Upstream:  code-comments/SKILL.md, shared privately; not published in a repository
+Author:    Sofya
+Licence:   none published; included with the author's permission (issue #57)
+
+One skill was adapted into an artifact in this catalog.
+
+Adaptation was not a verbatim copy. The upstream skill was written on a
+Dataform, BigQuery and Dagster project. Its general rules - where each fact goes,
+what a comment on a check says, what stays out of the code, and keeping comments
+true - were rewritten as prose that explains why each rule holds, with neutral
+SQL (dbt) and Python examples whose failure cases were traced against their code.
+Its Dataform section became references/dataform.md. references/dbt.md is new and
+has no upstream counterpart. Upstream's closing checklist became the final pass
+in "Keep comments true". Upstream's trigger conditions in the SKILL.md
+frontmatter were re-expressed as catalog metadata (`applies_to`, `strength`,
+`topics`). The substance of the rules - the placement table, the requirement
+that a check's failure case be true of the code, what stays out of a comment,
+and the Dataform specifics - is the author's.
+
+Artifacts derived from this source:
+
+  CODE-COMMENT-WRITING <- code-comments/SKILL.md
