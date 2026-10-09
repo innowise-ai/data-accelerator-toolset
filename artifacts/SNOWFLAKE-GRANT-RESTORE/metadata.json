@@ -8,6 +8,9 @@
   "strength": "on-demand",
   "topics": ["data-quality"],
   "scope": "project",
+  "requires": {
+    "access": ["A Snowflake connection the agent can run SQL through", "A read role with USAGE on the warehouse, databases and schemas, a privilege on each object being diagnosed, and the SNOWFLAKE.GOVERNANCE_VIEWER database role"]
+  },
   "presentation": {
     "name": "Restore grants after Snowflake objects are recreated",
     "summary": "Restores access after Snowflake objects are recreated, without guessing at roles.",

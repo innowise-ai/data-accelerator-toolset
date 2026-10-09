@@ -16,6 +16,8 @@ Use `update-deployment`, not `create-deployment`: the second one creates another
 
 Russian names, summaries and benefits live in `ru.json`, keyed by artifact id, with the artifact version they were written for. `build.js` warns when an artifact has no Russian text or when its version moved since the text was written; until then the RU view shows English for it.
 
+An artifact's `requires` from `index.json` shows on its card under "What it needs"; its Russian text is `req` in the same `ru.json` entry, with the same `tools`/`access` keys. `build.js` warns when one side has it and the other does not.
+
 `build.js` warns when an artifact in `index.json` has no entry in `groups.json`. Add the id to `groups.json` as `["<group>", "<subgroup>"]`. Groups are `Data engineering`, `Containers`, `Infrastructure as code` and `General`; a new subgroup name shows in English in both languages unless you add it to `SUB_RU` in `template.html`.
 
 ## Link

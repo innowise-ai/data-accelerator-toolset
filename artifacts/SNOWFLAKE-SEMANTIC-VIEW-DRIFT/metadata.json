@@ -8,6 +8,9 @@
   "strength": "on-demand",
   "topics": ["data-modeling", "data-quality"],
   "scope": "project",
+  "requires": {
+    "access": ["A Snowflake connection the agent can run SQL through", "A read role with USAGE on the warehouse, databases and schemas, SELECT on the base tables and the semantic view, and the SNOWFLAKE.GOVERNANCE_VIEWER database role"]
+  },
   "presentation": {
     "name": "Repair Snowflake semantic view drift",
     "summary": "Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions.",

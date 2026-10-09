@@ -77,6 +77,8 @@ button{cursor:pointer}
 .tags{display:flex;flex-wrap:wrap;gap:4px;grid-column:1 / -1}
 .tag{font-size:11px;padding:0 7px;border-radius:4px;background:var(--code);color:var(--muted);white-space:nowrap}
 .tag.fw{background:var(--gs);color:var(--gc);font-weight:500}
+.tag.req{background:none;box-shadow:inset 0 0 0 1px var(--line);color:var(--fg)}
+.detail h4{font-size:12px;font-weight:600;margin:6px 0 0}
 .detail{padding:4px 12px 12px;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
 .detail>div{min-width:0}
 .detail ul{margin:4px 0 0;padding-left:18px}
@@ -141,11 +143,13 @@ const T = {
       tree:'Tree', matrix:'Topic matrix', search:'Search by id, name or description', reset:'Reset', fTopic:'Topic', fAp:'Applies to',
       of:'of', none:'Nothing found. Reset the filters.', any:'any project', what:'What it does', benefits:'What you get', where:'Path in repo', ver:'Version',
       colSkill:'skill', colAp:'applies to',
+      needs:'What it needs', tools:'Install', access:'Access', nothing:'Nothing beyond the agent', setup:'needs setup',
       s1:'skills', s2:'data engineering', s3:'containers', s5:'infrastructure as code', s4:'general, any stack', lang:'lang '},
   ru:{title:'Карта каталога скиллов', forVersion:'Собрано для версии каталога', repo:'Toolset на GitHub', sub:'38 скиллов из Data Accelerator toolset по областям. Фильтруйте по теме, фреймворку или языку, на которые рассчитан скилл, и открывайте любой скилл, чтобы увидеть, что он делает.',
       tree:'Дерево', matrix:'Матрица тем', search:'Поиск по id, названию или описанию', reset:'Сбросить', fTopic:'Тема', fAp:'Применимость',
       of:'из', none:'Ничего не найдено. Сбросьте фильтры.', any:'любой проект', what:'Что делает', benefits:'Что даёт', where:'Путь в репо', ver:'Версия',
       colSkill:'скилл', colAp:'применимость',
+      needs:'Что нужно', tools:'Установить', access:'Доступы', nothing:'Ничего, кроме агента', setup:'нужна настройка',
       s1:'скиллов', s2:'data engineering', s3:'контейнеры', s5:'инфраструктура как код', s4:'общие, любой стек', lang:'язык '}
 };
 const GROUPS = [
@@ -163,6 +167,9 @@ const $ = id => document.getElementById(id);
 const tr = k => T[st.lang][k];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const L = (a,f) => (st.lang==='ru' && a.ru) ? a.ru[f] : a[f];
+// Requirements fall back to English per artifact, since ru.json may lag behind index.json.
+const RQ = a => (st.lang==='ru' && a.ru && a.ru.rq) ? a.ru.rq : a.rq;
+const rqText = a => a.rq ? Object.values(a.rq).flat().join(' ') + (a.ru && a.ru.rq ? ' ' + Object.values(a.ru.rq).flat().join(' ') : '') : '';
 const apList = a => [...(a.ap.frameworks||[]), ...(a.ap.languages||[])];
 const apKey = a => [...(a.ap.frameworks||[]).map(x=>'fw:'+x), ...(a.ap.languages||[]).map(x=>'lang:'+x)];
 const topics = [...new Set(DATA.flatMap(a=>a.t))].sort();
@@ -176,7 +183,7 @@ function buildChips(el, items, set, labelFn){
     b.setAttribute('aria-pressed', set.has(v)); render(); };
 }
 function match(a){
-  if (st.q){ const h=(a.id+' '+a.n+' '+a.sum+' '+(a.ru?a.ru.n+' '+a.ru.sum:'')).toLowerCase(); if(!h.includes(st.q)) return false; }
+  if (st.q){ const h=(a.id+' '+a.n+' '+a.sum+' '+(a.ru?a.ru.n+' '+a.ru.sum:'')+' '+rqText(a)).toLowerCase(); if(!h.includes(st.q)) return false; }
   if (st.topics.size && ![...st.topics].every(t=>a.t.includes(t))) return false;
   if (st.ap.size && ![...st.ap].some(k=>apKey(a).includes(k))) return false;
   return true;
@@ -185,13 +192,21 @@ function tagsOf(a){
   let h = a.t.map(t=>`<span class="tag">${esc(t)}</span>`).join('');
   h += apList(a).map(x=>`<span class="tag fw">${esc(x)}</span>`).join('');
   if (!apList(a).length) h += `<span class="tag">${tr('any')}</span>`;
+  if (a.rq) h += `<span class="tag req">${tr('setup')}</span>`;
   return h;
+}
+function needsOf(a){
+  const rq = RQ(a);
+  if (!rq) return `<p>${tr('nothing')}</p>`;
+  return ['tools','access'].filter(k=>rq[k] && rq[k].length)
+    .map(k=>`<h4>${tr(k)}</h4><ul>${rq[k].map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`).join('');
 }
 function item(a, g){
   const open = st.open.has(a.id);
   const det = open ? `<div class="detail">
     <div><h3>${tr('what')}</h3><p>${esc(L(a,'sum'))}</p></div>
     <div><h3>${tr('benefits')}</h3><ul>${L(a,'b').map(b=>`<li>${esc(b)}</li>`).join('')}</ul></div>
+    <div><h3>${tr('needs')}</h3>${needsOf(a)}</div>
     <div><h3>${tr('where')}</h3><p class="mono"><a href="${REPO}/blob/${esc(REF)}/${esc(a.p)}/SKILL.md" target="_blank" rel="noopener">${esc(a.p)}/SKILL.md</a></p>
     <h3>${tr('ver')}</h3><p class="mono">${esc(a.v)}</p></div></div>` : '';
   return `<div class="item" style="--gc:var(${g.c});--gs:var(${g.s})">

@@ -133,6 +133,10 @@
       "strength": "on-demand",
       "topics": ["debugging"],
       "scope": "project",
+      "requires": {
+        "tools": ["dbt Core CLI with the project's warehouse adapter"],
+        "access": ["Warehouse credentials in profiles.yml for a target the agent may build into"]
+      },
       "presentation": {
         "name": "Diagnose a failing dbt build from compiled SQL",
         "summary": "Diagnoses a failing dbt build from the compiled SQL rather than the error text.",
@@ -153,6 +157,10 @@
       "strength": "on-demand",
       "topics": ["data-modeling"],
       "scope": "project",
+      "requires": {
+        "tools": ["Python 3.7+ with the packages in requirements.txt", "Desktop Commander MCP server"],
+        "access": ["A dbt Cloud account and Discovery API token, set as DBT_CLOUD_TOKEN, DBT_CLOUD_HOST and DBT_CLOUD_ENVIRONMENT_ID"]
+      },
       "presentation": {
         "name": "Trace a dbt column upstream and downstream",
         "summary": "Traces where a dbt model's column came from and what depends on it, without reading SQL by hand across the model chain.",
@@ -173,6 +181,10 @@
       "strength": "on-demand",
       "topics": ["data-modeling", "performance"],
       "scope": "project",
+      "requires": {
+        "tools": ["dbt Core CLI with the project's warehouse adapter"],
+        "access": ["Warehouse credentials in profiles.yml for a target the agent may build into"]
+      },
       "presentation": {
         "name": "Choose a dbt incremental strategy and unique key",
         "summary": "Chooses an incremental strategy and unique key that survive late data and schema drift.",
@@ -213,6 +225,10 @@
       "strength": "on-demand",
       "topics": ["refactoring", "data-modeling"],
       "scope": "project",
+      "requires": {
+        "tools": ["dbt Core CLI with the project's warehouse adapter"],
+        "access": ["Warehouse credentials in profiles.yml for a target the agent may build into"]
+      },
       "presentation": {
         "name": "Port legacy SQL into dbt and reconcile it",
         "summary": "Ports legacy SQL into dbt layer by layer and reconciles against the original.",
@@ -233,6 +249,10 @@
       "strength": "on-demand",
       "topics": ["data-modeling"],
       "scope": "project",
+      "requires": {
+        "tools": ["dbt Core CLI with the project's warehouse adapter"],
+        "access": ["Warehouse credentials in profiles.yml for a target the agent may build into"]
+      },
       "presentation": {
         "name": "Build and verify a new dbt model",
         "summary": "Runs the build-and-verify loop for a new dbt model instead of stopping at compile.",
@@ -273,6 +293,10 @@
       "strength": "on-demand",
       "topics": ["refactoring"],
       "scope": "project",
+      "requires": {
+        "tools": ["dbt Core CLI with the project's warehouse adapter"],
+        "access": ["Warehouse credentials in profiles.yml for a target the agent may build into"]
+      },
       "presentation": {
         "name": "Refactor a dbt model and prove output is unchanged",
         "summary": "Restructures a dbt model while proving its output did not change.",
@@ -293,6 +317,10 @@
       "strength": "on-demand",
       "topics": ["testing", "data-quality"],
       "scope": "project",
+      "requires": {
+        "tools": ["dbt Core CLI with the project's warehouse adapter"],
+        "access": ["Warehouse credentials in profiles.yml for a target the agent may build into"]
+      },
       "presentation": {
         "name": "Pick dbt schema tests for each column role",
         "summary": "Picks dbt schema tests that catch real defects for each column role.",
@@ -313,6 +341,9 @@
       "strength": "on-demand",
       "topics": ["containerization"],
       "scope": "project",
+      "requires": {
+        "tools": ["Docker with Compose v2 (docker compose)"]
+      },
       "presentation": {
         "name": "Wire a local data stack in Compose with real readiness checks",
         "summary": "Wires local data stacks in Compose so services wait for a database to be ready, not merely started.",
@@ -355,6 +386,9 @@
       "strength": "on-demand",
       "topics": ["containerization"],
       "scope": "project",
+      "requires": {
+        "tools": ["Docker with BuildKit (docker buildx)"]
+      },
       "presentation": {
         "name": "Build Python data images that cache well and keep secrets out",
         "summary": "Builds Python data images that keep credentials out of layers, cache well and run as non-root.",
@@ -374,6 +408,9 @@
       "strength": "on-demand",
       "topics": ["containerization"],
       "scope": "project",
+      "requires": {
+        "tools": ["Docker with Compose v2 (docker compose)"]
+      },
       "presentation": {
         "name": "Add a first Docker setup to a Python data project",
         "summary": "Adds a first working Docker setup to a Python data project, with its dependencies as Compose services.",
@@ -665,6 +702,9 @@
       "strength": "on-demand",
       "topics": ["performance"],
       "scope": "project",
+      "requires": {
+        "access": ["A Snowflake connection the agent can run SQL through", "A role that can read SNOWFLAKE.ACCOUNT_USAGE"]
+      },
       "presentation": {
         "name": "Find Snowflake queries worth optimising",
         "summary": "Finds the Snowflake queries actually worth optimising and reads the metrics that point at a fix.",
@@ -685,6 +725,9 @@
       "strength": "on-demand",
       "topics": ["data-quality"],
       "scope": "project",
+      "requires": {
+        "access": ["A Snowflake connection the agent can run SQL through", "A read role with USAGE on the warehouse, databases and schemas, a privilege on each object being diagnosed, and the SNOWFLAKE.GOVERNANCE_VIEWER database role"]
+      },
       "presentation": {
         "name": "Restore grants after Snowflake objects are recreated",
         "summary": "Restores access after Snowflake objects are recreated, without guessing at roles.",
@@ -706,6 +749,9 @@
       "strength": "on-demand",
       "topics": ["performance", "debugging"],
       "scope": "project",
+      "requires": {
+        "access": ["A Snowflake connection the agent can run SQL through", "A role that can see the query in query history and read its profile"]
+      },
       "presentation": {
         "name": "Diagnose one Snowflake query from its profile",
         "summary": "Diagnoses one Snowflake query from its profile and operator statistics.",
@@ -746,6 +792,9 @@
       "strength": "on-demand",
       "topics": ["data-modeling", "data-quality"],
       "scope": "project",
+      "requires": {
+        "access": ["A Snowflake connection the agent can run SQL through", "A read role with USAGE on the warehouse, databases and schemas, SELECT on the base tables and the semantic view, and the SNOWFLAKE.GOVERNANCE_VIEWER database role"]
+      },
       "presentation": {
         "name": "Repair Snowflake semantic view drift",
         "summary": "Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions.",
@@ -786,6 +835,10 @@
       "strength": "on-demand",
       "topics": ["code-review", "security", "infrastructure"],
       "scope": "project",
+      "requires": {
+        "tools": ["Python 3.9+ (standard library only)", "Terraform CLI, or Terragrunt, to produce the JSON plan"],
+        "access": ["Provider credentials for the target environment, when the plan has to be made rather than an existing one reviewed"]
+      },
       "presentation": {
         "name": "Review a Terraform plan in plain language before apply",
         "summary": "Reads a Terraform plan before it is applied and restates each change in plain language, so a reviewer without deep Terraform knowledge can approve or stop it.",
@@ -808,6 +861,9 @@
       "strength": "on-demand",
       "topics": ["infrastructure", "refactoring"],
       "scope": "project",
+      "requires": {
+        "tools": ["Python 3.9+ (standard library only)"]
+      },
       "presentation": {
         "name": "Replicate Terragrunt units across tenants without drift",
         "summary": "Adds or moves Terragrunt units in bulk and verifies every tenant and environment got the intended copy.",

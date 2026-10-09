@@ -1220,4 +1220,130 @@ Describe 'validate-catalog.ps1' {
             @($result.Errors) -join "`n" | Should -Match "no 'name' in its frontmatter"
         }
     }
+
+    Context 'requires' {
+        # Optional, and shown on the catalog map rather than matched by the
+        # installer. Absent means "nothing beyond the agent", so the rules are
+        # about a declared requires being readable, and about an artifact that
+        # ships code not leaving it out.
+
+        BeforeAll {
+            function New-RequiresArtifact {
+                param([string] $Id = 'AS-0001', $Requires)
+                $artifact = @{
+                    id = $Id; version = '1.0.0'; source_path = "artifacts/$Id"
+                    applies_to = @{}; strength = 'always'; topics = @()
+                }
+                if ($PSBoundParameters.ContainsKey('Requires')) { $artifact['requires'] = $Requires }
+                $artifact
+            }
+
+            function New-ArtifactTree {
+                # A checkout holding a valid SKILL.md plus the given extra files.
+                param([string] $Name, [string] $Id = 'AS-0001', [string[]] $Files = @())
+                $root = Join-Path $TestDrive $Name
+                $dir = Join-Path $root "artifacts/$Id"
+                [void](New-Item -ItemType Directory -Path $dir -Force)
+                Set-Content -LiteralPath (Join-Path $dir 'SKILL.md') -Value "---`nname: $($Id.ToLowerInvariant())`ndescription: x`n---`n" -Encoding utf8NoBOM
+                foreach ($file in $Files) {
+                    $path = Join-Path $dir $file
+                    [void](New-Item -ItemType Directory -Path (Split-Path -Parent $path) -Force)
+                    Set-Content -LiteralPath $path -Value 'x' -Encoding utf8NoBOM
+                }
+                return $root
+            }
+        }
+
+        It 'accepts tools and access as lists of strings' {
+            $path = New-TestIndex -Name 'req-ok' -Artifacts @(
+                (New-RequiresArtifact -Requires @{ tools = @('Python 3.11'); access = @('A read role') })
+            )
+
+            $result = & $validator -IndexPath $path
+
+            $result.Errors | Should -Be @()
+        }
+
+        It 'rejects a scalar requires' {
+            $path = New-RawIndex -Name 'req-scalar' -Json @'
+{
+  "schema_version": "1",
+  "vocabulary": { "languages": ["python"], "topics": [] },
+  "artifacts": [
+    { "id": "AS-0001", "version": "1.0.0", "source_path": "artifacts/AS-0001",
+      "applies_to": {}, "strength": "always", "topics": [], "requires": "python" }
+  ]
+}
+'@
+
+            $result = & $validator -IndexPath $path
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'AS-0001 declares requires as a scalar'
+        }
+
+        It 'rejects an empty requires object, which should be omitted instead' {
+            $path = New-TestIndex -Name 'req-empty' -Artifacts @((New-RequiresArtifact -Requires @{}))
+
+            $result = & $validator -IndexPath $path
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'AS-0001 declares an empty requires object'
+        }
+
+        It 'rejects an unknown kind, naming the known ones' {
+            $path = New-TestIndex -Name 'req-kind' -Artifacts @(
+                (New-RequiresArtifact -Requires @{ runtime = @('Python 3.11') })
+            )
+
+            $result = & $validator -IndexPath $path
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match "unknown requires kind 'runtime'.*tools, access"
+        }
+
+        It 'rejects an empty list and a list holding a blank string' {
+            $path = New-TestIndex -Name 'req-blank' -Artifacts @(
+                (New-RequiresArtifact -Id 'AS-0001' -Requires @{ tools = @() }),
+                (New-RequiresArtifact -Id 'AS-0002' -Requires @{ access = @('A read role', ' ') })
+            )
+
+            $result = & $validator -IndexPath $path
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'AS-0001 requires.tools must be a non-empty list'
+            @($result.Errors) -join "`n" | Should -Match 'AS-0002 requires.access must be a non-empty list'
+        }
+
+        It 'rejects an artifact that ships scripts but declares no requires' {
+            $indexPath = New-TestIndex -Name 'req-scripts' -Artifacts @((New-RequiresArtifact))
+            $root = New-ArtifactTree -Name 'req-scripts' -Files @('scripts/run.py')
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'AS-0001 ships scripts or a requirements.txt but declares no requires'
+        }
+
+        It 'rejects an artifact that ships a requirements.txt but declares no requires' {
+            $indexPath = New-TestIndex -Name 'req-pip' -Artifacts @((New-RequiresArtifact))
+            $root = New-ArtifactTree -Name 'req-pip' -Files @('requirements.txt')
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'AS-0001 ships scripts or a requirements.txt'
+        }
+
+        It 'accepts shipped scripts once requires is declared' {
+            $indexPath = New-TestIndex -Name 'req-scripts-ok' -Artifacts @(
+                (New-RequiresArtifact -Requires @{ tools = @('Python 3.11') })
+            )
+            $root = New-ArtifactTree -Name 'req-scripts-ok' -Files @('scripts/run.py', 'requirements.txt')
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            $result.Errors | Should -Be @()
+        }
+    }
 }

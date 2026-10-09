@@ -98,6 +98,36 @@ actually provides. The questionnaire uses this object verbatim and never reads
 `SKILL.md` to invent benefits. Empty cards, empty benefits, and scalar
 `presentation` values fail validation.
 
+### Optional: `requires` — what has to be in place before it runs
+
+Most artifacts are instructions and need nothing beyond the agent. Omit
+`requires` for those. Declare it when the artifact's own workflow runs a
+command or connects somewhere:
+
+```json
+"requires": {
+  "tools": ["dbt Core CLI with the project's warehouse adapter"],
+  "access": ["Warehouse credentials in profiles.yml for a target the agent may build into"]
+}
+```
+
+The two kinds are split by what the user has to do. `tools` is something they
+install themselves; `access` is credentials, connections or roles, which they
+usually have to request from an admin. Declare either or both, each as a
+non-empty list of short strings. Write the specific grant when the `SKILL.md`
+names one (a role, a privilege, an environment variable) rather than "access to
+Snowflake".
+
+Leave out what is only illustrative. A command shown as an optional check is not
+a requirement; a command the workflow cannot finish without is.
+
+`requires` is not matched by the installer: it does not narrow where the
+artifact installs (that is `applies_to`). The catalog map shows it on the
+artifact card, with Russian text under `req` in `catalog-map/ru.json`. The
+validator checks its shape, and with `-CatalogRoot` it rejects an artifact that
+ships a `scripts/` directory or a `requirements.txt` without declaring
+`requires`. It cannot tell whether the list is complete.
+
 ## Naming
 
 An artifact has three names, and readers meet them in different places: the
@@ -401,8 +431,9 @@ Green CI does not mean a correct artifact. These are enforced by review alone.
 | **`source_path` points at anything** | Its spelling is checked (`artifacts/<id>`), but it is never resolved against the filesystem. An entry whose directory does not exist validates clean; the failure surfaces at install as an empty checkout. |
 | **The subtree contract** | Nothing verifies an artifact is self-contained. An artifact depending on a file outside its directory clones successfully and arrives incomplete. |
 | **`SKILL.md` content** | Only the frontmatter `name` is read, and only with `-CatalogRoot`. The body and the `description` are not linted, and the file is not required to exist. |
+| **`requires` is complete** | Only an artifact that ships scripts or a `requirements.txt` is made to declare it. One whose `SKILL.md` runs `dbt build` or queries Snowflake can omit it and validate clean; the catalog map then tells users it needs nothing. |
 
-The pattern across all six: the failure is silent. Nothing errors, the install reports success, and the content is wrong or missing. That is why review is the gate here and why this list is worth re-reading before you approve someone else's artifact.
+The pattern across all seven: the failure is silent. Nothing errors, the install reports success, and the content is wrong or missing. That is why review is the gate here and why this list is worth re-reading before you approve someone else's artifact.
 
 ## Checklist
 
@@ -414,6 +445,7 @@ The pattern across all six: the failure is silent. Nothing errors, the install r
 - [ ] `applies_to` declares only the dimensions that would make the artifact *wrong* if absent; `{}` written explicitly if universal
 - [ ] `topics` non-empty if `on-demand`, all values from the vocabulary, all lower-case
 - [ ] Schema 2 `on-demand`: presentation card has a short name, truthful summary and concrete benefits
+- [ ] `requires` declared if the workflow runs a command or connects somewhere, with Russian text under `req` in `catalog-map/ru.json`
 - [ ] `metadata.json` matches the index entry field for field
 - [ ] No `fixture: true`
 - [ ] `./scripts/validate-catalog.ps1 -IndexPath ./index.json -CatalogRoot .` reports `IsValid: True`

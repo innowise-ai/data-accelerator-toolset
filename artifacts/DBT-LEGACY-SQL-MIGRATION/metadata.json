@@ -8,6 +8,10 @@
   "strength": "on-demand",
   "topics": ["refactoring", "data-modeling"],
   "scope": "project",
+  "requires": {
+    "tools": ["dbt Core CLI with the project's warehouse adapter"],
+    "access": ["Warehouse credentials in profiles.yml for a target the agent may build into"]
+  },
   "presentation": {
     "name": "Port legacy SQL into dbt and reconcile it",
     "summary": "Ports legacy SQL into dbt layer by layer and reconciles against the original.",

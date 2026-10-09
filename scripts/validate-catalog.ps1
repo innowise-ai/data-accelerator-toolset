@@ -65,6 +65,11 @@ $VocabularyDimensions = @('languages', 'frameworks', 'layout', 'agents', 'topics
 
 $SupportedSchemaVersions = @('1', '2')
 
+# What an artifact's requires may list, split by what the user does about it:
+# tools they install themselves, access (credentials, roles) they usually ask an
+# admin for.
+$RequiresKinds = @('tools', 'access')
+
 # The Windows path rules, as TASK-001 measured them by cloning deliberately
 # invalid trees: a reserved device name and a trailing dot both failed the
 # checkout with 'invalid path' and exit 128, and a case collision cloned clean
@@ -627,6 +632,62 @@ function Test-CatalogArtifact {
             }
         }
     }
+
+    # Optional: absent means the artifact needs nothing beyond the agent. The
+    # installer does not match on it, but the catalog map shows it, so a wrong
+    # shape is a card that lies about what a user has to set up.
+    if ($null -ne $Artifact.PSObject.Properties['requires']) {
+        $requires = $Artifact.requires
+        if ($null -eq $requires -or $requires -is [string] -or $requires -is [ValueType] -or
+            $requires -is [array]) {
+            Add-CatalogError "Artifact $id declares requires as a scalar rather than an object with 'tools' and/or 'access'."
+        } else {
+            # Not .Properties.Name: on an object with no properties, member
+            # enumeration under strict mode throws instead of yielding nothing.
+            $declaredKinds = @($requires.PSObject.Properties | ForEach-Object { $_.Name })
+            if ($declaredKinds.Count -eq 0) {
+                Add-CatalogError "Artifact $id declares an empty requires object. Omit requires when the artifact needs nothing beyond the agent."
+            }
+            foreach ($kind in $declaredKinds) {
+                if ($RequiresKinds -cnotcontains $kind) {
+                    Add-CatalogError "Artifact $id declares unknown requires kind '$kind'. Known kinds: $($RequiresKinds -join ', ')."
+                    continue
+                }
+                $values = @($requires.$kind)
+                if ($requires.$kind -is [string] -or $requires.$kind -is [ValueType] -or
+                    $values.Count -eq 0 -or
+                    @($values | Where-Object { $_ -isnot [string] -or [string]::IsNullOrWhiteSpace($_) }).Count -gt 0) {
+                    Add-CatalogError "Artifact $id requires.$kind must be a non-empty list of non-empty strings."
+                }
+            }
+        }
+    }
+}
+
+function Test-CatalogRequiresDeclared {
+    <#
+        An artifact that ships code to run - a scripts directory or a Python
+        requirements.txt - needs at least an interpreter, so an absent requires
+        is the author forgetting rather than "nothing beyond the agent". Read
+        from the checkout, so it runs only with -CatalogRoot.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string] $Root,
+
+        [Parameter(Mandatory)]
+        [string] $Id,
+
+        [Parameter(Mandatory)]
+        [string] $SourcePath
+    )
+
+    $artifactRoot = Join-Path $Root $SourcePath
+    $shipsCode = (Test-Path -LiteralPath (Join-Path $artifactRoot 'scripts') -PathType Container) -or
+        (Test-Path -LiteralPath (Join-Path $artifactRoot 'requirements.txt') -PathType Leaf)
+    if ($shipsCode) {
+        Add-CatalogError "Artifact $Id ships scripts or a requirements.txt but declares no requires. Declare what a user must install to run them."
+    }
 }
 
 # A missing or malformed file is a broken invocation, not catalog content that
@@ -773,8 +834,8 @@ if ($checkoutPaths.Count -gt 0) {
     Test-CatalogPathRule -Paths $checkoutPaths -DeclaredIds $seenIds
 }
 
-# Frontmatter names need file contents, which only a walked checkout provides;
-# a -PathList run has paths and nothing else.
+# Frontmatter names and shipped scripts need the files themselves, which only a
+# walked checkout provides; a -PathList run has paths and nothing else.
 if (-not [string]::IsNullOrWhiteSpace($CatalogRoot)) {
     for ($i = 0; $i -lt $artifacts.Count; $i++) {
         $artifact = $artifacts[$i]
@@ -790,6 +851,9 @@ if (-not [string]::IsNullOrWhiteSpace($CatalogRoot)) {
         if ([string]$artifact.source_path -cne "artifacts/$artifactId") { continue }
 
         Test-CatalogSkillName -Root $CatalogRoot -Id $artifactId -SourcePath ([string]$artifact.source_path)
+        if ($null -eq $artifact.PSObject.Properties['requires']) {
+            Test-CatalogRequiresDeclared -Root $CatalogRoot -Id $artifactId -SourcePath ([string]$artifact.source_path)
+        }
     }
 }
 
