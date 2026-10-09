@@ -31,8 +31,10 @@ const data = index.artifacts.map(a => {
   const r = ru[a.id];
   if (!r) warnings.push(`${a.id} has no Russian text in ru.json; the RU view shows English for it`);
   else if (r.v !== a.version) warnings.push(`${a.id} is ${a.version} in index.json but its Russian text was written for ${r.v}; re-check ru.json`);
+  if (r && a.requires && !r.req) warnings.push(`${a.id} declares requires but ru.json has no req for it; the RU view shows English requirements`);
+  if (r && r.req && !a.requires) warnings.push(`${a.id} has req in ru.json but declares no requires in index.json`);
   return {
-    ru: r ? { n: r.n, sum: r.sum, b: r.b } : null,
+    ru: r ? { n: r.n, sum: r.sum, b: r.b, rq: r.req || null } : null,
     id: a.id,
     v: a.version,
     p: a.source_path,
@@ -43,6 +45,7 @@ const data = index.artifacts.map(a => {
     n: p.name || a.id,
     sum: p.summary || '',
     b: p.benefits || [],
+    rq: a.requires || null,
   };
 });
 

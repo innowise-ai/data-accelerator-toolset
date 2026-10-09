@@ -8,6 +8,10 @@
   "strength": "on-demand",
   "topics": ["data-modeling"],
   "scope": "project",
+  "requires": {
+    "tools": ["Python 3.7+ with the packages in requirements.txt", "Desktop Commander MCP server"],
+    "access": ["A dbt Cloud account and Discovery API token, set as DBT_CLOUD_TOKEN, DBT_CLOUD_HOST and DBT_CLOUD_ENVIRONMENT_ID"]
+  },
   "presentation": {
     "name": "Trace a dbt column upstream and downstream",
     "summary": "Traces where a dbt model's column came from and what depends on it, without reading SQL by hand across the model chain.",
