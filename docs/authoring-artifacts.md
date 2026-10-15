@@ -239,7 +239,7 @@ Taken from `index.json` at the time of writing. **`index.json` is the source of 
 | `frameworks` | `nestjs`, `react`, `django`, `aspnet`, `airflow`, `dbt`, `duckdb`, `spark`, `trino`, `snowflake`, `databricks`, `docker`, `terraform`, `terragrunt`, `dataform`, `bigquery` |
 | `layout` | `monorepo`, `single` |
 | `agents` | `claude-code`, `codex`, `cursor` |
-| `topics` | `code-review`, `testing`, `documentation`, `refactoring`, `orchestration`, `data-modeling`, `data-quality`, `ingestion`, `performance`, `debugging`, `writing`, `development-process`, `security`, `containerization`, `infrastructure` |
+| `topics` | `code-review`, `testing`, `documentation`, `refactoring`, `orchestration`, `data-modeling`, `data-quality`, `ingestion`, `performance`, `debugging`, `writing`, `development-process`, `security`, `containerization`, `infrastructure`, `database-administration` |
 
 `frameworks` is the loosest of the dimensions: it holds anything that identifies the
 stack beyond the language, so orchestrators (`airflow`), transformation tools (`dbt`)
