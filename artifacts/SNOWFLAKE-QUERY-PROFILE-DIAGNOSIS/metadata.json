@@ -1,12 +1,12 @@
 {
   "id": "SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "source_path": "artifacts/SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS",
   "applies_to": {
     "frameworks": ["snowflake"]
   },
   "strength": "on-demand",
-  "topics": ["performance", "debugging"],
+  "topics": ["performance", "debugging", "database-administration"],
   "scope": "project",
   "requires": {
     "access": ["A Snowflake connection the agent can run SQL through", "A role that can see the query in query history and read its profile"]

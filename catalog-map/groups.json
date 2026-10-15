@@ -36,7 +36,7 @@
   "dbt"
  ],
  "SNOWFLAKE-COST-HOTSPOTS": [
-  "Data engineering",
+  "Database administration",
   "Snowflake"
  ],
  "SNOWFLAKE-QUERY-REWRITE": [
@@ -44,7 +44,7 @@
   "Snowflake"
  ],
  "SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS": [
-  "Data engineering",
+  "Database administration",
   "Snowflake"
  ],
  "SNOWFLAKE-SEMANTIC-VIEW-DRIFT": [
