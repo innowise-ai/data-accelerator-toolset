@@ -124,6 +124,26 @@
       }
     },
     {
+      "id": "DATA-QUALITY-CONTROLS",
+      "version": "0.1.0",
+      "source_path": "artifacts/DATA-QUALITY-CONTROLS",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["data-quality", "ingestion"],
+      "scope": "project",
+      "presentation": {
+        "name": "Build data quality controls: quarantine, release diff, scorecards",
+        "summary": "Builds the controls that keep invalid records out of published data, show what each publish changes, and score data quality per source and stage.",
+        "benefits": [
+          "Quarantines failing records at the smallest entity, with a reason the source can act on, and resolves them on a passing rerun",
+          "Stops a batch on structural changes, so a dropped column is not reported as mass data loss",
+          "Compares each publish with the last one per entity and field, against thresholds kept in configuration",
+          "Scores each source against all sources, before and after processing, with exports safe to share with one source",
+          "Leaves room for an approval gate and bundled releases without rebuilding the pipeline"
+        ]
+      }
+    },
+    {
       "id": "DBT-BUILD-FAILURE-DIAGNOSIS",
       "version": "0.1.1",
       "source_path": "artifacts/DBT-BUILD-FAILURE-DIAGNOSIS",

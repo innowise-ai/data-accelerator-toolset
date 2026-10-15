@@ -79,6 +79,10 @@
   "Data engineering",
   "Pipelines, SQL and data safety"
  ],
+ "DATA-QUALITY-CONTROLS": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
  "PIPELINE-OUTPUT-REVIEW": [
   "Data engineering",
   "Pipelines, SQL and data safety"
