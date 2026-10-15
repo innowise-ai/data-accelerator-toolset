@@ -1,12 +1,12 @@
 {
   "id": "SNOWFLAKE-COST-HOTSPOTS",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "source_path": "artifacts/SNOWFLAKE-COST-HOTSPOTS",
   "applies_to": {
     "frameworks": ["snowflake"]
   },
   "strength": "on-demand",
-  "topics": ["performance"],
+  "topics": ["performance", "database-administration"],
   "scope": "project",
   "requires": {
     "access": ["A Snowflake connection the agent can run SQL through", "A role that can read SNOWFLAKE.ACCOUNT_USAGE"]
