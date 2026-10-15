@@ -229,20 +229,23 @@ function item(a, g){
       <span class="tags">${tagsOf(a)}</span>
     </button>${det}</div>`;
 }
+// A skill can sit in several groups (a.gs is a list of [group, subgroup]); it shows once in each.
+const inGroup = (a,k) => a.gs.some(p=>p[0]===k);
+const subIn = (a,k) => a.gs.find(p=>p[0]===k)[1];
 const subName = s => st.lang==='ru' ? (SUB_RU[s]||s) : s;
 function renderTree(list){
   return GROUPS.map(g=>{
-    const items = list.filter(a=>a.g===g.k); if(!items.length) return '';
-    const subs = [...new Set(items.map(a=>a.s))];
-    return `<div class="group" style="--gc:var(${g.c})"><div class="ghead"><h2>${g.t[st.lang]}</h2><small>${items.length} ${tr('of')} ${DATA.filter(a=>a.g===g.k).length}</small></div>
-      <div class="sg">${subs.map(s=>`<div class="sgt">${esc(subName(s))}</div>`+items.filter(a=>a.s===s).map(a=>item(a,g)).join('')).join('')}</div></div>`;
+    const items = list.filter(a=>inGroup(a,g.k)); if(!items.length) return '';
+    const subs = [...new Set(items.map(a=>subIn(a,g.k)))];
+    return `<div class="group" style="--gc:var(${g.c})"><div class="ghead"><h2>${g.t[st.lang]}</h2><small>${items.length} ${tr('of')} ${DATA.filter(a=>inGroup(a,g.k)).length}</small></div>
+      <div class="sg">${subs.map(s=>`<div class="sgt">${esc(subName(s))}</div>`+items.filter(a=>subIn(a,g.k)===s).map(a=>item(a,g)).join('')).join('')}</div></div>`;
   }).join('') || `<div class="panel empty">${tr('none')}</div>`;
 }
 function renderMatrix(list){
   if(!list.length) return `<div class="panel empty">${tr('none')}</div>`;
   const head = `<tr><th class="l">${tr('colSkill')}</th>${topics.map(t=>`<th class="rot"><span>${esc(t)}</span></th>`).join('')}<th>${tr('colAp')}</th></tr>`;
   let rows = '';
-  GROUPS.forEach(g=>{ const items=list.filter(a=>a.g===g.k); if(!items.length) return;
+  GROUPS.forEach(g=>{ const items=list.filter(a=>inGroup(a,g.k)); if(!items.length) return;
     rows += `<tr class="gh"><td colspan="${topics.length+2}" style="color:var(${g.c})">${g.t[st.lang]}</td></tr>`;
     rows += items.map(a=>`<tr style="--gc:var(${g.c})"><td class="l">${esc(a.id)}</td>${topics.map(t=>`<td>${a.t.includes(t)?'<span class="dot"></span>':''}</td>`).join('')}<td class="mono">${esc(apList(a).join(', ')||'—')}</td></tr>`).join('');
   });
@@ -250,7 +253,7 @@ function renderMatrix(list){
 }
 function stats(){
   const n = f => DATA.filter(f).length;
-  $('stats').innerHTML = [[DATA.length,'s1'],[n(a=>a.g==='Data engineering'),'s2'],[n(a=>a.g==='Database administration'),'s6'],[n(a=>a.g==='Containers'),'s3'],[n(a=>a.g==='Infrastructure as code'),'s5'],[n(a=>a.g==='General'),'s4']]
+  $('stats').innerHTML = [[DATA.length,'s1'],[n(a=>inGroup(a,'Data engineering')),'s2'],[n(a=>inGroup(a,'Database administration')),'s6'],[n(a=>inGroup(a,'Containers')),'s3'],[n(a=>inGroup(a,'Infrastructure as code')),'s5'],[n(a=>inGroup(a,'General')),'s4']]
     .map(([v,l])=>`<div class="panel stat"><b>${v}</b><span>${tr(l)}</span></div>`).join('');
 }
 function i18n(){
