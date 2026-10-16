@@ -1,6 +1,6 @@
 {
   "schema_version": "2",
-  "toolset_ref": "refs/tags/v1.2.0",
+  "toolset_ref": "refs/tags/v1.3.0",
   "vocabulary": {
     "languages": ["typescript", "javascript", "python", "csharp", "go", "sql"],
     "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "terraform", "terragrunt", "dataform", "bigquery"],
@@ -21,7 +21,8 @@
       "development-process",
       "security",
       "containerization",
-      "infrastructure"
+      "infrastructure",
+      "database-administration"
     ]
   },
   "artifacts": [
@@ -714,13 +715,13 @@
     },
     {
       "id": "SNOWFLAKE-COST-HOTSPOTS",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source_path": "artifacts/SNOWFLAKE-COST-HOTSPOTS",
       "applies_to": {
         "frameworks": ["snowflake"]
       },
       "strength": "on-demand",
-      "topics": ["performance"],
+      "topics": ["performance", "database-administration"],
       "scope": "project",
       "requires": {
         "access": ["A Snowflake connection the agent can run SQL through", "A role that can read SNOWFLAKE.ACCOUNT_USAGE"]
@@ -761,13 +762,13 @@
     },
     {
       "id": "SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source_path": "artifacts/SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS",
       "applies_to": {
         "frameworks": ["snowflake"]
       },
       "strength": "on-demand",
-      "topics": ["performance", "debugging"],
+      "topics": ["performance", "debugging", "database-administration"],
       "scope": "project",
       "requires": {
         "access": ["A Snowflake connection the agent can run SQL through", "A role that can see the query in query history and read its profile"]

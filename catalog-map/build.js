@@ -47,6 +47,8 @@ const data = index.artifacts.map(a => {
     warnings.push(`${a.id} has no entry in groups.json; shown under "General / Other"`);
     g = ['General', 'Other'];
   }
+  // One placement is ["group", "subgroup"]; a skill shown in several groups has a list of them.
+  const gs = Array.isArray(g[0]) ? g : [g];
   const p = a.presentation || {};
   const r = ru[a.id];
   if (!r) warnings.push(`${a.id} has no Russian text in ru.json; the RU view shows English for it`);
@@ -58,8 +60,7 @@ const data = index.artifacts.map(a => {
     id: a.id,
     v: a.version,
     p: a.source_path,
-    g: g[0],
-    s: g[1],
+    gs,
     t: a.topics || [],
     ap: a.applies_to || {},
     n: p.name || a.id,

@@ -1,7 +1,7 @@
 # Skill catalog
 
 Human-readable index of every artifact in this catalog, generated from
-[`index.json`](../index.json) (`toolset_ref: refs/tags/v1.2.0`, schema version 2).
+[`index.json`](../index.json) (`toolset_ref: refs/tags/v1.3.0`, schema version 2).
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
@@ -45,9 +45,9 @@ one project gets.
 | **Test pipeline code with pytest, mocking I/O** (`PYTEST-DATA-PIPELINES`) | python | testing | Tests data pipeline code with pytest, mocking at the I/O boundary. |
 | **Implement SCD Type 2 with correct validity intervals** (`SCD2-IMPLEMENTATION`) | sql | data-modeling | Implements Slowly Changing Dimension Type 2 in SQL with correct validity intervals. |
 | **Decide what personal data a model may carry** (`SENSITIVE-DATA-HANDLING`) | any | security | Decides what personal data a model may carry, and keeps deletion possible later. |
-| **Find Snowflake queries worth optimising** (`SNOWFLAKE-COST-HOTSPOTS`) | snowflake | performance | Finds the Snowflake queries actually worth optimising and reads the metrics that point at a fix. |
+| **Find Snowflake queries worth optimising** (`SNOWFLAKE-COST-HOTSPOTS`) | snowflake | performance, database-administration | Finds the Snowflake queries actually worth optimising and reads the metrics that point at a fix. |
 | **Restore grants after Snowflake objects are recreated** (`SNOWFLAKE-GRANT-RESTORE`) | snowflake | data-quality | Restores access after Snowflake objects are recreated, without guessing at roles. |
-| **Diagnose one Snowflake query from its profile** (`SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS`) | snowflake | performance, debugging | Diagnoses one Snowflake query from its profile and operator statistics. |
+| **Diagnose one Snowflake query from its profile** (`SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS`) | snowflake | performance, debugging, database-administration | Diagnoses one Snowflake query from its profile and operator statistics. |
 | **Rewrite Snowflake SQL without changing results** (`SNOWFLAKE-QUERY-REWRITE`) | snowflake | performance, refactoring | Rewrites a Snowflake query for performance without changing its results. |
 | **Repair Snowflake semantic view drift** (`SNOWFLAKE-SEMANTIC-VIEW-DRIFT`) | snowflake | data-modeling, data-quality | Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions. |
 
