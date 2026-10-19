@@ -829,7 +829,7 @@
     },
     {
       "id": "TABLEAU-DASHBOARD-FAQ",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/TABLEAU-DASHBOARD-FAQ",
       "applies_to": {
         "frameworks": ["tableau"]
@@ -846,6 +846,28 @@
           "Asks for the refresh schedule instead of inferring one from the extract",
           "Describes only the fields the dashboard actually uses, under the captions readers recognise",
           "Hands back the result as a draft with each definition's source, so the owner reviews the gaps rather than the whole document"
+        ]
+      }
+    },
+    {
+      "id": "TABLEAU-WORKBOOK-AUDIT",
+      "version": "0.1.0",
+      "source_path": "artifacts/TABLEAU-WORKBOOK-AUDIT",
+      "applies_to": {
+        "frameworks": ["tableau"]
+      },
+      "strength": "on-demand",
+      "topics": ["debugging"],
+      "scope": "project",
+      "presentation": {
+        "name": "Assess an inherited Tableau workbook before changing it",
+        "summary": "Assesses a workbook nobody on the team built: what is in it, which dependencies make a change risky, and what the file cannot tell you.",
+        "benefits": [
+          "Builds the field-to-worksheet index that answers what a change would propagate through",
+          "Separates unreferenced in the file from unused by anyone, instead of recommending deletions the file cannot justify",
+          "Finds the dependencies that break from outside, including custom SQL coupled to warehouse object names",
+          "Judges live against extract by what the dashboard is for, rather than calling one of them wrong",
+          "States what an audit of the file cannot conclude: correctness, runtime, layout and who uses it"
         ]
       }
     },

@@ -1,6 +1,6 @@
 {
   "id": "TABLEAU-DASHBOARD-FAQ",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/TABLEAU-DASHBOARD-FAQ",
   "applies_to": {
     "frameworks": ["tableau"]

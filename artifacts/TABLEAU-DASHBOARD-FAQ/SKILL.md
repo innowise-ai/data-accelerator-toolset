@@ -23,6 +23,10 @@ which facts, and what they do not carry — are in
 
 Its neighbours in this catalog:
 
+- [tableau-workbook-audit](../TABLEAU-WORKBOOK-AUDIT/SKILL.md) reads the same file
+  for the opposite audience. It assesses the workbook for whoever maintains it, so
+  the leftovers and the risks are its findings; a FAQ is written for whoever reads
+  the dashboard, and everything the dashboard does not show is noise in it.
 - [dbt-model-descriptions](../DBT-MODEL-DESCRIPTIONS/SKILL.md) documents warehouse
   columns for the people who query them. A dashboard FAQ documents what a report
   shows to people who will never see the warehouse, and the two can disagree: a
@@ -92,8 +96,9 @@ leftovers belong in a user-facing FAQ.
     90|So the field list has to be narrowed to what the dashboard's own worksheets
 reference, and narrowed again to what the reader can see: use the user-facing
 caption rather than the internal field name, and leave out fields marked hidden.
-Those leftovers are findings for an engineering review of the workbook, where
-"unused" is the interesting part. In a FAQ they are noise that costs the document
+Those leftovers are findings for
+[tableau-workbook-audit](../TABLEAU-WORKBOOK-AUDIT/SKILL.md), where "unused" is
+the interesting part. In a FAQ they are noise that costs the document
 its credibility — a reader who finds one metric that is not on the dashboard stops
 trusting the other twenty.
 

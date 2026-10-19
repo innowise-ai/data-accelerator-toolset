@@ -5,7 +5,7 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-43 artifacts today: 25 data-engineering specific (dbt, Snowflake, Airflow,
+44 artifacts today: 26 data-engineering specific (dbt, Snowflake, Airflow,
 Tableau, Python pipeline code, sensitive data handling, stack-agnostic pipeline
 quality),
 4 for containers and local environments, 2 for infrastructure as code, and 12
@@ -23,7 +23,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (25)
+## Data engineering (26)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -52,6 +52,7 @@ one project gets.
 | **Rewrite Snowflake SQL without changing results** (`SNOWFLAKE-QUERY-REWRITE`) | snowflake | performance, refactoring | Rewrites a Snowflake query for performance without changing its results. |
 | **Repair Snowflake semantic view drift** (`SNOWFLAKE-SEMANTIC-VIEW-DRIFT`) | snowflake | data-modeling, data-quality | Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions. |
 | **Write a dashboard FAQ from the workbook, not from memory** (`TABLEAU-DASHBOARD-FAQ`) | tableau | documentation | Documents an existing Tableau dashboard from its workbook file and a screenshot of the landing view, taking each metric definition from the workbook rather than inferring one. |
+| **Assess an inherited Tableau workbook before changing it** (`TABLEAU-WORKBOOK-AUDIT`) | tableau | debugging | Assesses a workbook nobody on the team built: what is in it, which dependencies make a change risky, and what the file cannot tell you. |
 
 ## Containers and local environment (4)
 
