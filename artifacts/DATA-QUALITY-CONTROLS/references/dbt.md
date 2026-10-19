@@ -51,7 +51,7 @@ invisible to the parser:
 {% macro dq_rules_for(entity_type) %}
   {% if not execute %}{{ return([]) }}{% endif %}
   {% set query %}
-    select rule_id, field, check_kind, param_min, param_max, severity
+    select rule_id, field, check_kind, param_min, param_max, severity, segment
     from {{ ref('dq_rules') }}
     where entity_type = '{{ entity_type }}'
   {% endset %}
@@ -87,6 +87,9 @@ select
     '{{ rule["severity"] }}' as severity
 from {{ ref('stg_order_lines') }} l
 where {{ dq_check(rule, 'l.' ~ rule["field"]) }}
+{%- if rule["segment"] %}
+  and l.segment = '{{ rule["segment"] }}'
+{%- endif %}
 {% if not loop.last %}union all{% endif %}
 {% endfor %}
 ```
@@ -101,14 +104,19 @@ Fill in the message at query time, by joining the failures to `dq_rules` on
 `rule_id` and replacing `{key}` and `{value}` in the template with `replace()`.
 The template stays in the seed, where it can be reworded without touching code.
 
-Per-segment rules (the `segment` column filled) are applied by adding
-`and l.segment = '...'` to that rule's `where`, so the same seed covers global and
-segment-specific rules.
+A rule with `segment` filled applies to that segment only: the empty cell loads
+as null, so a global rule adds no condition, and a segment rule adds
+`and l.segment = '...'` to its `where`. One seed covers both. Leaving `segment`
+out of the macro's `select` would apply every segment-specific rule to all
+segments without any error.
 
 ## Valid rows and the hierarchy
 
 `int_order_lines__valid` keeps a staged line when it has no failure with
-`severity = 'reject'` and its order is valid. "Its order is valid" means the
+`severity = 'reject'` and its order is valid. Match failures to lines on
+`segment`, `entity_type` and `entity_key` together: a business key is unique only
+within its segment and entity type, so matching on the key alone lets a failure
+remove a different record that happens to share it. "Its order is valid" means the
 order passed validation in this batch, or the order was not in this batch at all
 and is already published. An order that is in this batch and failed takes its
 lines with it, even if an older version of it stays published.
@@ -148,12 +156,15 @@ third case.
 Keep published state with a dbt snapshot of the published model. Its current rows
 are those with `dbt_valid_to is null`. Configure how the snapshot treats records
 that are missing from the source to match the project's deletion rule
-(`hard_deletes` in dbt 1.9 and later).
+(`hard_deletes` in dbt 1.9 and later). Snapshot the published model, not a
+delivery of changes: a snapshot of a delta source that invalidates missing
+records would close every record the delivery did not touch.
 
 The comparison model joins the validated rows of the batch to the current
 snapshot rows **of the segments that delivered in this batch**. Joining to the
 whole snapshot reports every segment that did not deliver today as entirely
-deleted.
+deleted. For a segment that delivers changes, join only the keys the delivery
+touched, and take deletions from its deletion marker rather than from the join.
 
 dbt cannot wait for a person, so an approval gate lives in the orchestrator: one
 job builds everything up to the validated state and the comparison, and stops; the

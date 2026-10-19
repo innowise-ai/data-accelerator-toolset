@@ -16,6 +16,11 @@ is better, and an optional target. Compute it from the same definition on any
 stage and for any grouping (segment, batch, entity type), and store each result
 with its keys and its batch, so trends over time come for free.
 
+Compute measures on a complete state of the segment: a full extract, or the
+published state after a delivery of changes has been applied. A delivery of
+changes holds only the records that changed that day, so a fill rate computed
+on it describes that day's edits, not the segment.
+
 Decide what "filled" means per field before computing a fill rate. An empty
 string, `N/A`, `0` or a placeholder image is present but not filled, and a fill
 rate that counts it overstates quality in exactly the segments that use

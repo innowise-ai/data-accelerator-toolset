@@ -125,11 +125,17 @@ one, explain the trade-off, and record the answer next to the configuration:
 | An unexpected extra column in a delivery | Stop the batch, or warn and continue |
 | A parent whose children all fail | Publish the parent anyway, or require a minimum number of valid children |
 | A published record that fails in a later batch | Keep its last valid version published, or withdraw it |
-| A record missing from a batch | Deleted at once, after N batches without it, or only through an explicit deletion |
+| What one delivery contains, per segment | A full extract (every current record), or only the changes since the last delivery |
+| A record missing from a full extract | Deleted at once, after N batches without it, or only through an explicit deletion. For a delivery of changes, absence means nothing and only an explicit deletion deletes |
 | Range checks | Fixed bounds, change against the record's previous value, or deviation from the segment's or category's median |
 | Publishing | Automatic, an approval per segment, or releasing several batches together |
 | Sharing results with one segment | An export, or a filtered view; and how many segments must exist before cross-segment figures are shown |
 | Retention | How long quarantine records, batch results and published snapshots are kept |
+
+Settle what a delivery contains before anything else in this table. Most of the
+release comparison and every rule about missing records assume one answer or the
+other, and a segment can change from one to the other when its source changes
+how it exports. Record it per segment, not once for the project.
 
 If the project has not decided, build the observable version first: quarantine
 records and compute comparisons, but publish as before. That keeps an approval

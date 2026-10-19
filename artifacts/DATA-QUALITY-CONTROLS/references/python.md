@@ -35,15 +35,38 @@ is the dbt test problem again. Have each check return failure records, and split
 the batch on them:
 
 ```python
+def identity(segment, entity_type, entity_key):
+    # A business key is unique only within its segment and entity type, so
+    # order 1 and line 1, or order 1 of two segments, are different records.
+    return (segment, entity_type, entity_key)
+
+
+def rules_for(record, rules):
+    # A rule applies to one entity type, and to every segment or only one.
+    return [
+        rule
+        for rule in rules
+        if rule.entity_type == record.entity_type
+        and (rule.segment is None or rule.segment == record.segment)
+    ]
+
+
 def validate(records, rules):
     failures = [
         failure
         for record in records
-        for rule in rules
+        for rule in rules_for(record, rules)
         if (failure := rule.check(record)) is not None
     ]
-    rejected = {f.entity_key for f in failures if f.severity == "reject"}
-    valid = [r for r in records if r.key not in rejected]
+    rejected = {
+        identity(f.segment, f.entity_type, f.entity_key)
+        for f in failures
+        if f.severity == "reject"
+    }
+    valid = [
+        r for r in records
+        if identity(r.segment, r.entity_type, r.key) not in rejected
+    ]
     return valid, failures
 ```
 
@@ -51,7 +74,9 @@ The rule objects are built from the rule configuration. Each check kind (not
 null, range, pattern, reference) is a small function written once; the rules are
 instances of those kinds with parameters from the configuration file, so a new
 rule of an existing kind needs no code. Apply the parent rule after this: drop
-the children of every rejected parent before writing anything.
+the children of every rejected parent before writing anything, matching on the
+parent's full identity (segment, parent entity type and `parent_key`), not on
+the key alone.
 
 A schema library can run the checks, provided it can collect every failure instead
 of stopping at the first one, and report which row failed; the routing into valid

@@ -22,9 +22,46 @@ Three things must hold for the numbers to mean anything:
   that failed validation is not gone; it is waiting for a fix, and its published
   version stays where it was. Counting it as deleted puts a data problem in the
   wrong column and makes real deletions harder to see.
-- **Deletion follows the project's rule.** If a record missing from one batch is
-  only deleted after several batches without it, the comparison reports it as
-  "missing, not yet deleted" until then.
+- **Deletion follows the project's rule, and the rule depends on what a delivery
+  contains.** For a full extract, if a record missing from one batch is only
+  deleted after several batches without it, the comparison reports it as
+  "missing, not yet deleted" until then. For a delivery of changes, a missing
+  record means nothing; see the next section.
+
+## Full extracts and deliveries of changes
+
+Everything above about missing records holds for a **full extract**, where each
+batch contains every current record of the segment, so a record that is not in
+it is gone or about to be.
+
+A **delivery of changes** (a CDC window, an incremental API pull, a daily file of
+updates) contains only the records that changed. Comparing it with the full
+published snapshot as if it were complete reports every record nobody touched
+that day as deleted, and a "delete after N batches" rule then deletes them for
+real. For these segments:
+
+- **Absence means nothing.** A record is deleted only by an explicit deletion in
+  the delivery: a deletion flag, an operation type, a tombstone row. If the source
+  sends none, the pipeline cannot know about deletions from the deliveries alone,
+  and needs a periodic full extract to reconcile against. Say so to the project
+  rather than inferring deletions from silence.
+- **Compute the change over the records the delivery touched.** Added: touched and
+  not published. Changed: touched, published and different. Deleted: explicitly
+  deleted. Untouched records are not "unchanged"; they were not looked at, and
+  counting them as unchanged makes every delivery look calm.
+- **State the base of every share.** "Price changed for 20% of records" means
+  something different for a delivery of 50 records than for a full extract of
+  50,000. Report shares of the touched records, beside the size of the published
+  segment, and keep thresholds such as "deletions above 5%" relative to the
+  published count, so a small delivery cannot trip them by itself.
+- **Apply pending deliveries in order** before comparing. For a bundle of several
+  deliveries, the pending state is the published snapshot with every delivery's
+  changes applied in sequence; that state is what gets compared with the last
+  publish.
+
+Record per segment which kind it delivers, and check it on each batch where you
+can (a delivery of changes that suddenly contains every record, or a "full"
+extract a tenth of the usual size, is itself worth a warning).
 
 ## What to report, per segment and entity type
 
