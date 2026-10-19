@@ -5,7 +5,7 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-45 artifacts today: 27 data-engineering specific (dbt, Snowflake, Airflow,
+46 artifacts today: 28 data-engineering specific (dbt, Snowflake, Airflow,
 Tableau, Python pipeline code, sensitive data handling, stack-agnostic pipeline
 quality),
 4 for containers and local environments, 2 for infrastructure as code, and 12
@@ -23,7 +23,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (27)
+## Data engineering (28)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -54,6 +54,7 @@ one project gets.
 | **Write a dashboard FAQ from the workbook, not from memory** (`TABLEAU-DASHBOARD-FAQ`) | tableau | documentation | Documents an existing Tableau dashboard from its workbook file and a screenshot of the landing view, taking each metric definition from the workbook rather than inferring one. |
 | **Find out why a Tableau dashboard is slow before rewriting it** (`TABLEAU-PERFORMANCE-DIAGNOSIS`) | tableau | performance | Establishes which interaction is slow and where the time actually goes — the queries, Tableau's own compute, or rendering — before anything is rewritten. |
 | **Assess an inherited Tableau workbook before changing it** (`TABLEAU-WORKBOOK-AUDIT`) | tableau | debugging | Assesses a workbook nobody on the team built: what is in it, which dependencies make a change risky, and what the file cannot tell you. |
+| **Review what changed between two Tableau workbook versions** (`TABLEAU-WORKBOOK-DIFF`) | tableau | code-review | Compares two versions of a workbook by inventory rather than by text, and separates the differences that can move a number from the ones that cannot. |
 
 ## Containers and local environment (4)
 

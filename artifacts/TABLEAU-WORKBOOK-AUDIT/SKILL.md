@@ -28,8 +28,9 @@ Its neighbours in this catalog:
   assessment for the people who maintain it, and the two want opposite things from
   the same file: the FAQ discards everything the dashboard does not use, while
     30|here the leftovers are the point.
-- [code-change-review](../CODE-CHANGE-REVIEW/SKILL.md) reviews a proposed change.
-  This assesses an artifact in its current state, with no change on the table yet.
+- [tableau-workbook-diff](../TABLEAU-WORKBOOK-DIFF/SKILL.md) reviews a change to a
+  workbook by comparing two versions of it. This assesses one workbook in its
+  current state, with no change on the table yet.
 - [tableau-performance-diagnosis](../TABLEAU-PERFORMANCE-DIAGNOSIS/SKILL.md) takes
   over when something is actually slow. This audit records the performance risks
   visible in the structure and stops there, because structure suggests cost and

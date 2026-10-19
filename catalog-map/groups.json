@@ -71,6 +71,10 @@
   "Data engineering",
   "Tableau"
  ],
+ "TABLEAU-WORKBOOK-DIFF": [
+  "Data engineering",
+  "Tableau"
+ ],
  "ETL-DECOMPOSITION": [
   "Data engineering",
   "Pipelines, SQL and data safety"

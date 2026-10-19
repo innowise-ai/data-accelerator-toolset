@@ -1,0 +1,22 @@
+{
+  "id": "TABLEAU-WORKBOOK-DIFF",
+  "version": "0.1.0",
+  "source_path": "artifacts/TABLEAU-WORKBOOK-DIFF",
+  "applies_to": {
+    "frameworks": ["tableau"]
+  },
+  "strength": "on-demand",
+  "topics": ["code-review"],
+  "scope": "project",
+  "presentation": {
+    "name": "Review what changed between two Tableau workbook versions",
+    "summary": "Compares two versions of a workbook by inventory rather than by text, and separates the differences that can move a number from the ones that cannot.",
+    "benefits": [
+      "Discards the save noise that makes a line diff of a workbook unreadable",
+      "Reports result-altering changes separately from cosmetic ones, so review attention goes where it counts",
+      "Catches the quiet ones: a context filter, a sort under a table calculation, a parameter default",
+      "Keeps a renamed field from being reported as one deletion and one addition",
+      "States that a difference is a candidate, and names the comparison that would settle it"
+    ]
+  }
+}
