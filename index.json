@@ -3,7 +3,7 @@
   "toolset_ref": "refs/tags/v1.3.0",
   "vocabulary": {
     "languages": ["typescript", "javascript", "python", "csharp", "go", "sql"],
-    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "terraform", "terragrunt", "dataform", "bigquery"],
+    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "terraform", "terragrunt", "dataform", "bigquery", "tableau"],
     "layout": ["monorepo", "single"],
     "agents": ["claude-code", "codex", "cursor"],
     "topics": [
@@ -824,6 +824,28 @@
           "Keeps a renamed column's element name and description instead of replacing them with a new element",
           "Carries existing comments, synonyms and instructions into the regenerated view",
           "Flags new columns that need a description instead of inventing one"
+        ]
+      }
+    },
+    {
+      "id": "TABLEAU-DASHBOARD-FAQ",
+      "version": "0.1.0",
+      "source_path": "artifacts/TABLEAU-DASHBOARD-FAQ",
+      "applies_to": {
+        "frameworks": ["tableau"]
+      },
+      "strength": "on-demand",
+      "topics": ["documentation"],
+      "scope": "project",
+      "presentation": {
+        "name": "Write a dashboard FAQ from the workbook, not from memory",
+        "summary": "Documents an existing Tableau dashboard from its workbook file and a screenshot of the landing view, taking each metric definition from the workbook rather than inferring one.",
+        "benefits": [
+          "Takes metric definitions from the workbook's own definitions field, and stops rather than passing a list of field captions off as documentation",
+          "Requires a screenshot of the landing view, because the file does not record what a reader of the FAQ sees",
+          "Asks for the refresh schedule instead of inferring one from the extract",
+          "Describes only the fields the dashboard actually uses, under the captions readers recognise",
+          "Hands back the result as a draft with each definition's source, so the owner reviews the gaps rather than the whole document"
         ]
       }
     },
