@@ -2,11 +2,13 @@
 
 The artifact catalog. Consumers fetch selected artifacts from this repository using Git partial clone with cone-mode sparse checkout, so a client downloads only the artifacts it needs rather than the whole catalog.
 
-The catalog holds forty-two artifacts in four groups. Twenty-four are data-engineering specific, covering dbt, Snowflake, Airflow, Python pipeline code, sensitive data handling, and stack-agnostic pipeline quality practice, including data quality controls built into a pipeline. Four cover containers and local environments: Dockerfile build rules, Compose stacks, a first Docker scaffold, and a guardrail for destructive Docker commands. Two cover infrastructure as code: reviewing a Terraform plan, with Terragrunt, Atlantis and AWS access policies, before it is applied, and adding or moving Terragrunt units in bulk across tenants and environments without drift. Twelve are general skills that apply to any stack: change review, project documentation, code comments, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, and project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
+The catalog holds forty-three artifacts in four groups. Twenty-four are data-engineering specific, covering dbt, Snowflake, Airflow, Python pipeline code, sensitive data handling, and stack-agnostic pipeline quality practice, including data quality controls built into a pipeline. Four cover containers and local environments: Dockerfile build rules, Compose stacks, a first Docker scaffold, and a guardrail for destructive Docker commands. Two cover infrastructure as code: reviewing a Terraform plan, with Terragrunt, Atlantis and AWS access policies, before it is applied, and adding or moving Terragrunt units in bulk across tenants and environments without drift. Thirteen are general skills that apply to any stack: change review, project documentation, code comments, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`, and research into what people said about a topic in the last 30 days. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
+
+`RECENT-DISCUSSION-RESEARCH` is the one [upstream artifact](docs/authoring-artifacts.md#upstream-artifacts): its directory is a third party's skill (`last30days`), unchanged and pinned to a commit of the author's repository, rather than our own text. Every other artifact is written or adapted here.
 
 Every artifact except one is `on-demand`, so a profile receives only what its declared topics select and the user explicitly chooses. The exception is `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every project that uses Docker, because losing a data volume is not something a team should have to remember to ask protection against. See [`docs/authoring-artifacts.md`](docs/authoring-artifacts.md) for what an `always` artifact has to justify.
 
-Forty-one artifacts are `project` scope. `TECHNICAL-PROSE-EDITING` is the single `user`-scope artifact: a personal editing tool that does not belong in a shared project plan.
+Forty-one artifacts are `project` scope. Two are `user` scope, personal tools that do not belong in a shared project plan: `TECHNICAL-PROSE-EDITING`, an editing tool, and `RECENT-DISCUSSION-RESEARCH`, which calls third-party APIs with the user's own keys and can read their browser cookies with consent.
 
 ## Layout
 
@@ -44,6 +46,11 @@ artifacts/
   PROJECT-ADAPTATION/
   PROJECT-DOCUMENTATION/
   PYTEST-DATA-PIPELINES/
+  RECENT-DISCUSSION-RESEARCH/   # upstream: the author's files, plus
+    SKILL.md                    #   our UPSTREAM.json and LICENSE
+    UPSTREAM.json
+    LICENSE
+    ...
   REFACTOR-STEP-PLANNING/
   REQUIREMENTS-BRAINSTORMING/
   SCD2-IMPLEMENTATION/
@@ -112,13 +119,15 @@ artifacts/
 | `artifacts[].topics` | Intents that select an `on-demand` artifact. Must be non-empty when `strength` is `on-demand` |
 | `artifacts[].scope` | Schema 2: `project` or `user`. User artifacts are personal and require explicit selection |
 | `artifacts[].presentation` | Schema 2 `on-demand`: questionnaire card with non-empty `name`, `summary`, and `benefits` |
+| `artifacts[].requires` | Optional: `tools` and `access` a user needs before the artifact runs. Shown on the catalog map, not matched |
+| `artifacts[].upstream` | Optional: `repo`, `commit`, `path`, `license` and optionally `exclude`, marking an upstream artifact whose directory is a third party's skill at that commit. Ignored by the installer; see [Upstream artifacts](docs/authoring-artifacts.md#upstream-artifacts) |
 | `artifacts[].fixture` | `true` marks transport test data, exempt from all matching validation. Permitted only on `AS-SPIKE-*` ids |
 
 Every value in `applies_to` and `topics` must appear in `vocabulary`. Comparison is case-sensitive: `TypeScript` does not match `typescript`.
 
 `id`, `version`, and `source_path` are the transport inputs. The matching fields live in the index as well — not only inside the artifact — because a consumer doing a partial clone holds `index.json` alone at the moment it decides what to fetch. Reading matching metadata from inside artifact directories would require fetching every candidate's blobs before choosing which to fetch, which is the cost partial clone exists to avoid.
 
-An artifact's `metadata.json` carries the same `applies_to`, `strength`, `topics`, `scope`, and `presentation` as its index entry. The two must agree; the index is authoritative for matching.
+An artifact's `metadata.json` carries the same `applies_to`, `strength`, `topics`, `scope`, and `presentation` as its index entry. The two must agree; the index is authoritative for matching. An upstream artifact has no `metadata.json`: its directory is the author's files plus `UPSTREAM.json` and `LICENSE`, and nothing else of ours.
 
 ### Questionnaire-ready schema 2
 
@@ -210,7 +219,9 @@ Measured against a full shallow clone of the 50-artifact fixture set this catalo
 This catalog is MIT licensed — see [`LICENSE`](LICENSE). Artifacts adapted from
 third-party sources carry their own upstream attribution in [`NOTICE`](NOTICE);
 that file travels with any copy of this repository, as the upstream licences
-require.
+require. An upstream artifact is its author's work under its author's licence,
+which it carries as `LICENSE` in its own directory, so the licence is installed
+with every copy.
 
 ## Related
 

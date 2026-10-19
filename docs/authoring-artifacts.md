@@ -50,6 +50,12 @@ neither relevance nor whether the licence lets us use it.
   modified.
 - Defects found in the source are fixed during adaptation, not carried over.
 
+A third-party skill reaches the catalog in one of two ways. **Adapted**: it is
+rewritten into a copy we own and recorded in `NOTICE`, as the AltimateAI and
+Docker skills were. **Referenced**: the author's files are carried unchanged,
+pinned to a commit, as an [upstream artifact](#upstream-artifacts). Which one
+fits is the first question in that section.
+
 ## The five decisions
 
 Everything else about an artifact is mechanical. These five determine whether anyone ever sees it.
@@ -204,7 +210,8 @@ task: `SNOWFLAKE-QUERY-REWRITE`, `DBT-INCREMENTAL-STRATEGY`,
 
 **The `SKILL.md` `name` is the id in lower case.** `SNOWFLAKE-QUERY-REWRITE` →
 `snowflake-query-rewrite`. The validator enforces this when run with
-`-CatalogRoot`.
+`-CatalogRoot`. An [upstream artifact](#upstream-artifacts) is the exception: it
+keeps its author's name, which must instead be unique across the catalog.
 
 **`presentation.name` is a verb phrase: verb, object, and what sets it apart.**
 "Rewrite Snowflake SQL without changing results", not "Snowflake query
@@ -214,7 +221,8 @@ a user choose between neighbours.
 **The `SKILL.md` `description` says what the artifact does, then when to use
 it.** End it with a "Use when ..." sentence naming the situation that should
 trigger it. An agent picks a skill mostly from this line, so a description that
-only summarises the content leaves the agent guessing when it applies.
+only summarises the content leaves the agent guessing when it applies. This does
+not apply to an upstream artifact, whose `SKILL.md` is its author's.
 
 **The neighbour test.** Before settling a name, find the artifact closest to
 yours in the same area: `ERROR-DIAGNOSIS`, `DBT-BUILD-FAILURE-DIAGNOSIS` and
@@ -239,7 +247,7 @@ Taken from `index.json` at the time of writing. **`index.json` is the source of 
 | `frameworks` | `nestjs`, `react`, `django`, `aspnet`, `airflow`, `dbt`, `duckdb`, `spark`, `trino`, `snowflake`, `databricks`, `docker`, `terraform`, `terragrunt`, `dataform`, `bigquery` |
 | `layout` | `monorepo`, `single` |
 | `agents` | `claude-code`, `codex`, `cursor` |
-| `topics` | `code-review`, `testing`, `documentation`, `refactoring`, `orchestration`, `data-modeling`, `data-quality`, `ingestion`, `performance`, `debugging`, `writing`, `development-process`, `security`, `containerization`, `infrastructure`, `database-administration` |
+| `topics` | `code-review`, `testing`, `documentation`, `refactoring`, `orchestration`, `data-modeling`, `data-quality`, `ingestion`, `performance`, `debugging`, `writing`, `development-process`, `security`, `containerization`, `infrastructure`, `database-administration`, `research` |
 
 `frameworks` is the loosest of the dimensions: it holds anything that identifies the
 stack beyond the language, so orchestrators (`airflow`), transformation tools (`dbt`)
@@ -266,8 +274,156 @@ which of them, including ones merged in parallel, should declare it.
 - **Ids must be unique case-insensitively.** They become directory names; on Windows and default macOS `AS-0001` and `as-0001` are one directory, and one artifact silently overwrites the other.
 - **The index entry and the artifact's own `metadata.json` must agree.** The index is authoritative for matching — it is the only file a consumer holds when it decides what to fetch. **Nothing checks this agreement.** A `metadata.json` that disagrees with the index passes CI, and the index wins at install time.
 - **Never set `fixture: true`.** It is only for the `AS-SPIKE-*` transport fixtures, and it exempts an artifact from *all* matching validation — though not from the [path rules](../README.md#path-rules), which apply to every entry because a broken path breaks the checkout for everyone. On a real artifact it would silently hide it from every install. The validator rejects it on any non-`AS-SPIKE-*` id, which is the only reason a typo here is survivable.
-- **The directory is named exactly for the id.** `source_path` must be `artifacts/<id>`, case included, and the `SKILL.md` frontmatter `name` must be the id in lower case. The validator rejects both mismatches (the second only with `-CatalogRoot`). The `AS-SPIKE-*` transport fixtures are exempt from the directory rule.
+- **The directory is named exactly for the id.** `source_path` must be `artifacts/<id>`, case included, and the `SKILL.md` frontmatter `name` must be the id in lower case. The validator rejects both mismatches (the second only with `-CatalogRoot`). The `AS-SPIKE-*` transport fixtures are exempt from the directory rule, and an [upstream artifact](#upstream-artifacts) from the name rule.
 - **One artifact is exactly one self-contained directory.** See [the subtree contract](../README.md#the-subtree-contract). Breaking it does not fail loudly — the clone succeeds and the artifact arrives incomplete.
+- **Never edit a file in an upstream artifact.** Its directory is the author's bytes at a pinned commit, and CI fails on any difference. Change the pin, or adapt the skill instead.
+
+## Upstream artifacts
+
+An upstream artifact is a third party's skill carried as the author wrote it:
+their files, unchanged, pinned to one commit of their repository. The catalog
+adds only an index entry, an `UPSTREAM.json` recording where the files came
+from, and a `LICENSE` when the author's directory has none. The author's later
+fixes arrive by moving the pin, and nobody here has to maintain the text.
+
+The installer does not know the difference. It reads `source_path` and ignores
+`upstream`, so the author's repository is fetched when the catalog is built,
+never on a developer's machine. The design is in the installer repository's
+spec, `docs/superpowers/specs/2026-10-09-upstream-artifacts.md`.
+
+### Adapt or reference
+
+Reference a skill only when the answer to the first question is yes. Otherwise
+adapt it into a copy we own, as described in [Adopting a third-party
+skill](#adopting-a-third-party-skill).
+
+- [ ] **Would [`PROJECT-ADAPTATION`](../artifacts/PROJECT-ADAPTATION) be enough
+  to make it correct in a typical target repository?** That skill appends a
+  `Project context` section with the repository's paths, commands and naming,
+  and leaves the rest of `SKILL.md` alone. If the skill's rules, not just its
+  examples, assume a structure we do not want to teach, no appended section
+  fixes that, and the skill has to be adapted.
+- [ ] The licence is `MIT`, `Apache-2.0`, `BSD-2-Clause` or `BSD-3-Clause`. The
+  validator rejects anything else.
+- [ ] The repository is on GitHub. Other hosts are not supported yet.
+- [ ] The skill lives in one directory with `SKILL.md` at its root, and does not
+  depend on files outside that directory. Anything outside it is not installed.
+- [ ] Nothing in the skill breaks [What belongs in the
+  catalog](#what-belongs-in-the-catalog), hooks in particular. Being the
+  author's text exempts it from house style, not from scope.
+
+A skill that passes is still checked like any candidate (licence first, install
+count last), and its `requires` still has to be complete: read the scripts, not
+only the frontmatter.
+
+### Adding one
+
+1. **Write the index entry.** Everything that drives matching and the
+   questionnaire is ours, decided exactly as for any artifact: `id`, `version`,
+   `applies_to`, `strength`, `topics`, `scope`, `presentation` and `requires`.
+   The id and `presentation.name` follow [Naming](#naming); the author's
+   frontmatter `name` and `description` are left as they are. Then add the
+   `upstream` object:
+
+   ```json
+   "upstream": {
+     "repo": "https://github.com/<owner>/<repo>",
+     "commit": "<full 40-character lower-case SHA>",
+     "path": "skills/<name>",
+     "license": "MIT",
+     "exclude": ["assets/"]
+   }
+   ```
+
+   `repo` is written exactly in that form: no `.git` suffix and no SSH form, so
+   one repository has one spelling in the index and in `NOTICE`. `commit` is a
+   full SHA, never a branch or tag, because a SHA is the only reference that
+   cannot be moved under us. `path` is the skill's directory in that
+   repository. `exclude` is optional; see below.
+
+2. **Run the sync.**
+
+   ```powershell
+   ./scripts/sync-upstream.ps1 -Id <ID>
+   ```
+
+   It clones the repository without blobs, checks out only `path` at
+   `commit`, and replaces `artifacts/<ID>/` with those files minus `exclude`,
+   plus `UPSTREAM.json` and, when needed, `LICENSE` copied from the
+   repository root. It refuses, and leaves the directory as it was, when the
+   result would break a catalog rule: a path rule, no `SKILL.md` at the root,
+   a `scripts/` directory or `requirements.txt` with no `requires` on the
+   entry, a symbolic link, no licence file anywhere, or an `exclude` item that
+   matches nothing. The message names the author's file at fault.
+
+3. **Add a `NOTICE` entry** for the repository if it has none: the URL, the
+   licence, the copyright line, which artifact comes from which path, what
+   `exclude` leaves out, and the licence text in full. The validator checks
+   that `NOTICE` mentions `upstream.repo`.
+
+4. **Add the catalog map entries**, as for any new artifact: the group in
+   `catalog-map/groups.json`, Russian text in `catalog-map/ru.json` including
+   `req`.
+
+5. **Run the validator, commit the artifact, then verify.**
+
+   ```powershell
+   ./scripts/validate-catalog.ps1 -IndexPath ./index.json -CatalogRoot .
+   # commit artifacts/<ID>, index.json, NOTICE and catalog-map/, then:
+   ./scripts/sync-upstream.ps1 -Verify
+   ```
+
+   `-Verify` compares the git blob ids committed in `HEAD` with the author's
+   tree at `commit`, so it has to run after the commit. It fetches trees only,
+   but it does need network access to GitHub. CI runs it on every push.
+
+No `metadata.json` is added. The directory holds the author's files and our two,
+and the index is the only place the matching fields live.
+
+### Leaving files out
+
+`exclude` lists files and directories to leave out, relative to `path`. An item
+ending in `/` is a directory; one without names a file, or a directory and
+everything under it. It removes whole files and never edits one, so the author's
+text stays the author's. `UPSTREAM.json` records the list, and `-Verify`
+applies it, so an excluded file that reappears fails CI as surely as an edited
+one.
+
+Use it for what a skill ships but does not use, such as the demo media that
+make up most of `last30days`. **Never exclude anything `SKILL.md` or the files
+it references point at.** The skill would install without error and then fail
+when the agent follows the reference. The validator cannot tell what a
+`SKILL.md` refers to, so this is review's job: grep `SKILL.md` and its
+references for every excluded path before approving.
+
+### Moving the pin
+
+A new commit is a PR that changes `commit` and bumps `version` together, then
+re-runs the sync and commits the result. Re-check what the entry claims about
+the skill against the new commit, `requires` in particular: an author adding a
+dependency does not touch our index.
+
+An installed copy changed by `PROJECT-ADAPTATION` counts as locally edited, so
+`accelerator update` keeps it and reports it as retained. `update -Force`
+replaces it and drops the `Project context` section; run the adaptation again
+afterwards. This holds for every artifact, but upstream artifacts hit it more
+often, because moving the pin is how the author's fixes arrive.
+
+### Line endings
+
+If `-Verify` reports a file that differs and nobody edited it, the catalog's
+`.gitattributes` normalised its line endings on commit: an author's CRLF file
+committed under `* text=auto` is stored as LF, and its blob id is no longer the
+author's. Do not edit the file. Add a line to `.gitattributes` for that
+artifact and re-add it:
+
+```text
+artifacts/<ID>/** -text
+```
+
+```powershell
+git add --renormalize artifacts/<ID>
+```
 
 ## Worked example
 
@@ -368,7 +524,7 @@ then every TypeScript project would get it, asked for or not. That is a defensib
 
 ## Check your work before pushing
 
-All three checks below run in CI ([`.github/workflows/validate.yml`](../.github/workflows/validate.yml)). Run them locally first.
+All three checks below run in CI ([`.github/workflows/validate.yml`](../.github/workflows/validate.yml)). Run them locally first. CI also runs `sync-upstream.ps1 -Verify`, which matters only when you add or change an [upstream artifact](#upstream-artifacts).
 
 ### The validator
 
@@ -461,7 +617,22 @@ Every message below is produced by [`scripts/validate-catalog.ps1`](../scripts/v
 | `Artifact <id> path '<path>' is <n> characters long, over the 240-character maximum. ...` | Over the conservative limit; longer needs `core.longpaths=true`. |
 | `Artifact <id> path '<a>' collides with '<b>' on a case-insensitive filesystem. ...` | Two paths differ only in case. The clone succeeds and one file disappears. |
 | `Catalog directories '<a>' and '<b>' differ only in case, so they are one directory on Windows and default macOS. ...` | Two directory spellings, even with no two files colliding. Windows merges them and a sparse checkout pulls the wrong files. |
-| `Artifact <id> declares source_path '<path>', which uses '\' separators / is absolute / contains a '.' or '..' segment.` | `source_path` is not a repository-relative `/`-separated path inside the catalog. |
+| `Artifact <id> declares source_path '<path>', which uses '\' separators / is absolute / contains a '.' or '..' segment.` | `source_path` is not a repository-relative `/`-separated path inside the catalog. The same messages name `upstream.path` or an `upstream.exclude item` when the fault is there. |
+| `Artifact <id> declares upstream.repo '<url>'. Write it as https://github.com/<owner>/<repo>: ...` | A `.git` suffix, the SSH form, `http`, another host, or a deeper URL such as `/tree/main`. |
+| `Artifact <id> declares upstream.commit '<value>', which is not a full 40-character lower-case commit SHA. ...` | A branch, a tag, a short SHA or upper-case hex. Pin the full SHA. |
+| `Artifact <id> declares upstream.license '<value>', which is not on the allowlist: ...` | Only `MIT`, `Apache-2.0`, `BSD-2-Clause` and `BSD-3-Clause`, spelled exactly so. |
+| `Artifact <id> upstream is missing required field '<field>' ...` / `declares unknown upstream field '<field>'` | `repo`, `commit`, `path` and `license` are required; `exclude` is the only optional field. |
+| `Artifact <id> upstream.exclude must be a non-empty list of paths. ...` | `exclude` is empty or not a list of strings. Omit it when nothing is left out. |
+| `Artifact <id> is an upstream artifact with no UPSTREAM.json / no LICENSE file. ...` | The directory was not produced by `sync-upstream.ps1 -Id <id>`, or a file was deleted. Run the sync. |
+| `Artifact <id> UPSTREAM.json has <field> '<a>', but the index says '<b>'. ...` | The index entry changed after the last sync. Run the sync again. |
+| `Artifact <id> takes its content from <repo>, which NOTICE does not mention. ...` | Add a `NOTICE` entry for the repository. |
+| `Artifacts <a> ('<name>'), <b> ('<name>') have SKILL.md names that are the same case-insensitively. ...` | An upstream skill's own name clashes with another skill. Pick a different skill or adapt it; the author's file is not edited. |
+
+`sync-upstream.ps1 -Verify` prints its faults the same way, prefixed `ERROR: `.
+Each names the artifact and the file: one that differs from the pinned commit,
+one missing from the catalog, or one present that the commit does not have or
+`exclude` leaves out. A difference nobody made is usually line endings; see
+[Line endings](#line-endings).
 
 These three are thrown, not collected — they mean a broken invocation rather than bad catalog content, and there is nothing in the catalog to fix:
 
@@ -484,20 +655,22 @@ Green CI does not mean a correct artifact. These are enforced by review alone.
 | **The subtree contract** | Nothing verifies an artifact is self-contained. An artifact depending on a file outside its directory clones successfully and arrives incomplete. |
 | **`SKILL.md` content** | Only the frontmatter `name` is read, and only with `-CatalogRoot`. The body and the `description` are not linted, and the file is not required to exist. |
 | **`requires` is complete** | Only an artifact that ships scripts or a `requirements.txt` is made to declare it. One whose `SKILL.md` runs `dbt build` or queries Snowflake can omit it and validate clean; the catalog map then tells users it needs nothing. |
+| **What an upstream `exclude` removes** | `-Verify` checks that exactly the listed files are missing, not that the skill still works without them. Excluding a file `SKILL.md` refers to installs cleanly and fails when the agent follows the reference. |
 
-The pattern across all seven: the failure is silent. Nothing errors, the install reports success, and the content is wrong or missing. That is why review is the gate here and why this list is worth re-reading before you approve someone else's artifact.
+The pattern across all eight: the failure is silent. Nothing errors, the install reports success, and the content is wrong or missing. That is why review is the gate here and why this list is worth re-reading before you approve someone else's artifact.
 
 ## Checklist
 
 - [ ] Directory under `artifacts/`, named for the id, self-contained
-- [ ] Id, `SKILL.md` `name` and `presentation.name` follow [Naming](#naming), and pass the neighbour test
-- [ ] `SKILL.md` `description` ends with a "Use when ..." sentence
+- [ ] Id, `SKILL.md` `name` and `presentation.name` follow [Naming](#naming), and pass the neighbour test (upstream: id and `presentation.name` only)
+- [ ] `SKILL.md` `description` ends with a "Use when ..." sentence (not for an upstream artifact)
+- [ ] Upstream: passes [Adapt or reference](#adapt-or-reference), synced with `sync-upstream.ps1 -Id`, nothing excluded that `SKILL.md` or its references point at, `NOTICE` entry added, `-Verify` passes after commit
 - [ ] Schema 2: `scope` is `project` or `user`; user scope is never `always`
 - [ ] `strength` defaulted to `on-demand` unless you can defend `always` against the test
 - [ ] `applies_to` declares only the dimensions that would make the artifact *wrong* if absent; `{}` written explicitly if universal
 - [ ] `topics` non-empty if `on-demand`, all values from the vocabulary, all lower-case
 - [ ] Schema 2 `on-demand`: presentation card has a short name, truthful summary and concrete benefits
 - [ ] `requires` declared if the workflow runs a command or connects somewhere, with Russian text under `req` in `catalog-map/ru.json`
-- [ ] `metadata.json` matches the index entry field for field
+- [ ] `metadata.json` matches the index entry field for field (an upstream artifact has none)
 - [ ] No `fixture: true`
 - [ ] `./scripts/validate-catalog.ps1 -IndexPath ./index.json -CatalogRoot .` reports `IsValid: True`
