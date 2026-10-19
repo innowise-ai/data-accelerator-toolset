@@ -63,6 +63,10 @@
   "Data engineering",
   "Tableau"
  ],
+ "TABLEAU-WORKBOOK-AUDIT": [
+  "Data engineering",
+  "Tableau"
+ ],
  "ETL-DECOMPOSITION": [
   "Data engineering",
   "Pipelines, SQL and data safety"
