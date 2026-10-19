@@ -5,7 +5,7 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-41 artifacts today: 23 data-engineering specific (dbt, Snowflake, Airflow,
+42 artifacts today: 24 data-engineering specific (dbt, Snowflake, Airflow,
 Python pipeline code, sensitive data handling, stack-agnostic pipeline quality),
 4 for containers and local environments, 2 for infrastructure as code, and 12
 general skills that apply to any stack. All are `on-demand` except
@@ -22,12 +22,13 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (23)
+## Data engineering (24)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
 | **Structure Airflow DAGs for safe, cheap imports** (`AIRFLOW-DAG-STRUCTURE`) | airflow | orchestration | Structures Airflow DAGs so nothing expensive or fragile runs at import time. |
 | **Trace wrong data when the pipeline succeeded** (`DATA-INCIDENT-TRACING`) | any | debugging, data-quality | Traces wrong data back to the code that produced it when the pipeline reported success. |
+| **Build data quality controls: quarantine, release diff, scorecards** (`DATA-QUALITY-CONTROLS`) | any | data-quality, ingestion | Builds the controls that keep invalid records out of published data, show what each publish changes, and score data quality per source and stage. |
 | **Diagnose a failing dbt build from compiled SQL** (`DBT-BUILD-FAILURE-DIAGNOSIS`) | dbt | debugging | Diagnoses a failing dbt build from the compiled SQL rather than the error text. |
 | **Trace a dbt column upstream and downstream** (`DBT-COLUMN-LINEAGE`) | dbt | data-modeling | Traces where a dbt model's column came from and what depends on it, without reading SQL by hand across the model chain. Requires dbt Cloud + MCP server. |
 | **Choose a dbt incremental strategy and unique key** (`DBT-INCREMENTAL-STRATEGY`) | dbt | data-modeling, performance | Chooses an incremental strategy and unique key that survive late data and schema drift. |
