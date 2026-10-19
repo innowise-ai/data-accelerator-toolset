@@ -59,6 +59,10 @@
   "Data engineering",
   "Airflow"
  ],
+ "TABLEAU-DASHBOARD-FAQ": [
+  "Data engineering",
+  "Tableau"
+ ],
  "ETL-DECOMPOSITION": [
   "Data engineering",
   "Pipelines, SQL and data safety"
