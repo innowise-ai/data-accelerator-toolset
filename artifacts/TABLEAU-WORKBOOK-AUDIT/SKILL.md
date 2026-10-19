@@ -30,9 +30,10 @@ Its neighbours in this catalog:
     30|here the leftovers are the point.
 - [code-change-review](../CODE-CHANGE-REVIEW/SKILL.md) reviews a proposed change.
   This assesses an artifact in its current state, with no change on the table yet.
-- Anything about how a slow dashboard got slow belongs with diagnosis rather than
-  inventory; this audit records performance risks it can see in the structure and
-  stops there.
+- [tableau-performance-diagnosis](../TABLEAU-PERFORMANCE-DIAGNOSIS/SKILL.md) takes
+  over when something is actually slow. This audit records the performance risks
+  visible in the structure and stops there, because structure suggests cost and
+  only a measurement establishes it.
 
 ## Take the inventory, but hold it as evidence
 

@@ -1,0 +1,23 @@
+{
+  "id": "TABLEAU-PERFORMANCE-DIAGNOSIS",
+  "version": "0.1.0",
+  "source_path": "artifacts/TABLEAU-PERFORMANCE-DIAGNOSIS",
+  "applies_to": {
+    "frameworks": ["tableau"]
+  },
+  "strength": "on-demand",
+  "topics": ["performance"],
+  "scope": "project",
+  "presentation": {
+    "name": "Find out why a Tableau dashboard is slow before rewriting it",
+    "summary": "Establishes which interaction is slow and where the time actually goes - the queries, Tableau's own compute, or rendering - before anything is rewritten.",
+    "benefits": [
+      "Separates first load, filter changes and tab switches, which rarely share a cause",
+      "Splits query time from local compute from rendering, so the fix is attempted in the right place",
+      "Checks filter configuration early, where the cost is settings rather than design",
+      "Distinguishes a measured cause from a structural hypothesis instead of presenting one as the other",
+      "Requires a rewritten calculation to be checked against the original numbers, since Tableau formulas are where confident answers are most often wrong",
+      "Names the causes that live outside the workbook and survive any rewrite"
+    ]
+  }
+}
