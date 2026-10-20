@@ -147,6 +147,10 @@
   "General",
   "Development process"
  ],
+ "DAILY-UPDATE-WRITING": [
+  ["General", "Development process"],
+  ["General", "Docs and writing"]
+ ],
  "PROJECT-DOCUMENTATION": [
   "General",
   "Docs and writing"
