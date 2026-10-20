@@ -8,7 +8,7 @@ The catalog holds forty-four artifacts in four groups. Twenty-four are data-engi
 
 Every artifact except one is `on-demand`, so a profile receives only what its declared topics select and the user explicitly chooses. The exception is `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every project that uses Docker, because losing a data volume is not something a team should have to remember to ask protection against. See [`docs/authoring-artifacts.md`](docs/authoring-artifacts.md) for what an `always` artifact has to justify.
 
-Forty-one artifacts are `project` scope. Three are `user` scope, personal tools that do not belong in a shared project plan: `TECHNICAL-PROSE-EDITING`, an editing tool, `DAILY-UPDATE-WRITING`, which reports one engineer's own work, and `RECENT-DISCUSSION-RESEARCH`, which calls third-party APIs with the user's own keys and can read their browser cookies with consent.
+Forty-one artifacts are `project` scope. Three are `user` scope, personal tools that do not belong in a shared project plan: `TECHNICAL-PROSE-EDITING`, an editing tool, `DAILY-STANDUP-UPDATE`, which reports one engineer's own work, and `RECENT-DISCUSSION-RESEARCH`, which calls third-party APIs with the user's own keys and can read their browser cookies with consent.
 
 ## Layout
 
@@ -21,7 +21,7 @@ artifacts/
   CODE-CHANGE-REVIEW/
   CODE-COMMENT-WRITING/
   COMPLETION-VERIFICATION/
-  DAILY-UPDATE-WRITING/
+  DAILY-STANDUP-UPDATE/
   DATA-INCIDENT-TRACING/
   DATA-QUALITY-CONTROLS/
   DBT-BUILD-FAILURE-DIAGNOSIS/

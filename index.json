@@ -108,9 +108,9 @@
       }
     },
     {
-      "id": "DAILY-UPDATE-WRITING",
+      "id": "DAILY-STANDUP-UPDATE",
       "version": "0.1.0",
-      "source_path": "artifacts/DAILY-UPDATE-WRITING",
+      "source_path": "artifacts/DAILY-STANDUP-UPDATE",
       "applies_to": {},
       "strength": "on-demand",
       "topics": ["writing", "development-process"],

@@ -1,6 +1,6 @@
 ---
-name: daily-update-writing
-description: Writing a daily standup or async daily update from the engineer's actual activity - commits, pull requests, reviews and issues since the last working day - in three fixed sections, Done, Next and Blockers, with every item traced to evidence or confirmed by the engineer. Use when asked for a standup, a daily update or a daily status message.
+name: daily-standup-update
+description: Preparing a daily standup or async daily update from the engineer's actual activity - commits, pull requests, reviews and issues since the last working day - in three fixed sections, Done, Next and Blockers, with every item traced to evidence or confirmed by the engineer. Use when asked for a standup, a daily update or a daily status message.
 ---
 
 # Writing a daily update from evidence
@@ -37,10 +37,29 @@ evening before.
 
 ### Which repositories
 
-Start with the current repository and ask which others the engineer worked in. Do
-not scan every repository the account can see: engineers keep personal and
+A project split across several repositories, such as a service, its pipelines and
+its infrastructure, leaves its trace in all of them, and an update built from the
+current one alone undercounts the day. Start with the current repository and ask
+which others the engineer worked in. They can answer with a list of paths, or with
+a folder that holds their clones. If their personal agent instructions already
+keep such a list, use it and say so.
+
+Do not scan every repository the account can see: engineers keep personal and
 unrelated work alongside, and an update that names a private repository in a team
 channel is a leak the engineer did not choose.
+
+Given a folder, find the repositories under it and keep only the ones with the
+engineer's commits in the window, so a folder of forty clones yields the three that
+matter:
+
+```bash
+find <folder> -maxdepth 3 -name .git -prune | sed 's#/\.git$##'
+```
+
+`.git` is a file rather than a directory in a worktree, and `-name` matches both.
+Worktrees of one repository share its history, so their commits come back
+identical; drop repeated hashes, and use the repository name, not the folder name,
+when labelling items.
 
 ### Git history
 
@@ -48,9 +67,11 @@ Bring remote branches up to date first, so work pushed from another machine show
 up. A fetch changes no branch and no working tree:
 
 ```bash
-git fetch --all --prune --quiet
-git log --all --author="<email or name>" --since="<window start>" \
-  --date=iso-local --format='%h %ad %D %s'
+for repo in <path> <path>; do
+  git -C "$repo" fetch --all --prune --quiet
+  git -C "$repo" log --all --author="<email or name>" --since="<window start>" \
+    --date=iso-local --format="$(basename "$repo") %h %ad %D %s"
+done
 ```
 
 `--all` covers every local and remote-tracking branch, which is what makes a branch
@@ -72,7 +93,8 @@ different hashes, so group by subject before counting.
 
 When the `gh` CLI is installed and signed in, it adds what git cannot show: pull
 requests opened, merged and reviewed, and issues touched. Limit each search to the
-repositories agreed above with `--repo` or `--owner`:
+repositories agreed above; `--repo` takes several, and `--owner` covers an
+organisation's repositories, including ones the engineer has no clone of:
 
 ```bash
 gh search prs --author=@me --updated=">=<date>" \
