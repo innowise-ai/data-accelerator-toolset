@@ -17,6 +17,33 @@ it in. The rule this comes down to: **every line in Done traces to evidence or t
 something the engineer said.** A short true update is worth more than a full one
 with a guessed line in it, because a reader cannot tell which line was guessed.
 
+## One draft, then one round of questions
+
+The update has to be quicker to get than to write from memory, or the engineer goes
+back to memory. A question before every step defeats that, so start from defaults,
+build the draft, and put every question in one message under it.
+
+The defaults:
+
+- **Window:** from the start of the previous working day.
+- **Repositories:** the current one, plus any the engineer named in the request or
+  keeps in their personal agent instructions.
+- **Format:** a chat message.
+
+The message under the draft says which window and repositories were used, then asks
+together:
+
+- what else belongs in Done that left no trace in git;
+- which Next candidates to keep, drop or add;
+- for each blocker candidate, whether it blocks, on whom and since when, or whether
+  there are no blockers;
+- whether the window, the repositories or the format should change.
+
+If an answer changes the window or the repositories, gather again and redraft.
+Otherwise apply the answers and hand over the final text. Ask before drafting only
+when there is nothing to draft from, such as no repository in the current directory
+and none named.
+
 ## The period: since the last working day
 
 "Since the last update" means since the previous working day began, not the last 24
@@ -24,10 +51,10 @@ hours. On a Monday a 24-hour window covers Sunday and misses Friday, which is th
 that matters. After a day off it misses the last day actually worked.
 
 Take the start of the previous working day as the default: Friday for a Monday
-update, otherwise yesterday. Ask when the default may be wrong, which is when today
-follows a public holiday or leave the agent cannot see, or when the engineer says
-their last update was posted at another time. Tell the engineer the window you used
-when you show the draft, so a wrong guess is caught there.
+update, otherwise yesterday. It is wrong after a public holiday or leave the agent
+cannot see, or when the engineer's last update went out at another time. Stating the
+window in the message under the draft is what catches that, at the cost of one
+redraft rather than a question every day.
 
 Git's `--since` reads local time. GitHub search dates are in UTC, so search from one
 day earlier and drop what falls outside the window afterwards rather than miss the
@@ -39,14 +66,14 @@ evening before.
 
 A project split across several repositories, such as a service, its pipelines and
 its infrastructure, leaves its trace in all of them, and an update built from the
-current one alone undercounts the day. Start with the current repository and ask
-which others the engineer worked in. They can answer with a list of paths, or with
-a folder that holds their clones. If their personal agent instructions already
-keep such a list, use it and say so.
+current one alone undercounts the day. The engineer names the others, in the
+request, in their personal agent instructions, or in answer to the questions under
+the draft, as a list of paths or as a folder that holds their clones.
 
-Do not scan every repository the account can see: engineers keep personal and
-unrelated work alongside, and an update that names a private repository in a team
-channel is a leak the engineer did not choose.
+Only repositories named this way are searched, in git and on GitHub alike.
+Engineers keep personal and unrelated work alongside, often under a second GitHub
+account on the same machine, and an update that names a private repository in a
+team channel is a leak the engineer did not choose.
 
 Given a folder, find the repositories under it and keep only the ones with the
 engineer's commits in the window, so a folder of forty clones yields the three that
@@ -92,20 +119,25 @@ different hashes, so group by subject before counting.
 ### GitHub
 
 When the `gh` CLI is installed and signed in, it adds what git cannot show: pull
-requests opened, merged and reviewed, and issues touched. Limit each search to the
-repositories agreed above; `--repo` takes several, and `--owner` covers an
-organisation's repositories, including ones the engineer has no clone of:
+requests opened, merged and reviewed, and issues touched. Every search carries
+`--repo` for each repository being searched. Without it `@me` matches across every
+organisation and personal repository the account can see, which is the scan the
+section above rules out. A local clone's `owner/repo` is in
+`git -C <path> remote get-url origin`.
 
 ```bash
-gh search prs --author=@me --updated=">=<date>" \
+gh search prs --author=@me --updated=">=<date>" --repo <owner/repo> \
   --json repository,number,title,state,isDraft,closedAt,url
-gh search prs --reviewed-by=@me --updated=">=<date>" \
+gh search prs --reviewed-by=@me --updated=">=<date>" --repo <owner/repo> \
   --json repository,number,title,state,url
-gh search prs --review-requested=@me --state=open \
+gh search prs --review-requested=@me --state=open --repo <owner/repo> \
   --json repository,number,title,url
-gh search issues --assignee=@me --updated=">=<date>" \
+gh search issues --assignee=@me --updated=">=<date>" --repo <owner/repo> \
   --json repository,number,title,state,url
 ```
+
+Repeat `--repo` for each repository. Use `--owner` in its place only when the
+engineer names a whole organisation as theirs to report on.
 
 `--updated` means anything happened to the item, including a bot adding a label, so
 read the state rather than trusting the match. A pull request merged in the window
@@ -125,10 +157,10 @@ engineer's behalf.
 ## Asking for what leaves no trace
 
 Meetings, reviews in another tool, an investigation that ended without a commit,
-helping a colleague, an incident: none of these reach git. Show the engineer what
-the evidence found first, then ask once what else belongs in Done. A list to react
-to gets a better answer than an open question, because it reminds them what the day
-looked like.
+helping a colleague, an incident: none of these reach git. That is why the
+question about them comes under the draft rather than before it: a list to react to
+gets a better answer than an open question, because it reminds the engineer what
+the day looked like.
 
 A quiet git log is not a quiet day. It is usually a day of investigation, review or
 meetings, and only the engineer knows which. Never fill the gap with "worked on X"
@@ -163,8 +195,8 @@ not all work in the repository.
 Next is what the engineer commits to, and the team plans around it, so it contains
 only work the engineer agreed to. Propose candidates from the evidence: own pull
 requests with changes requested, open review requests, assigned issues, branches
-with recent commits and no pull request yet. Then let the engineer keep, drop or add
-to them. Two or three items is normal for a day. A long Next list reads as a backlog
+with recent commits and no pull request yet. Mark them as proposed in the draft, and
+let the engineer keep, drop or add to them in the one round of questions. Two or three items is normal for a day. A long Next list reads as a backlog
 and makes the real priority harder to see.
 
 ## Blockers
@@ -180,8 +212,9 @@ date nobody can tell a new blocker from one that needs escalating.
 
 The evidence suggests candidates without settling them: a pull request waiting for
 review for more than a day, a failing check, an unanswered question on an issue.
-Ask about each. A pull request waiting for review is a blocker only if the engineer
-cannot move on without it, and only the engineer knows that.
+List them together in the questions under the draft, not one question each. A pull
+request waiting for review is a blocker only if the engineer cannot move on without
+it, and only the engineer knows that.
 
 When there are none, write `Blockers: none`. An empty section and a missing section
 look the same to a reader, and only one of them means there is nothing to help with.
@@ -202,7 +235,8 @@ The target changes the markup, not the sections:
 | Chat (Slack, Teams) | Bold labels instead of headings, plain list lines, links only where readers lack the repository context |
 | Ticket or issue comment | A heading per section, full links, since the comment outlives the conversation |
 
-Ask which one if the engineer has not said. A chat draft for Slack:
+Draft for chat unless the engineer asked for a ticket comment; switching later is a
+change of markup only. A chat draft for Slack:
 
 ```text
 *Done*
