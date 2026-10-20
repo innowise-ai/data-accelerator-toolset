@@ -1,10 +1,12 @@
 NOTICE
 ======
 
-This catalog contains artifacts derived from third-party work. Each entry below
-records what was taken, from where, and under which licence. The full licence
-text of each upstream project is reproduced in this file, as those licences
-require.
+This catalog contains artifacts derived from third-party work, and upstream
+artifacts that are third-party skills copied unchanged. Each entry below records
+what was taken, from where, and under which licence. The full licence text of
+each upstream project is reproduced in this file, as those licences require. An
+upstream artifact also carries the licence in its own directory, as LICENSE, so
+every installed copy has it.
 
 Artifacts not listed here are original to this repository.
 
@@ -332,3 +334,48 @@ and the Dataform specifics - is the author's.
 Artifacts derived from this source:
 
   CODE-COMMENT-WRITING <- code-comments/SKILL.md
+
+
+-------------------------------------------------------------------------------
+mvanhorn/last30days-skill
+-------------------------------------------------------------------------------
+
+Upstream:  https://github.com/mvanhorn/last30days-skill (commit 13a6cc5fd1f2d8a9b8420bbba6742599b2f4a077)
+Licence:   MIT
+Copyright: Copyright (c) 2026 Matt Van Horn
+
+One skill is carried as an upstream artifact: the author's files, unchanged,
+pinned to the commit above. scripts/sync-upstream.ps1 fetches them and CI checks
+that every byte still matches that commit. The skill's assets/ directory (demo
+images and audio that SKILL.md does not use) is left out; nothing else is
+removed and no file is edited. The catalog adds UPSTREAM.json, recording the
+source, and LICENSE, a copy of the repository's licence below. The commit pinned
+in index.json is authoritative; the one above is the commit first carried.
+
+Upstream artifacts from this source:
+
+  RECENT-DISCUSSION-RESEARCH <- skills/last30days
+
+Upstream licence text, reproduced in full:
+
+    MIT License
+
+    Copyright (c) 2026 Matt Van Horn
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.

@@ -63,6 +63,26 @@ jobs:
 
           Write-Host 'Catalog index is valid.'
 
+      - name: Verify upstream artifacts against their pinned commits
+        shell: pwsh
+        run: |
+          # The one check here that needs the network: each upstream artifact's
+          # committed blob ids are compared with its author's tree at the pinned
+          # commit. Only trees are fetched, never blobs. A difference means the
+          # catalog no longer carries the author's bytes - an edit, a file the
+          # exclude list should have left out, or .gitattributes rewriting line
+          # endings on commit.
+          $result = ./scripts/sync-upstream.ps1 -Verify
+
+          Write-Host "Verified $($result.ArtifactCount) upstream artifact(s)."
+
+          if (-not $result.IsValid) {
+              foreach ($message in @($result.Errors)) {
+                  Write-Host "::error::$message"
+              }
+              exit 1
+          }
+
       - name: Run the validator test suite
         shell: pwsh
         run: |

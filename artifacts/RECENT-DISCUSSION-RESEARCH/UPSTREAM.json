@@ -1,0 +1,10 @@
+{
+  "repo": "https://github.com/mvanhorn/last30days-skill",
+  "commit": "13a6cc5fd1f2d8a9b8420bbba6742599b2f4a077",
+  "path": "skills/last30days",
+  "license": "MIT",
+  "exclude": [
+    "assets/"
+  ],
+  "synced_by": "scripts/sync-upstream.ps1"
+}

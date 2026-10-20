@@ -22,7 +22,8 @@
       "security",
       "containerization",
       "infrastructure",
-      "database-administration"
+      "database-administration",
+      "research"
     ]
   },
   "artifacts": [
@@ -633,6 +634,43 @@
           "Draws a clear unit and integration split for pipeline code",
           "Mocks at the I/O edge so transforms stay genuinely tested",
           "Adds DAG import tests that catch breakage before deployment"
+        ]
+      }
+    },
+    {
+      "id": "RECENT-DISCUSSION-RESEARCH",
+      "version": "0.1.0",
+      "source_path": "artifacts/RECENT-DISCUSSION-RESEARCH",
+      "upstream": {
+        "repo": "https://github.com/mvanhorn/last30days-skill",
+        "commit": "13a6cc5fd1f2d8a9b8420bbba6742599b2f4a077",
+        "path": "skills/last30days",
+        "license": "MIT",
+        "exclude": ["assets/"]
+      },
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["research"],
+      "scope": "user",
+      "requires": {
+        "tools": [
+          "Python 3.12 or later",
+          "Node.js 22 or later, for X search",
+          "yt-dlp, for YouTube search and transcripts"
+        ],
+        "access": [
+          "API keys for the sources you want beyond the free ones, such as SCRAPECREATORS_API_KEY for TikTok and Instagram, or XAI_API_KEY or X_BEARER_TOKEN for X",
+          "Consent to read browser cookies, only if X search should use your logged-in session"
+        ]
+      },
+      "presentation": {
+        "name": "Research what people said about a topic in the last 30 days",
+        "summary": "Collects recent posts and engagement about a topic from Reddit, X, YouTube, TikTok, Hacker News, Polymarket, GitHub and the web, and summarises them with sources.",
+        "benefits": [
+          "Searches many communities in one run, limited to the last 30 days",
+          "Starts with sources that need no key, such as Hacker News and Polymarket, and adds others as keys are configured",
+          "Asks before reading browser cookies, and carries on without them if you decline",
+          "Includes a doctor check that reports which sources are broken or missing"
         ]
       }
     },

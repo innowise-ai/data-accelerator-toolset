@@ -166,5 +166,9 @@
  "TERRAGRUNT-UNIT-REPLICATION": [
   "Infrastructure as code",
   "Terragrunt"
+ ],
+ "RECENT-DISCUSSION-RESEARCH": [
+  "General",
+  "Research"
  ]
 }
