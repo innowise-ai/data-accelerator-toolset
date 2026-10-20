@@ -48,6 +48,31 @@
       }
     },
     {
+      "id": "CODE-CHANGE-MINIMIZATION",
+      "version": "0.1.0",
+      "source_path": "artifacts/CODE-CHANGE-MINIMIZATION",
+      "upstream": {
+        "repo": "https://github.com/DietrichGebert/ponytail",
+        "commit": "09c434ab73ca43761c5d8b0c5d341926c2fba710",
+        "path": "skills/ponytail",
+        "license": "MIT"
+      },
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["development-process"],
+      "scope": "user",
+      "presentation": {
+        "name": "Make the smallest change that fully solves the task",
+        "summary": "Has the agent solve a coding task with the least new code: existing helpers, the standard library and installed dependencies first, nothing nobody asked for, and a short reply.",
+        "benefits": [
+          "Reuses what the codebase, the standard library and installed dependencies already provide before writing new code",
+          "Still finishes the whole change: callers, tests and fixtures it breaks",
+          "Never cuts validation at trust boundaries, error handling that prevents data loss, or security",
+          "Ends each reply with what was skipped or not checked, and any risk"
+        ]
+      }
+    },
+    {
       "id": "CODE-CHANGE-REVIEW",
       "version": "0.2.1",
       "source_path": "artifacts/CODE-CHANGE-REVIEW",

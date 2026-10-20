@@ -379,3 +379,49 @@ Upstream licence text, reproduced in full:
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
+
+
+-------------------------------------------------------------------------------
+DietrichGebert/ponytail
+-------------------------------------------------------------------------------
+
+Upstream:  https://github.com/DietrichGebert/ponytail (commit 09c434ab73ca43761c5d8b0c5d341926c2fba710)
+Licence:   MIT
+Copyright: Copyright (c) 2026 DietrichGebert
+
+One skill is carried as an upstream artifact: the author's SKILL.md, unchanged,
+pinned to the commit above. scripts/sync-upstream.ps1 fetches it and CI checks
+that every byte still matches that commit. Nothing is excluded and no file is
+edited. The catalog adds UPSTREAM.json, recording the source, and LICENSE, a copy
+of the repository's licence below. The repository's other skills
+(ponytail-review, ponytail-audit, ponytail-debt, ponytail-gain, ponytail-help),
+its hooks, plugin manifests and benchmarks were not taken. The commit pinned in
+index.json is authoritative; the one above is the commit first carried.
+
+Upstream artifacts from this source:
+
+  CODE-CHANGE-MINIMIZATION <- skills/ponytail
+
+Upstream licence text, reproduced in full:
+
+    MIT License
+
+    Copyright (c) 2026 DietrichGebert
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
