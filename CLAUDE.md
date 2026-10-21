@@ -30,8 +30,9 @@ Each item links to the place that explains it.
 - Renaming an artifact id breaks installs: [Naming](docs/authoring-artifacts.md#naming).
 - A new vocabulary value needs release notes and possibly an installer change:
   [The current vocabulary](docs/authoring-artifacts.md#the-current-vocabulary).
-- Do not bump the catalog version in a feature PR; releases are batched:
-  [Releasing](CONTRIBUTING.md#releasing).
+- Do not bump the catalog version in a feature PR; releases are batched. New
+  `on-demand` artifacts alone are a patch release, not a minor:
+  [Which number moves](CONTRIBUTING.md#which-number-moves).
 - dbt Core is assumed, artifacts ship no hooks, and text explains why rather
   than listing Do/Don't: [What belongs in the catalog](docs/authoring-artifacts.md#what-belongs-in-the-catalog).
 - The index entry and `metadata.json` must agree, and nothing checks it:
