@@ -108,6 +108,28 @@
       }
     },
     {
+      "id": "DAILY-STANDUP-UPDATE",
+      "version": "0.1.0",
+      "source_path": "artifacts/DAILY-STANDUP-UPDATE",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["writing", "development-process"],
+      "scope": "user",
+      "requires": {
+        "tools": ["git", "GitHub CLI (gh), signed in, for pull requests, reviews and issues; without it the update is built from git alone"]
+      },
+      "presentation": {
+        "name": "Write a daily standup update from your actual activity",
+        "summary": "Drafts a daily standup or status update from commits, pull requests and reviews since the last working day.",
+        "benefits": [
+          "Builds Done from git history and GitHub activity rather than from memory",
+          "Covers the whole period since the last working day, so Monday's update includes Friday",
+          "States each blocker with its owner and since when, or says there are none",
+          "Asks about meetings and investigations instead of inventing activity"
+        ]
+      }
+    },
+    {
       "id": "DATA-INCIDENT-TRACING",
       "version": "0.1.1",
       "source_path": "artifacts/DATA-INCIDENT-TRACING",
