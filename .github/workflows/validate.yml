@@ -12,13 +12,17 @@ permissions:
 
 jobs:
   validate:
-    # ubuntu-latest is sufficient even though half of what is checked here is
+    # A Linux runner is sufficient even though half of what is checked here is
     # Windows behaviour. The id collision check, and the TASK-001 path rules
     # beside it, model Windows and default macOS filesystems by folding names
     # explicitly rather than by observing the runner's own filesystem - which is
     # also the only way to check them at all, since 'CON.md' and 'trailing.'
     # cannot exist on a Windows runner either.
-    runs-on: ubuntu-latest
+    #
+    # Pinned rather than ubuntu-latest: the scripts' Python 3.9 floor below needs
+    # a runner image that still ships 3.9, and ubuntu-latest moved to 26.04,
+    # which does not. Move the pin when the floor moves.
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v4
