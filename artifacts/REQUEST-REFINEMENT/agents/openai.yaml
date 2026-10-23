@@ -1,0 +1,5 @@
+# Codex reads the invocation policy from this file and ignores
+# disable-model-invocation in SKILL.md. Without it Codex would pick this skill
+# on its own; it is meant to run only when the user calls it ($request-refinement).
+policy:
+  allow_implicit_invocation: false

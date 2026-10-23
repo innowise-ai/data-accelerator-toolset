@@ -178,6 +178,31 @@ validator checks its shape, and with `-CatalogRoot` it rejects an artifact that
 ships a `scripts/` directory or a `requirements.txt` without declaring
 `requires`. It cannot tell whether the list is complete.
 
+### Optional: running only on the user's command
+
+An agent picks most artifacts by itself, from their `description`. A few should
+run only when the user types their command, because running unasked would get in
+the way: [`REQUEST-REFINEMENT`](../artifacts/REQUEST-REFINEMENT) stops before any
+work to show a rewritten request, which is welcome when asked for and an
+interruption on every request that was already clear. Such an artifact says so in
+two places, because the agents read different files:
+
+- `disable-model-invocation: true` in the `SKILL.md` frontmatter. Claude Code and
+  Cursor honour it: the agent does not invoke the skill itself, and the user runs
+  it as `/<name>`.
+- `agents/openai.yaml` in the artifact directory, setting
+  `allow_implicit_invocation: false` under `policy`. Codex ignores the frontmatter
+  field and reads this file instead; the user runs the skill as `$<name>`.
+
+Ship both. The installer copies an artifact's directory byte for byte into every
+agent's target, so both arrive unchanged, and an artifact with only the
+frontmatter field is picked automatically under Codex. The validator reads
+neither, so review is what catches a missing one.
+
+The `description` of such an artifact is read by a person choosing a command, not
+by an agent deciding when to act. It ends by saying how to run it rather than with
+a "Use when ..." sentence.
+
 ## Naming
 
 An artifact has three names, and readers meet them in different places: the
@@ -222,7 +247,8 @@ a user choose between neighbours.
 it.** End it with a "Use when ..." sentence naming the situation that should
 trigger it. An agent picks a skill mostly from this line, so a description that
 only summarises the content leaves the agent guessing when it applies. This does
-not apply to an upstream artifact, whose `SKILL.md` is its author's.
+not apply to an upstream artifact, whose `SKILL.md` is its author's, or to one
+that [runs only on the user's command](#optional-running-only-on-the-users-command).
 
 **The neighbour test.** Before settling a name, find the artifact closest to
 yours in the same area: `ERROR-DIAGNOSIS`, `DBT-BUILD-FAILURE-DIAGNOSIS` and
@@ -663,7 +689,8 @@ The pattern across all eight: the failure is silent. Nothing errors, the install
 
 - [ ] Directory under `artifacts/`, named for the id, self-contained
 - [ ] Id, `SKILL.md` `name` and `presentation.name` follow [Naming](#naming), and pass the neighbour test (upstream: id and `presentation.name` only)
-- [ ] `SKILL.md` `description` ends with a "Use when ..." sentence (not for an upstream artifact)
+- [ ] `SKILL.md` `description` ends with a "Use when ..." sentence (not for an upstream artifact; a command-only artifact says how to run it instead)
+- [ ] Command-only: `disable-model-invocation: true` in the frontmatter and `agents/openai.yaml` with `allow_implicit_invocation: false`, both
 - [ ] Upstream: passes [Adapt or reference](#adapt-or-reference), synced with `sync-upstream.ps1 -Id`, nothing excluded that `SKILL.md` or its references point at, `NOTICE` entry added, `-Verify` passes after commit
 - [ ] Schema 2: `scope` is `project` or `user`; user scope is never `always`
 - [ ] `strength` defaulted to `on-demand` unless you can defend `always` against the test

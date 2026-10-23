@@ -5,9 +5,9 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-44 artifacts today: 24 data-engineering specific (dbt, Snowflake, Airflow,
+45 artifacts today: 24 data-engineering specific (dbt, Snowflake, Airflow,
 Python pipeline code, sensitive data handling, stack-agnostic pipeline quality),
-4 for containers and local environments, 2 for infrastructure as code, and 14
+4 for containers and local environments, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
 `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
 project that uses Docker, because losing a data volume is not something a team
@@ -67,7 +67,7 @@ one project gets.
 | **Review a Terraform plan in plain language before apply** (`TERRAFORM-PLAN-REVIEW`) | terraform | code-review, security, infrastructure | Reads a Terraform plan before it is applied and restates each change in plain language, so a reviewer without deep Terraform knowledge can approve or stop it. |
 | **Replicate Terragrunt units across tenants without drift** (`TERRAGRUNT-UNIT-REPLICATION`) | terragrunt | infrastructure, refactoring | Adds or moves Terragrunt units in bulk and verifies every tenant and environment got the intended copy. |
 
-## General skills (14)
+## General skills (15)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -82,6 +82,7 @@ one project gets.
 | **Document decisions and boundaries code can't show** (`PROJECT-DOCUMENTATION`) | any | documentation | Documents architecture decisions, component boundaries and constraints a reader cannot infer from the code. |
 | **Plan a refactor in behaviour-preserving steps** (`REFACTOR-STEP-PLANNING`) | any | refactoring | Plans and sequences a refactor so behaviour is provably unchanged at every step. |
 | **Research what people said about a topic in the last 30 days** (`RECENT-DISCUSSION-RESEARCH`) | any | research | Collects recent posts and engagement about a topic from Reddit, X, YouTube, TikTok, Hacker News, Polymarket, GitHub and the web, and summarises them with sources. Scope: `user`. Upstream: the author's `last30days` skill, pinned to a commit. |
+| **Sharpen a request before the agent starts work** (`REQUEST-REFINEMENT`) | any | development-process | On your command, rewrites a request with what the project already answers, asks only what it cannot infer, and starts once you confirm. Scope: `user`. Runs only when called as `/request-refinement`. |
 | **Work out what is needed before writing code** (`REQUIREMENTS-BRAINSTORMING`) | any | development-process | Works out what is actually needed before any code is written. |
 | **Edit technical prose without changing meaning** (`TECHNICAL-PROSE-EDITING`) | any | writing | Improves technical prose without changing its meaning or terminology. Scope: `user` (personal preference, not project-selected). |
 | **Decide what to test and whether tests catch defects** (`TEST-DESIGN-REVIEW`) | any | testing | Decides what is worth testing and judges whether existing tests would catch a defect. |
