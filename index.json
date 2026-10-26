@@ -716,6 +716,26 @@
       }
     },
     {
+      "id": "REQUEST-REFINEMENT",
+      "version": "0.1.0",
+      "source_path": "artifacts/REQUEST-REFINEMENT",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["development-process"],
+      "scope": "user",
+      "presentation": {
+        "name": "Sharpen a request before the agent starts work",
+        "summary": "On your command, rewrites a request with what the project already answers, asks only what it cannot infer, and starts once you confirm.",
+        "benefits": [
+          "Fills targets, conventions and checks from the repository instead of asking you",
+          "Searches the web only when the request depends on an outside fact, such as a version's breaking changes, and cites primary sources",
+          "Asks only the questions whose answers change the work, in one round",
+          "Shows the rewritten request and waits for your go before starting",
+          "Runs only when you call it, so clear requests are never slowed down"
+        ]
+      }
+    },
+    {
       "id": "REQUIREMENTS-BRAINSTORMING",
       "version": "0.1.1",
       "source_path": "artifacts/REQUIREMENTS-BRAINSTORMING",
