@@ -29,7 +29,7 @@
   "artifacts": [
     {
       "id": "AIRFLOW-DAG-STRUCTURE",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source_path": "artifacts/AIRFLOW-DAG-STRUCTURE",
       "applies_to": {
         "frameworks": ["airflow"]
