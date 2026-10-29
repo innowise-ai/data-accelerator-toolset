@@ -47,6 +47,10 @@
   ["Data engineering", "Snowflake"],
   ["Database administration", "Snowflake"]
  ],
+ "SPARK-JOB-TUNING": [
+  "Data engineering",
+  "Spark"
+ ],
  "SNOWFLAKE-SEMANTIC-VIEW-DRIFT": [
   "Data engineering",
   "Snowflake"

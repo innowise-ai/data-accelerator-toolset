@@ -908,6 +908,30 @@
       }
     },
     {
+      "id": "SPARK-JOB-TUNING",
+      "version": "0.1.0",
+      "source_path": "artifacts/SPARK-JOB-TUNING",
+      "applies_to": {
+        "frameworks": ["spark", "databricks"]
+      },
+      "strength": "on-demand",
+      "topics": ["performance", "debugging"],
+      "scope": "project",
+      "requires": {
+        "access": ["The Spark UI or History Server for the run being tuned (event logs enabled for a finished run)", "Permission to re-run the job on the same input to measure the fix"]
+      },
+      "presentation": {
+        "name": "Tune a slow Spark job from its Spark UI evidence",
+        "summary": "Finds the stage and the cause that dominate a slow or memory-failing Spark job, fixes that cause and measures the result.",
+        "benefits": [
+          "Reads task-duration spread, shuffle and spill to tell skew, a missed broadcast and a fanning-out join apart",
+          "Explains why each fix works: broadcast joins, AQE, salting, partition sizing, repartition versus coalesce",
+          "Catches driver-side work and Python UDFs that no cluster setting can speed up",
+          "Confirms the gain by re-running on the same input and checking the output did not change"
+        ]
+      }
+    },
+    {
       "id": "TECHNICAL-PROSE-EDITING",
       "version": "0.1.1",
       "source_path": "artifacts/TECHNICAL-PROSE-EDITING",
