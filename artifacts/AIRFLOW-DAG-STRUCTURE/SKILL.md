@@ -9,10 +9,16 @@ Structural rules for a DAG file. The scheduler parses every file in `dags/` on a
 loop, so a DAG file is not an ordinary script: code at module level runs on every
 parse, not on every run.
 
+These conventions assume Airflow 3.x, and the examples also run on 2.4 and later.
+Where the two majors behave differently, the text says so. On 3.x the core operators
+import from `airflow.providers.standard.operators.*`; the old `airflow.operators.*`
+paths still import but raise a deprecation warning.
+
 ## The import-time rule
 
 **Nothing expensive at module level.** The scheduler re-parses each DAG file every
-few seconds. Anything at module scope runs on every one of those parses.
+30 seconds by default (`min_file_process_interval`). Anything at module scope runs
+on every one of those parses.
 
 ```python
 # Wrong - runs on every scheduler parse, not when the task runs
@@ -23,7 +29,7 @@ with DAG(...) as dag:
     ...
 ```
 
-A database query here runs hundreds of times an hour and blocks the parse loop. An
+A database query here runs over a hundred times an hour and blocks the parse loop. An
 API call here fails the whole DAG file when the endpoint is down - the DAG vanishes
 from the UI with an import error, and no task ever gets a chance to retry.
 
@@ -65,8 +71,7 @@ targets visible at the top instead of buried in a SQL string.
 ```python
 args = {
     "owner": OWNER,
-    "start_date": pendulum.datetime(2024, 1, 1, tz="Europe/Moscow"),
-    "catchup": False,
+    "start_date": pendulum.datetime(2024, 1, 1, tz="UTC"),
     "retries": 1,
     "retry_delay": pendulum.duration(minutes=15),
     "depends_on_past": False,
@@ -79,18 +84,19 @@ args = {
 - **Use `pendulum` with an explicit `tz`.** A naive datetime picks up whatever the
   scheduler host is set to, and the DAG fires at a different wall-clock hour in
   another environment.
-- **`catchup=False`** unless you have thought about backfill. Left at the default,
-  a DAG with an old `start_date` floods the queue with historical runs the moment
-  it is unpaused.
 - **`retries` ≥ 1** for anything touching a network or a database. Transient
   failures are the common case in data work.
+
+`catchup` is missing from this list on purpose. It is an argument of the DAG, not a
+task default, so it goes in the `DAG(...)` call below. Put in `default_args`, it is
+silently ignored.
 
 ## The DAG block
 
 ```python
 with DAG(
     dag_id=DAG_ID,
-    schedule_interval="0 10 * * *",
+    schedule="0 10 * * *",
     default_args=args,
     tags=["etl", "postgres"],
     catchup=False,
@@ -112,6 +118,13 @@ with DAG(
     start >> load >> end
 ```
 
+- **`schedule`**, not `schedule_interval`. `schedule_interval` is the old name,
+  deprecated in 2.4 and removed in 3.0. A DAG that still passes it fails to import
+  on 3.x, so it disappears from the UI.
+- **`catchup=False`** unless you have thought about backfill. With catchup on, a DAG
+  with an old `start_date` floods the queue with historical runs the moment it is
+  unpaused. The default is on in 2.x and off in 3.x (`catchup_by_default`). Set it
+  explicitly so the DAG behaves the same on both.
 - **`max_active_runs=1`** for any DAG that writes to a table. Without it a slow run
   overlaps the next one and two runs write the same target concurrently.
 - **`tags`** are the only practical filter once the UI holds a few hundred DAGs.
