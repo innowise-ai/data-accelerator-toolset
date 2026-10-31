@@ -59,6 +59,14 @@
   "Data engineering",
   "Snowflake"
  ],
+ "DATABRICKS-DECLARATIVE-PIPELINE-DESIGN": [
+  "Data engineering",
+  "Databricks"
+ ],
+ "DATABRICKS-UNITY-CATALOG-ACCESS-CHANGE": [
+  ["Data engineering", "Databricks"],
+  ["Database administration", "Databricks"]
+ ],
  "AIRFLOW-DAG-STRUCTURE": [
   "Data engineering",
   "Airflow"
