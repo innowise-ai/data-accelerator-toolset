@@ -87,6 +87,14 @@
   "Data engineering",
   "Tableau"
  ],
+ "TABLEAU-MEASURE-TRANSLATION": [
+  "BI and analytics",
+  "Tableau"
+ ],
+ "TABLEAU-PULSE-READINESS": [
+  "BI and analytics",
+  "Tableau"
+ ],
  "ETL-DECOMPOSITION": [
   "Data engineering",
   "Pipelines, SQL and data safety"

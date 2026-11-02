@@ -5,9 +5,10 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-53 artifacts today: 32 data-engineering specific (dbt, Snowflake, Spark, Airflow,
+55 artifacts today: 32 data-engineering specific (dbt, Snowflake, Spark, Airflow,
 Tableau, Python pipeline code, sensitive data handling, stack-agnostic pipeline
-quality), 4 for containers and local environments, 2 for infrastructure as code, and 15
+quality), 2 for BI and analytics,
+4 for containers and local environments, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
 `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
 project that uses Docker, because losing a data volume is not something a team
@@ -58,6 +59,13 @@ one project gets.
 | **Find out why a Tableau dashboard is slow before rewriting it** (`TABLEAU-PERFORMANCE-DIAGNOSIS`) | tableau | performance | Establishes which interaction is slow and where the time actually goes — the queries, Tableau's own compute, or rendering — before anything is rewritten. |
 | **Assess an inherited Tableau workbook before changing it** (`TABLEAU-WORKBOOK-AUDIT`) | tableau | debugging | Assesses a workbook nobody on the team built: what is in it, which dependencies make a change risky, and what the file cannot tell you. |
 | **Review what changed between two Tableau workbook versions** (`TABLEAU-WORKBOOK-DIFF`) | tableau | code-review | Compares two versions of a workbook by inventory rather than by text, and separates the differences that can move a number from the ones that cannot. |
+
+## BI and analytics (2)
+
+| Skill | Applies to | Topic(s) | What it does |
+|---|---|---|---|
+| **Translate a metric between SQL and a level-of-detail expression without changing the number** (`TABLEAU-MEASURE-TRANSLATION`) | tableau | data-modeling, analytics | Rewrites an existing metric in either direction between SQL and a FIXED, INCLUDE or EXCLUDE expression, stating the grains and filter positions the number depends on. |
+| **Define Pulse metrics so the insight matches the warehouse number** (`TABLEAU-PULSE-READINESS`) | tableau | data-modeling, analytics | Defines a Pulse metric from a published data source so the generated insight is about the intended number, and checks an existing insight by recomputing the comparison. |
 
 ## Containers and local environment (4)
 

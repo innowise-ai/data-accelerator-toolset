@@ -1,0 +1,24 @@
+{
+  "id": "TABLEAU-PULSE-READINESS",
+  "version": "0.1.0",
+  "source_path": "artifacts/TABLEAU-PULSE-READINESS",
+  "applies_to": {
+    "frameworks": ["tableau"]
+  },
+  "strength": "on-demand",
+  "topics": ["data-modeling", "analytics"],
+  "scope": "project",
+  "presentation": {
+    "name": "Define Pulse metrics so the insight matches the warehouse number",
+    "summary": "Defines a Pulse metric from a published data source so the generated insight is about the intended number, and checks an existing insight by recomputing the comparison.",
+    "benefits": [
+      "Binds the metric to a named measure, time column and filter set, instead of to a word that a caption, a calculation and a warehouse column can share",
+      "Keeps a ratio as a numerator and a denominator, and refuses to sum a rate, a percentage or a pre-aggregated row",
+      "Treats the time column as part of the definition, so order date and ship date are different metrics",
+      "Names every filter in force, because data source, extract and metric filters stack and the insight is about whatever survived them",
+      "Hands a FIXED field to the SQL-and-LOD translation before accepting it as a measure, because the grain has already collapsed",
+      "Records extract versus live, so an insight is not compared with a warehouse that has since moved",
+      "Labels an insight unchecked when the comparison cannot be recomputed, instead of treating a well-worded sentence as a check"
+    ]
+  }
+}
