@@ -850,6 +850,29 @@
       }
     },
     {
+      "id": "TABLEAU-DATASOURCE-MIGRATION",
+      "version": "0.1.0",
+      "source_path": "artifacts/TABLEAU-DATASOURCE-MIGRATION",
+      "applies_to": {
+        "frameworks": ["tableau"]
+      },
+      "strength": "on-demand",
+      "topics": ["refactoring"],
+      "scope": "project",
+      "presentation": {
+        "name": "Repoint a Tableau workbook at a new warehouse safely",
+        "summary": "Works out what in a workbook will not survive a connection swap, and proves the dashboard still produces the same numbers afterwards.",
+        "benefits": [
+          "Takes the baseline and the inventory while they can still be captured, before the connection changes",
+          "Names the rebind outcome that does not announce itself: a field that matches by name and holds something slightly different",
+          "Finds the calculations that are actually dialect-bound, instead of treating every calculation as a risk",
+          "Catches the silent breakages: identifier casing, time zones, aliases and groups over changed values, row-level security",
+          "Requires reconciliation below the headline total, where two offsetting errors stop cancelling",
+          "Stops at what the workbook needs, leaving warehouse redesign as separate work"
+        ]
+      }
+    },
+    {
       "id": "TABLEAU-PERFORMANCE-DIAGNOSIS",
       "version": "0.1.0",
       "source_path": "artifacts/TABLEAU-PERFORMANCE-DIAGNOSIS",

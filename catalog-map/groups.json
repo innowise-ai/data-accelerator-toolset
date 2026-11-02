@@ -75,6 +75,10 @@
   "Data engineering",
   "Tableau"
  ],
+ "TABLEAU-DATASOURCE-MIGRATION": [
+  "Data engineering",
+  "Tableau"
+ ],
  "ETL-DECOMPOSITION": [
   "Data engineering",
   "Pipelines, SQL and data safety"
