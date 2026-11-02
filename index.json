@@ -623,6 +623,28 @@
       }
     },
     {
+      "id": "POWER-BI-PERFORMANCE-DIAGNOSIS",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-PERFORMANCE-DIAGNOSIS",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["performance"],
+      "scope": "project",
+      "presentation": {
+        "name": "Find out why a Power BI report is slow before rewriting it",
+        "summary": "Establishes which of three problems is slow — refresh, an interaction's query, or rendering — and requires a measurement before anything is rewritten.",
+        "benefits": [
+          "Separates refresh, an interaction's query, and rendering, which rarely share a cause",
+          "Treats iterator measures, bidirectional relationships, visual count, and DirectQuery as hypotheses until a timing says where the time went",
+          "Reads a Desktop recording as the time of one interaction, which does not split engine time, formula time, and warehouse time",
+          "Says what a server trace's parts mean and what they do not prove",
+          "Hands a DirectQuery warehouse query to the warehouse's own diagnosis, and does not rewrite a measure here"
+        ]
+      }
+    },
+    {
       "id": "POWER-BI-REPORT-FAQ",
       "version": "0.1.0",
       "source_path": "artifacts/POWER-BI-REPORT-FAQ",

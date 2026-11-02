@@ -24,6 +24,9 @@ Its neighbours in this catalog:
   for the people who maintain the model, and the two want opposite things from
   the same folder: the FAQ discards everything the report does not show, while
   here the leftovers are the point.
+- [power-bi-performance-diagnosis](../POWER-BI-PERFORMANCE-DIAGNOSIS/SKILL.md)
+  takes over when something is actually slow. This audit records the
+  performance risks visible in the structure and stops there.
 - [data-quality-controls](../DATA-QUALITY-CONTROLS/SKILL.md),
   [pipeline-check-selection](../PIPELINE-CHECK-SELECTION/SKILL.md), and
   [pipeline-output-review](../PIPELINE-OUTPUT-REVIEW/SKILL.md) judge pipeline
@@ -156,8 +159,10 @@ If you cannot say the consequence, record the mode in the inventory and do
 not promote it to a finding.
 
 Performance risks — iterator measures, bidirectional relationships, visual
-count, DirectQuery — are recorded here and left for a measurement. Structure
-suggests cost. It does not establish a cause.
+count, DirectQuery — are recorded here and left for a measurement.
+[power-bi-performance-diagnosis](../POWER-BI-PERFORMANCE-DIAGNOSIS/SKILL.md)
+is where that measurement happens. Structure suggests cost. It does not
+establish a cause.
 
 ## What an audit of this folder cannot conclude
 

@@ -5,7 +5,7 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-48 artifacts today: 27 data-engineering specific (dbt, Snowflake, Spark, Airflow,
+49 artifacts today: 28 data-engineering specific (dbt, Snowflake, Spark, Airflow,
 Power BI, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality),
 4 for containers and local environments, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
@@ -22,7 +22,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (27)
+## Data engineering (28)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -43,6 +43,7 @@ one project gets.
 | **Pick the cheapest checks a pipeline change needs** (`PIPELINE-CHECK-SELECTION`) | any | testing, data-quality | Selects the cheapest checks that would actually catch the regression a change can cause. |
 | **Review the data a pipeline run actually produced** (`PIPELINE-OUTPUT-REVIEW`) | any | code-review, data-quality | Reviews the data a pipeline run actually produced, not just whether tests passed. |
 | **Assess an inherited semantic model before changing it** (`POWER-BI-MODEL-AUDIT`) | power-bi | debugging | Assesses a semantic model and the report on it from the project folder: what is in it, which dependencies make a change risky, and what this folder cannot call unused. |
+| **Find out why a Power BI report is slow before rewriting it** (`POWER-BI-PERFORMANCE-DIAGNOSIS`) | power-bi | performance | Establishes which of three problems is slow — refresh, an interaction's query, or rendering — and requires a measurement before anything is rewritten. |
 | **Write a report FAQ from the model, not from memory** (`POWER-BI-REPORT-FAQ`) | power-bi | documentation | Writes a report FAQ from the Power BI Project and a screenshot of the landing page, taking each metric definition from the measure description rather than from the formula. |
 | **Test pipeline code with pytest, mocking I/O** (`PYTEST-DATA-PIPELINES`) | python | testing | Tests data pipeline code with pytest, mocking at the I/O boundary. |
 | **Implement SCD Type 2 with correct validity intervals** (`SCD2-IMPLEMENTATION`) | sql | data-modeling | Implements Slowly Changing Dimension Type 2 in SQL with correct validity intervals. |
