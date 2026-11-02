@@ -270,10 +270,10 @@ Taken from `index.json` at the time of writing. **`index.json` is the source of 
 | Dimension | Values |
 |---|---|
 | `languages` | `typescript`, `javascript`, `python`, `csharp`, `go`, `sql` |
-| `frameworks` | `nestjs`, `react`, `django`, `aspnet`, `airflow`, `dbt`, `duckdb`, `spark`, `trino`, `snowflake`, `databricks`, `docker`, `terraform`, `terragrunt`, `dataform`, `bigquery` |
+| `frameworks` | `nestjs`, `react`, `django`, `aspnet`, `airflow`, `dbt`, `duckdb`, `spark`, `trino`, `snowflake`, `databricks`, `docker`, `terraform`, `terragrunt`, `dataform`, `bigquery`, `tableau` |
 | `layout` | `monorepo`, `single` |
 | `agents` | `claude-code`, `codex`, `cursor` |
-| `topics` | `code-review`, `testing`, `documentation`, `refactoring`, `orchestration`, `data-modeling`, `data-quality`, `ingestion`, `performance`, `debugging`, `writing`, `development-process`, `security`, `containerization`, `infrastructure`, `database-administration`, `research` |
+| `topics` | `code-review`, `testing`, `documentation`, `refactoring`, `orchestration`, `data-modeling`, `data-quality`, `ingestion`, `performance`, `debugging`, `writing`, `development-process`, `security`, `containerization`, `infrastructure`, `database-administration`, `research`, `analytics` |
 
 `frameworks` is the loosest of the dimensions: it holds anything that identifies the
 stack beyond the language, so orchestrators (`airflow`), transformation tools (`dbt`)
