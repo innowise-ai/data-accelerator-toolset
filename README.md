@@ -2,11 +2,13 @@
 
 The artifact catalog. Consumers fetch selected artifacts from this repository using Git partial clone with cone-mode sparse checkout, so a client downloads only the artifacts it needs rather than the whole catalog.
 
-The catalog holds forty-nine artifacts in four groups. Thirty-one are data-engineering specific, covering dbt, Snowflake, Airflow, Tableau, Python pipeline code, sensitive data handling, and stack-agnostic pipeline quality practice, including data quality controls built into a pipeline and metric definitions precise enough to implement twice. Four cover containers and local environments: Dockerfile build rules, Compose stacks, a first Docker scaffold, and a guardrail for destructive Docker commands. Two cover infrastructure as code: reviewing a Terraform plan, with Terragrunt, Atlantis and AWS access policies, before it is applied, and adding or moving Terragrunt units in bulk across tenants and environments without drift. Twelve are general skills that apply to any stack: change review, project documentation, code comments, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, and project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
+The catalog holds fifty-three artifacts in four groups. Thirty-two are data-engineering specific, covering dbt, Snowflake, Spark, Airflow, Tableau, Python pipeline code, sensitive data handling, and stack-agnostic pipeline quality practice, including data quality controls built into a pipeline and metric definitions precise enough to implement twice. Four cover containers and local environments: Dockerfile build rules, Compose stacks, a first Docker scaffold, and a guardrail for destructive Docker commands. Two cover infrastructure as code: reviewing a Terraform plan, with Terragrunt, Atlantis and AWS access policies, before it is applied, and adding or moving Terragrunt units in bulk across tenants and environments without drift. Fifteen are general skills that apply to any stack: change review, project documentation, code comments, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`, research into what people said about a topic in the last 30 days, a daily standup update written from the engineer's actual activity, and request refinement, which turns a rough request into a complete one before the agent starts work. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
+
+`RECENT-DISCUSSION-RESEARCH` is the one [upstream artifact](docs/authoring-artifacts.md#upstream-artifacts): its directory is a third party's skill (`last30days`), unchanged and pinned to a commit of the author's repository, rather than our own text. Every other artifact is written or adapted here.
 
 Every artifact except one is `on-demand`, so a profile receives only what its declared topics select and the user explicitly chooses. The exception is `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every project that uses Docker, because losing a data volume is not something a team should have to remember to ask protection against. See [`docs/authoring-artifacts.md`](docs/authoring-artifacts.md) for what an `always` artifact has to justify.
 
-Forty-eight artifacts are `project` scope. `TECHNICAL-PROSE-EDITING` is the single `user`-scope artifact: a personal editing tool that does not belong in a shared project plan.
+Forty-nine artifacts are `project` scope. Four are `user` scope, personal tools that do not belong in a shared project plan: `TECHNICAL-PROSE-EDITING`, an editing tool, `DAILY-STANDUP-UPDATE`, which reports one engineer's own work, `RECENT-DISCUSSION-RESEARCH`, which calls third-party APIs with the user's own keys and can read their browser cookies with consent, and `REQUEST-REFINEMENT`, which runs only when a person types its command.
 
 ## Layout
 
@@ -19,6 +21,7 @@ artifacts/
   CODE-CHANGE-REVIEW/
   CODE-COMMENT-WRITING/
   COMPLETION-VERIFICATION/
+  DAILY-STANDUP-UPDATE/
   DATA-INCIDENT-TRACING/
   DATA-QUALITY-CONTROLS/
   DBT-BUILD-FAILURE-DIAGNOSIS/
@@ -45,7 +48,16 @@ artifacts/
   PROJECT-ADAPTATION/
   PROJECT-DOCUMENTATION/
   PYTEST-DATA-PIPELINES/
+  RECENT-DISCUSSION-RESEARCH/   # upstream: the author's files, plus
+    SKILL.md                    #   our UPSTREAM.json and LICENSE
+    UPSTREAM.json
+    LICENSE
+    ...
   REFACTOR-STEP-PLANNING/
+  REQUEST-REFINEMENT/           # runs only on the user's command:
+    SKILL.md                    #   disable-model-invocation in the frontmatter,
+    agents/openai.yaml          #   and the same policy for Codex
+    metadata.json
   REQUIREMENTS-BRAINSTORMING/
   SCD2-IMPLEMENTATION/
   SENSITIVE-DATA-HANDLING/
@@ -54,6 +66,7 @@ artifacts/
   SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS/
   SNOWFLAKE-QUERY-REWRITE/
   SNOWFLAKE-SEMANTIC-VIEW-DRIFT/
+  SPARK-JOB-TUNING/
   TABLEAU-ANALYTICAL-CALCS/
   TABLEAU-DASHBOARD-FAQ/
   TABLEAU-DATASOURCE-MIGRATION/
@@ -119,13 +132,15 @@ artifacts/
 | `artifacts[].topics` | Intents that select an `on-demand` artifact. Must be non-empty when `strength` is `on-demand` |
 | `artifacts[].scope` | Schema 2: `project` or `user`. User artifacts are personal and require explicit selection |
 | `artifacts[].presentation` | Schema 2 `on-demand`: questionnaire card with non-empty `name`, `summary`, and `benefits` |
+| `artifacts[].requires` | Optional: `tools` and `access` a user needs before the artifact runs. Shown on the catalog map, not matched |
+| `artifacts[].upstream` | Optional: `repo`, `commit`, `path`, `license` and optionally `exclude`, marking an upstream artifact whose directory is a third party's skill at that commit. Ignored by the installer; see [Upstream artifacts](docs/authoring-artifacts.md#upstream-artifacts) |
 | `artifacts[].fixture` | `true` marks transport test data, exempt from all matching validation. Permitted only on `AS-SPIKE-*` ids |
 
 Every value in `applies_to` and `topics` must appear in `vocabulary`. Comparison is case-sensitive: `TypeScript` does not match `typescript`.
 
 `id`, `version`, and `source_path` are the transport inputs. The matching fields live in the index as well — not only inside the artifact — because a consumer doing a partial clone holds `index.json` alone at the moment it decides what to fetch. Reading matching metadata from inside artifact directories would require fetching every candidate's blobs before choosing which to fetch, which is the cost partial clone exists to avoid.
 
-An artifact's `metadata.json` carries the same `applies_to`, `strength`, `topics`, `scope`, and `presentation` as its index entry. The two must agree; the index is authoritative for matching.
+An artifact's `metadata.json` carries the same `applies_to`, `strength`, `topics`, `scope`, and `presentation` as its index entry. The two must agree; the index is authoritative for matching. An upstream artifact has no `metadata.json`: its directory is the author's files plus `UPSTREAM.json` and `LICENSE`, and nothing else of ours.
 
 ### Questionnaire-ready schema 2
 
@@ -217,7 +232,9 @@ Measured against a full shallow clone of the 50-artifact fixture set this catalo
 This catalog is MIT licensed — see [`LICENSE`](LICENSE). Artifacts adapted from
 third-party sources carry their own upstream attribution in [`NOTICE`](NOTICE);
 that file travels with any copy of this repository, as the upstream licences
-require.
+require. An upstream artifact is its author's work under its author's licence,
+which it carries as `LICENSE` in its own directory, so the licence is installed
+with every copy.
 
 ## Related
 
@@ -255,5 +272,7 @@ only:
 | `v1.1.1` | Selection fix. `TERRAFORM-PLAN-REVIEW` moves to `0.1.2` and gains the `infrastructure` topic, which it missed because it was merged before the topic existed; a profile that asks for `infrastructure` is now offered it alongside `TERRAGRUNT-UNIT-REPLICATION`. Its `SKILL.md` and presentation card are unchanged. No artifact added or removed; vocabulary unchanged |
 | `v1.2.0` | One artifact added, taking the catalog to forty-one: `CODE-COMMENT-WRITING` (`applies_to: {}`, topic `documentation`, `on-demand`, `project` scope) decides what a code comment says and where it goes and keeps comments true as code changes, with dbt and Dataform references. `PROJECT-DOCUMENTATION` and `DBT-MODEL-DESCRIPTIONS` move to `0.1.2` and link to it; selection and cards unchanged. New optional `requires` field (`tools`, `access`) declaring what an artifact needs to run, set on sixteen artifacts (the dbt artifacts that build or show models, the Snowflake artifacts that query the account, three Docker artifacts, and the Terraform and Terragrunt artifacts); `validate-catalog.ps1` checks its shape and, with `-CatalogRoot`, rejects an artifact that ships scripts or a `requirements.txt` without it, and the catalog map shows it on each card. Vocabulary gains `dataform` and `bigquery` in `frameworks`. The installer reads the vocabulary from the index, so no installer release is required, but its scanner does not yet detect Dataform or BigQuery projects (installation branch `feat/scan-detect-dataform-bigquery`), so these values reach a profile only through the questionnaire until that lands |
 | `v1.3.0` | Vocabulary gains the `database-administration` topic, which the DBA team's read-only database audit artifacts (#65) build on. `SNOWFLAKE-COST-HOTSPOTS` and `SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS` gain the topic and move to `0.1.2`, so the questionnaire asks it in Snowflake projects; their `SKILL.md` and cards are unchanged, and a profile asking for `performance` selects the same artifacts as before. `SNOWFLAKE-QUERY-REWRITE` is not tagged, since rewriting a query is development work. No artifact added or removed. The installer reads the vocabulary from the index, so no installer release is required, but its scanner does not detect the topic, so it reaches a profile only through the questionnaire (questionnaire work in installation #72). The catalog map gains a "Database administration" group, lets a skill sit in several groups, marks skills added since the previous release as "new" and adds a "new" filter chip |
+| `v1.4.0` | Three artifacts added, taking the catalog to forty-four: `DATA-QUALITY-CONTROLS` (`applies_to: {}`, topics `data-quality` and `ingestion`, `project` scope) builds quarantine, release diff and per-source scorecards into a pipeline; `RECENT-DISCUSSION-RESEARCH` (topic `research`, `user` scope) researches what people said about a topic in the last 30 days; `DAILY-STANDUP-UPDATE` (topics `writing` and `development-process`, `user` scope) drafts a daily standup update from the engineer's commits, pull requests and reviews since the last working day. All `on-demand`. `RECENT-DISCUSSION-RESEARCH` is the first [upstream artifact](docs/authoring-artifacts.md#upstream-artifacts): the author's `last30days` skill, unchanged and pinned to a commit, with its licence in its directory and an entry in `NOTICE`. The index gains an optional `upstream` field, which the installer ignores; `scripts/sync-upstream.ps1` fetches and verifies those files, the validator checks the entry, its provenance, licence and notice, and CI verifies upstream artifacts against their pinned commits. Vocabulary gains the `research` topic. The installer reads the vocabulary from the index, so no installer release is required; its scanner does not detect the topic, so it reaches a profile only through the questionnaire, which phrases an unfamiliar topic as a neutral question. `CONTRIBUTING.md` now says which part of the version a release moves; this tag takes a minor for the vocabulary change |
+| `v1.4.1` | Two artifacts added, taking the catalog to forty-six: `SPARK-JOB-TUNING` (`frameworks: ["spark", "databricks"]`, topics `performance` and `debugging`, `project` scope) finds the stage and cause that dominate a slow or memory-failing Spark job from its Spark UI evidence, fixes that cause and measures the result, adapted from a third-party Apache 2.0 source (see [`NOTICE`](NOTICE)); `REQUEST-REFINEMENT` (`applies_to: {}`, topic `development-process`, `user` scope) rewrites a rough request with what the project already answers, asks only what it cannot infer and starts once the user confirms. Both `on-demand`. `REQUEST-REFINEMENT` is the first artifact that runs only on the user's command: `disable-model-invocation: true` in its frontmatter for Claude Code and Cursor (`/request-refinement`) and `agents/openai.yaml` for Codex (`$request-refinement`); the installer copies both unchanged, so it needs no change, and the authoring guide documents the pattern. `AIRFLOW-DAG-STRUCTURE` moves to `0.1.2` (`schedule=` instead of `schedule_interval=`, `catchup` set on the DAG) with selection unchanged. Vocabulary unchanged. CI pins the validate runner to `ubuntu-24.04` |
 
 Tags are immutable. A published tag is never moved to a different commit: a consumer profile pins one of these, and repointing it would hand the same profile different artifacts with nothing anywhere reporting a change. Corrections ship as a new tag.

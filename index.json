@@ -1,6 +1,6 @@
 {
   "schema_version": "2",
-  "toolset_ref": "refs/tags/v1.3.0",
+  "toolset_ref": "refs/tags/v1.4.1",
   "vocabulary": {
     "languages": ["typescript", "javascript", "python", "csharp", "go", "sql"],
     "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "terraform", "terragrunt", "dataform", "bigquery", "tableau"],
@@ -22,13 +22,14 @@
       "security",
       "containerization",
       "infrastructure",
-      "database-administration"
+      "database-administration",
+      "research"
     ]
   },
   "artifacts": [
     {
       "id": "AIRFLOW-DAG-STRUCTURE",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source_path": "artifacts/AIRFLOW-DAG-STRUCTURE",
       "applies_to": {
         "frameworks": ["airflow"]
@@ -103,6 +104,28 @@
           "Separates passed, failed, skipped and never-run instead of merging them",
           "Checks the original request was met, not only that the code runs",
           "Reports what was not verified rather than leaving it implied"
+        ]
+      }
+    },
+    {
+      "id": "DAILY-STANDUP-UPDATE",
+      "version": "0.1.0",
+      "source_path": "artifacts/DAILY-STANDUP-UPDATE",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["writing", "development-process"],
+      "scope": "user",
+      "requires": {
+        "tools": ["git", "GitHub CLI (gh), signed in, for pull requests, reviews and issues; without it the update is built from git alone"]
+      },
+      "presentation": {
+        "name": "Write a daily standup update from your actual activity",
+        "summary": "Drafts a daily standup or status update from commits, pull requests and reviews since the last working day.",
+        "benefits": [
+          "Builds Done from git history and GitHub activity rather than from memory",
+          "Covers the whole period since the last working day, so Monday's update includes Friday",
+          "States each blocker with its owner and since when, or says there are none",
+          "Asks about meetings and investigations instead of inventing activity"
         ]
       }
     },
@@ -658,6 +681,43 @@
       }
     },
     {
+      "id": "RECENT-DISCUSSION-RESEARCH",
+      "version": "0.1.0",
+      "source_path": "artifacts/RECENT-DISCUSSION-RESEARCH",
+      "upstream": {
+        "repo": "https://github.com/mvanhorn/last30days-skill",
+        "commit": "13a6cc5fd1f2d8a9b8420bbba6742599b2f4a077",
+        "path": "skills/last30days",
+        "license": "MIT",
+        "exclude": ["assets/"]
+      },
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["research"],
+      "scope": "user",
+      "requires": {
+        "tools": [
+          "Python 3.12 or later",
+          "Node.js 22 or later, for X search",
+          "yt-dlp, for YouTube search and transcripts"
+        ],
+        "access": [
+          "API keys for the sources you want beyond the free ones, such as SCRAPECREATORS_API_KEY for TikTok and Instagram, or XAI_API_KEY or X_BEARER_TOKEN for X",
+          "Consent to read browser cookies, only if X search should use your logged-in session"
+        ]
+      },
+      "presentation": {
+        "name": "Research what people said about a topic in the last 30 days",
+        "summary": "Collects recent posts and engagement about a topic from Reddit, X, YouTube, TikTok, Hacker News, Polymarket, GitHub and the web, and summarises them with sources.",
+        "benefits": [
+          "Searches many communities in one run, limited to the last 30 days",
+          "Starts with sources that need no key, such as Hacker News and Polymarket, and adds others as keys are configured",
+          "Asks before reading browser cookies, and carries on without them if you decline",
+          "Includes a doctor check that reports which sources are broken or missing"
+        ]
+      }
+    },
+    {
       "id": "REFACTOR-STEP-PLANNING",
       "version": "0.1.1",
       "source_path": "artifacts/REFACTOR-STEP-PLANNING",
@@ -673,6 +733,26 @@
           "Separates internal restructuring from interface changes that break callers",
           "Sequences the work so each step can be verified and reverted alone",
           "Says when a refactor should stop rather than expand"
+        ]
+      }
+    },
+    {
+      "id": "REQUEST-REFINEMENT",
+      "version": "0.1.0",
+      "source_path": "artifacts/REQUEST-REFINEMENT",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["development-process"],
+      "scope": "user",
+      "presentation": {
+        "name": "Sharpen a request before the agent starts work",
+        "summary": "On your command, rewrites a request with what the project already answers, asks only what it cannot infer, and starts once you confirm.",
+        "benefits": [
+          "Fills targets, conventions and checks from the repository instead of asking you",
+          "Searches the web only when the request depends on an outside fact, such as a version's breaking changes, and cites primary sources",
+          "Asks only the questions whose answers change the work, in one round",
+          "Shows the rewritten request and waits for your go before starting",
+          "Runs only when you call it, so clear requests are never slowed down"
         ]
       }
     },
@@ -845,6 +925,30 @@
           "Keeps a renamed column's element name and description instead of replacing them with a new element",
           "Carries existing comments, synonyms and instructions into the regenerated view",
           "Flags new columns that need a description instead of inventing one"
+        ]
+      }
+    },
+    {
+      "id": "SPARK-JOB-TUNING",
+      "version": "0.1.0",
+      "source_path": "artifacts/SPARK-JOB-TUNING",
+      "applies_to": {
+        "frameworks": ["spark", "databricks"]
+      },
+      "strength": "on-demand",
+      "topics": ["performance", "debugging"],
+      "scope": "project",
+      "requires": {
+        "access": ["The Spark UI or History Server for the run being tuned (event logs enabled for a finished run)", "Permission to re-run the job on the same input to measure the fix"]
+      },
+      "presentation": {
+        "name": "Tune a slow Spark job from its Spark UI evidence",
+        "summary": "Finds the stage and the cause that dominate a slow or memory-failing Spark job, fixes that cause and measures the result.",
+        "benefits": [
+          "Reads task-duration spread, shuffle and spill to tell skew, a missed broadcast and a fanning-out join apart",
+          "Explains why each fix works: broadcast joins, AQE, salting, partition sizing, repartition versus coalesce",
+          "Catches driver-side work and Python UDFs that no cluster setting can speed up",
+          "Confirms the gain by re-running on the same input and checking the output did not change"
         ]
       }
     },

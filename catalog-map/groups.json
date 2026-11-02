@@ -47,6 +47,10 @@
   ["Data engineering", "Snowflake"],
   ["Database administration", "Snowflake"]
  ],
+ "SPARK-JOB-TUNING": [
+  "Data engineering",
+  "Spark"
+ ],
  "SNOWFLAKE-SEMANTIC-VIEW-DRIFT": [
   "Data engineering",
   "Snowflake"
@@ -159,6 +163,10 @@
   "General",
   "Development process"
  ],
+ "REQUEST-REFINEMENT": [
+  "General",
+  "Development process"
+ ],
  "IMPLEMENTATION-PLANNING": [
   "General",
   "Development process"
@@ -174,6 +182,10 @@
  "PROJECT-ADAPTATION": [
   "General",
   "Development process"
+ ],
+ "DAILY-STANDUP-UPDATE": [
+  ["General", "Development process"],
+  ["General", "Docs and writing"]
  ],
  "PROJECT-DOCUMENTATION": [
   "General",
@@ -194,5 +206,9 @@
  "TERRAGRUNT-UNIT-REPLICATION": [
   "Infrastructure as code",
   "Terragrunt"
+ ],
+ "RECENT-DISCUSSION-RESEARCH": [
+  "General",
+  "Research"
  ]
 }
