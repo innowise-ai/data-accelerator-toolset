@@ -31,7 +31,11 @@ Its neighbours in this catalog:
   columns for the people who query them. A dashboard FAQ documents what a report
   shows to people who will never see the warehouse, and the two can disagree: a
   dashboard often filters, renames or re-aggregates a column it inherits.
-    30|- [project-documentation](../PROJECT-DOCUMENTATION/SKILL.md) records architecture
+    30|- [kpi-definition-building](../KPI-DEFINITION-BUILDING/SKILL.md) is where a metric
+  goes when this work finds it has no definition anywhere. Writing one is a
+  different job with a different owner, and it is not something to do inside a
+  FAQ.
+- [project-documentation](../PROJECT-DOCUMENTATION/SKILL.md) records architecture
   and the decisions behind it. This is one report's user-facing documentation, not
   a record of why the reporting layer is shaped the way it is.
 

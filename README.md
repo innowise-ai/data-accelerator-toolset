@@ -2,11 +2,11 @@
 
 The artifact catalog. Consumers fetch selected artifacts from this repository using Git partial clone with cone-mode sparse checkout, so a client downloads only the artifacts it needs rather than the whole catalog.
 
-The catalog holds forty-seven artifacts in four groups. Twenty-nine are data-engineering specific, covering dbt, Snowflake, Airflow, Tableau, Python pipeline code, sensitive data handling, and stack-agnostic pipeline quality practice, including data quality controls built into a pipeline. Four cover containers and local environments: Dockerfile build rules, Compose stacks, a first Docker scaffold, and a guardrail for destructive Docker commands. Two cover infrastructure as code: reviewing a Terraform plan, with Terragrunt, Atlantis and AWS access policies, before it is applied, and adding or moving Terragrunt units in bulk across tenants and environments without drift. Twelve are general skills that apply to any stack: change review, project documentation, code comments, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, and project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
+The catalog holds forty-eight artifacts in four groups. Thirty are data-engineering specific, covering dbt, Snowflake, Airflow, Tableau, Python pipeline code, sensitive data handling, and stack-agnostic pipeline quality practice, including data quality controls built into a pipeline and metric definitions precise enough to implement twice. Four cover containers and local environments: Dockerfile build rules, Compose stacks, a first Docker scaffold, and a guardrail for destructive Docker commands. Two cover infrastructure as code: reviewing a Terraform plan, with Terragrunt, Atlantis and AWS access policies, before it is applied, and adding or moving Terragrunt units in bulk across tenants and environments without drift. Twelve are general skills that apply to any stack: change review, project documentation, code comments, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, and project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
 
 Every artifact except one is `on-demand`, so a profile receives only what its declared topics select and the user explicitly chooses. The exception is `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every project that uses Docker, because losing a data volume is not something a team should have to remember to ask protection against. See [`docs/authoring-artifacts.md`](docs/authoring-artifacts.md) for what an `always` artifact has to justify.
 
-Forty-six artifacts are `project` scope. `TECHNICAL-PROSE-EDITING` is the single `user`-scope artifact: a personal editing tool that does not belong in a shared project plan.
+Forty-seven artifacts are `project` scope. `TECHNICAL-PROSE-EDITING` is the single `user`-scope artifact: a personal editing tool that does not belong in a shared project plan.
 
 ## Layout
 
@@ -37,6 +37,7 @@ artifacts/
   ERROR-DIAGNOSIS/
   ETL-DECOMPOSITION/
   IMPLEMENTATION-PLANNING/
+  KPI-DEFINITION-BUILDING/
   NL2SQL-QUERY-VALIDATION/
   PIPELINE-CHECK-SELECTION/
   PIPELINE-OUTPUT-REVIEW/
