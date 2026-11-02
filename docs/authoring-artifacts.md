@@ -12,8 +12,10 @@ For a shipped artifact to copy from, read [`artifacts/ETL-DECOMPOSITION`](../art
 vocabulary holds today. The vocabulary describes what exists; a value it lacks
 is part of the work of adding an artifact (see [The current
 vocabulary](#the-current-vocabulary)), not a reason to turn the artifact down.
-Power BI is out of scope, which is why `power-bi` is deliberately absent from
-`frameworks`.
+Power BI is in scope on the same terms as Tableau. A skill that is wrong
+without it declares `power-bi`, and it has to be knowledge about the model. A
+click-path through Desktop, or a wrapper around the REST API, XMLA, or the
+authoring MCP server, does not fit.
 
 **The catalog assumes open-source tooling, dbt Core in particular.**
 `DBT-COLUMN-LINEAGE` is the single artifact that needs dbt Cloud and an MCP
@@ -273,7 +275,7 @@ Taken from `index.json` at the time of writing. **`index.json` is the source of 
 | `frameworks` | `nestjs`, `react`, `django`, `aspnet`, `airflow`, `dbt`, `duckdb`, `spark`, `trino`, `snowflake`, `databricks`, `docker`, `terraform`, `terragrunt`, `dataform`, `bigquery` |
 | `layout` | `monorepo`, `single` |
 | `agents` | `claude-code`, `codex`, `cursor` |
-| `topics` | `code-review`, `testing`, `documentation`, `refactoring`, `orchestration`, `data-modeling`, `data-quality`, `ingestion`, `performance`, `debugging`, `writing`, `development-process`, `security`, `containerization`, `infrastructure`, `database-administration`, `research` |
+| `topics` | `code-review`, `testing`, `documentation`, `refactoring`, `orchestration`, `data-modeling`, `data-quality`, `ingestion`, `performance`, `debugging`, `writing`, `development-process`, `security`, `containerization`, `infrastructure`, `database-administration`, `research`, `analytics` |
 
 `frameworks` is the loosest of the dimensions: it holds anything that identifies the
 stack beyond the language, so orchestrators (`airflow`), transformation tools (`dbt`)

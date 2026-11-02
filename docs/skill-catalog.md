@@ -5,8 +5,9 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-46 artifacts today: 25 data-engineering specific (dbt, Snowflake, Spark, Airflow,
-Python pipeline code, sensitive data handling, stack-agnostic pipeline quality),
+57 artifacts today: 31 data-engineering specific (dbt, Snowflake, Spark, Airflow,
+Power BI, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality),
+5 for BI and analytics,
 4 for containers and local environments, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
 `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
@@ -22,7 +23,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (25)
+## Data engineering (31)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -42,6 +43,12 @@ one project gets.
 | **Generate SQL from natural language, validated before it runs** (`NL2SQL-QUERY-VALIDATION`) | sql | data-quality | Generates SQL from natural language without letting an unvalidated query reach the database. |
 | **Pick the cheapest checks a pipeline change needs** (`PIPELINE-CHECK-SELECTION`) | any | testing, data-quality | Selects the cheapest checks that would actually catch the regression a change can cause. |
 | **Review the data a pipeline run actually produced** (`PIPELINE-OUTPUT-REVIEW`) | any | code-review, data-quality | Reviews the data a pipeline run actually produced, not just whether tests passed. |
+| **See what a connection swap breaks, and prove the numbers** (`POWER-BI-DATASOURCE-MIGRATION`) | power-bi | refactoring | Works out what in a Power BI model will not survive a warehouse connection swap, and proves the report still returns the same numbers afterwards. |
+| **Judge a DAX function by the measures that call it** (`POWER-BI-FUNCTION-IMPACT`) | power-bi | refactoring | Judges a user-defined function before it is introduced or changed, by proving each caller still matches the calculation it replaced. |
+| **Assess an inherited semantic model before changing it** (`POWER-BI-MODEL-AUDIT`) | power-bi | debugging | Assesses a semantic model and the report on it from the project folder: what is in it, which dependencies make a change risky, and what this folder cannot call unused. |
+| **Review what changed between two Power BI project versions** (`POWER-BI-MODEL-DIFF`) | power-bi | code-review | Compares two versions of a Power BI Project by what changed in the model and the report, and separates changes that can move a number from format strings, descriptions, and cosmetic edits. |
+| **Find out why a Power BI report is slow before rewriting it** (`POWER-BI-PERFORMANCE-DIAGNOSIS`) | power-bi | performance | Establishes which of three problems is slow — refresh, an interaction's query, or rendering — and requires a measurement before anything is rewritten. |
+| **Write a report FAQ from the model, not from memory** (`POWER-BI-REPORT-FAQ`) | power-bi | documentation | Writes a report FAQ from the Power BI Project and a screenshot of the landing page, taking each metric definition from the measure description rather than from the formula. |
 | **Test pipeline code with pytest, mocking I/O** (`PYTEST-DATA-PIPELINES`) | python | testing | Tests data pipeline code with pytest, mocking at the I/O boundary. |
 | **Implement SCD Type 2 with correct validity intervals** (`SCD2-IMPLEMENTATION`) | sql | data-modeling | Implements Slowly Changing Dimension Type 2 in SQL with correct validity intervals. |
 | **Decide what personal data a model may carry** (`SENSITIVE-DATA-HANDLING`) | any | security | Decides what personal data a model may carry, and keeps deletion possible later. |
@@ -51,6 +58,16 @@ one project gets.
 | **Rewrite Snowflake SQL without changing results** (`SNOWFLAKE-QUERY-REWRITE`) | snowflake | performance, refactoring | Rewrites a Snowflake query for performance without changing its results. |
 | **Repair Snowflake semantic view drift** (`SNOWFLAKE-SEMANTIC-VIEW-DRIFT`) | snowflake | data-modeling, data-quality | Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions. |
 | **Tune a slow Spark job from its Spark UI evidence** (`SPARK-JOB-TUNING`) | spark, databricks | performance, debugging | Finds the stage and the cause that dominate a slow or memory-failing Spark job, fixes that cause and measures the result. |
+
+## BI and analytics (5)
+
+| Skill | Applies to | Topic(s) | What it does |
+|---|---|---|---|
+| **Draft dashboard pages, charts and KPIs from a dataset** (`DASHBOARD-CONCEPT-DRAFT`) | any | analytics | Drafts pages, chart types and KPIs from a dataset already in hand, each one tied to fields, grain and a quality caveat. |
+| **Write an EDA report a later dashboard can be based on** (`DATASET-EDA-REPORT`) | any | analytics, data-quality | Writes what a dataset is and which questions it can support, so a later dashboard has something to be based on. |
+| **Assess a dataset for missing values, zeros, duplicates and outliers** (`DATASET-QUALITY-ASSESSMENT`) | any | data-quality, analytics | Judges which columns of a dataset can be trusted before anyone builds a chart or a metric. |
+| **Prepare a semantic model so Copilot answers from the measures you defined** (`POWER-BI-COPILOT-READINESS`) | power-bi | data-modeling, analytics | Decides what Power BI Copilot can bind a question to, and checks that an answer or a drafted measure used the measure that was meant. |
+| **Translate a metric between SQL and DAX without changing the number** (`POWER-BI-MEASURE-TRANSLATION`) | power-bi | data-modeling, analytics | Rewrites an existing metric from SQL into DAX or from DAX into SQL, and treats the result as unchecked until the same grain and filters return the same number. |
 
 ## Containers and local environment (4)
 

@@ -3,7 +3,7 @@
   "toolset_ref": "refs/tags/v1.4.1",
   "vocabulary": {
     "languages": ["typescript", "javascript", "python", "csharp", "go", "sql"],
-    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "terraform", "terragrunt", "dataform", "bigquery"],
+    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "terraform", "terragrunt", "dataform", "bigquery", "power-bi"],
     "layout": ["monorepo", "single"],
     "agents": ["claude-code", "codex", "cursor"],
     "topics": [
@@ -23,7 +23,8 @@
       "containerization",
       "infrastructure",
       "database-administration",
-      "research"
+      "research",
+      "analytics"
     ]
   },
   "artifacts": [
@@ -130,6 +131,25 @@
       }
     },
     {
+      "id": "DASHBOARD-CONCEPT-DRAFT",
+      "version": "0.1.0",
+      "source_path": "artifacts/DASHBOARD-CONCEPT-DRAFT",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["analytics"],
+      "scope": "project",
+      "presentation": {
+        "name": "Draft dashboard pages, charts and KPIs from a dataset",
+        "summary": "Drafts pages, chart types and KPIs from a dataset already in hand, each one tied to fields, grain and a quality caveat.",
+        "benefits": [
+          "Names the source fields, the grain and the quality caveat on every proposed metric",
+          "Drops a column marked unsafe, or keeps it with the caveat in the same line",
+          "Separates a KPI from a breakdown, and treats a visual that mixes grains as a finding",
+          "Stays a short, assumed list when the audience or the decision is not known"
+        ]
+      }
+    },
+    {
       "id": "DATA-INCIDENT-TRACING",
       "version": "0.1.1",
       "source_path": "artifacts/DATA-INCIDENT-TRACING",
@@ -164,6 +184,44 @@
           "Compares each publish with the last one per entity and field, against thresholds kept in configuration",
           "Scores each source against all sources, before and after processing, with exports safe to share with one source",
           "Leaves room for an approval gate and bundled releases without rebuilding the pipeline"
+        ]
+      }
+    },
+    {
+      "id": "DATASET-EDA-REPORT",
+      "version": "0.1.0",
+      "source_path": "artifacts/DATASET-EDA-REPORT",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["analytics", "data-quality"],
+      "scope": "project",
+      "presentation": {
+        "name": "Write an EDA report a later dashboard can be based on",
+        "summary": "Writes what a dataset is and which questions it can support, so a later dashboard has something to be based on.",
+        "benefits": [
+          "States the grain, the time coverage and the unit of each measure before a chart is chosen",
+          "Labels each relationship as declared or inferred, and leaves an inferred join inferred",
+          "Ties a question the dataset cannot support to a missing column, a broken grain or a quality finding",
+          "Cites the quality assessment instead of computing the null and duplicate rates a second time"
+        ]
+      }
+    },
+    {
+      "id": "DATASET-QUALITY-ASSESSMENT",
+      "version": "0.1.0",
+      "source_path": "artifacts/DATASET-QUALITY-ASSESSMENT",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["data-quality", "analytics"],
+      "scope": "project",
+      "presentation": {
+        "name": "Assess a dataset for missing values, zeros, duplicates and outliers",
+        "summary": "Judges which columns of a dataset can be trusted before anyone builds a chart or a metric.",
+        "benefits": [
+          "Separates missing values from placeholders, so a zero used as unknown is not counted as a real zero",
+          "Names which duplicate claim failed: an exact row, the business key, or fan-out from a join",
+          "Keeps a statistical outlier as a candidate and lists domain-impossible values on their own",
+          "Reports a rate only when it was computed, and marks the rest insufficient evidence"
         ]
       }
     },
@@ -597,6 +655,182 @@
           "Gives a rule for when to adapt the plan and when to stop and ask",
           "Prevents unrequested scope from being added mid-execution",
           "Keeps the plan and the actual state of the work in agreement"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-COPILOT-READINESS",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-COPILOT-READINESS",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-modeling", "analytics"],
+      "scope": "project",
+      "presentation": {
+        "name": "Prepare a semantic model so Copilot answers from the measures you defined",
+        "summary": "Decides what Power BI Copilot can bind a question to, and checks that an answer or a drafted measure used the measure that was meant.",
+        "benefits": [
+          "Hides a column when a measure is the metric, so the answer is not the sum of a key, a rate, or a pre-aggregated total",
+          "Uses the measure description as the only definition, including grain, filters, unit, and what the metric is not",
+          "Treats a bidirectional relationship and a second date as different numbers, not as style",
+          "Names the role a check was run as, because a role that sees everything is a different population",
+          "Sends a drafted measure to the SQL-and-DAX equivalence check instead of accepting prose that sounds right"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-DATASOURCE-MIGRATION",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-DATASOURCE-MIGRATION",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["refactoring"],
+      "scope": "project",
+      "presentation": {
+        "name": "See what a connection swap breaks, and prove the numbers",
+        "summary": "Works out what in a Power BI model will not survive a warehouse connection swap, and proves the report still returns the same numbers afterwards.",
+        "benefits": [
+          "Takes the baseline and the inventory while the old connection still answers",
+          "Names the rebind that does not announce itself: a column matches by name and the number moves",
+          "Treats DAX as stable across warehouses, and M, types, date tables, and folded SQL as the parts that are not",
+          "Checks whether a step still folds by the SQL the connector sends, rather than by assuming the new warehouse folds the same M",
+          "Requires the proof below the headline total, where two errors stop cancelling",
+          "Stops at the model, and leaves warehouse redesign as separate work"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-FUNCTION-IMPACT",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-FUNCTION-IMPACT",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["refactoring"],
+      "scope": "project",
+      "presentation": {
+        "name": "Judge a DAX function by the measures that call it",
+        "summary": "Judges a user-defined function before it is introduced or changed, by proving each caller still matches the calculation it replaced.",
+        "benefits": [
+          "Reads the function from the project and stops rather than inventing a signature the file does not contain",
+          "Treats the blast radius as the work: the function is written once, and every caller moves when it moves",
+          "Requires each caller to match the inlined calculation it replaced, and does not stop at a function that compiles",
+          "Leaves the business definition on the measure description, and the grain with the caller",
+          "Names the callers this folder cannot see when other reports share the model"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-MEASURE-TRANSLATION",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-MEASURE-TRANSLATION",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-modeling", "analytics"],
+      "scope": "project",
+      "presentation": {
+        "name": "Translate a metric between SQL and DAX without changing the number",
+        "summary": "Rewrites an existing metric from SQL into DAX or from DAX into SQL, and treats the result as unchecked until the same grain and filters return the same number.",
+        "benefits": [
+          "Refuses a guessed formula when the grain, the filters, or the date are not known",
+          "Writes the assumptions down and marks each one as stated or assumed",
+          "Keeps a ratio, a snapshot, a time comparison, and a join fan-out as different numbers from a plain sum",
+          "Labels a translation unchecked when it cannot be run at the same grain, filters, and population"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-MODEL-AUDIT",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-MODEL-AUDIT",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["debugging"],
+      "scope": "project",
+      "presentation": {
+        "name": "Assess an inherited semantic model before changing it",
+        "summary": "Assesses a semantic model and the report on it from the project folder: what is in it, which dependencies make a change risky, and what this folder cannot call unused.",
+        "benefits": [
+          "Builds the inventory that answers what a change would propagate through, including the callers of a user-defined function",
+          "Refuses to call a column unused in this report unused, and asks whether other reports share the model",
+          "Treats import, DirectQuery, and composite as findings only when the consequence is named",
+          "Records performance risks and leaves them for a measurement",
+          "Keeps a display-folder rename, a format string, and a description apart, because each means something different"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-MODEL-DIFF",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-MODEL-DIFF",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["code-review"],
+      "scope": "project",
+      "presentation": {
+        "name": "Review what changed between two Power BI project versions",
+        "summary": "Compares two versions of a Power BI Project by what changed in the model and the report, and separates changes that can move a number from format strings, descriptions, and cosmetic edits.",
+        "benefits": [
+          "Refuses a text diff of a packaged file, and treats a line diff of the project as noise rather than the review",
+          "Reports formula, relationship, filter, Power Query, role, and calculation-item changes apart from everything else",
+          "Gives format strings and descriptions their own classes, because one changes what the reader sees and the other can make the FAQ lie",
+          "Treats a display-folder rename as cosmetic only when nothing selects by that folder",
+          "Stops on a function-body change when the caller set is not known, including callers on reports outside this folder"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-PERFORMANCE-DIAGNOSIS",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-PERFORMANCE-DIAGNOSIS",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["performance"],
+      "scope": "project",
+      "presentation": {
+        "name": "Find out why a Power BI report is slow before rewriting it",
+        "summary": "Establishes which of three problems is slow — refresh, an interaction's query, or rendering — and requires a measurement before anything is rewritten.",
+        "benefits": [
+          "Separates refresh, an interaction's query, and rendering, which rarely share a cause",
+          "Treats iterator measures, bidirectional relationships, visual count, and DirectQuery as hypotheses until a timing says where the time went",
+          "Reads a Desktop recording as the time of one interaction, which does not split engine time, formula time, and warehouse time",
+          "Says what a server trace's parts mean and what they do not prove",
+          "Hands a DirectQuery warehouse query to the warehouse's own diagnosis, and does not rewrite a measure here"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-REPORT-FAQ",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-REPORT-FAQ",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["documentation"],
+      "scope": "project",
+      "presentation": {
+        "name": "Write a report FAQ from the model, not from memory",
+        "summary": "Writes a report FAQ from the Power BI Project and a screenshot of the landing page, taking each metric definition from the measure description rather than from the formula.",
+        "benefits": [
+          "Takes metric definitions from measure descriptions, and stops when one is missing rather than translating the formula into business English",
+          "Requires a screenshot of the landing page, including the visible slicers and anything that appears only through a bookmark or a tooltip page",
+          "Asks for the refresh schedule instead of guessing one from the model",
+          "Treats a description an agent wrote as a draft until a person accepts it",
+          "Documents the metrics a reader sees, without treating a column that is absent from the page as unused"
         ]
       }
     },

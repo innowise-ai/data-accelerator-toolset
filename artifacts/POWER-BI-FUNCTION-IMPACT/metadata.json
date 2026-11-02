@@ -1,0 +1,22 @@
+{
+  "id": "POWER-BI-FUNCTION-IMPACT",
+  "version": "0.1.0",
+  "source_path": "artifacts/POWER-BI-FUNCTION-IMPACT",
+  "applies_to": {
+    "frameworks": ["power-bi"]
+  },
+  "strength": "on-demand",
+  "topics": ["refactoring"],
+  "scope": "project",
+  "presentation": {
+    "name": "Judge a DAX function by the measures that call it",
+    "summary": "Judges a user-defined function before it is introduced or changed, by proving each caller still matches the calculation it replaced.",
+    "benefits": [
+      "Reads the function from the project and stops rather than inventing a signature the file does not contain",
+      "Treats the blast radius as the work: the function is written once, and every caller moves when it moves",
+      "Requires each caller to match the inlined calculation it replaced, and does not stop at a function that compiles",
+      "Leaves the business definition on the measure description, and the grain with the caller",
+      "Names the callers this folder cannot see when other reports share the model"
+    ]
+  }
+}

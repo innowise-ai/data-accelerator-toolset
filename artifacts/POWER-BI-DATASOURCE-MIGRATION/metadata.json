@@ -1,0 +1,23 @@
+{
+  "id": "POWER-BI-DATASOURCE-MIGRATION",
+  "version": "0.1.0",
+  "source_path": "artifacts/POWER-BI-DATASOURCE-MIGRATION",
+  "applies_to": {
+    "frameworks": ["power-bi"]
+  },
+  "strength": "on-demand",
+  "topics": ["refactoring"],
+  "scope": "project",
+  "presentation": {
+    "name": "See what a connection swap breaks, and prove the numbers",
+    "summary": "Works out what in a Power BI model will not survive a warehouse connection swap, and proves the report still returns the same numbers afterwards.",
+    "benefits": [
+      "Takes the baseline and the inventory while the old connection still answers",
+      "Names the rebind that does not announce itself: a column matches by name and the number moves",
+      "Treats DAX as stable across warehouses, and M, types, date tables, and folded SQL as the parts that are not",
+      "Checks whether a step still folds by the SQL the connector sends, rather than by assuming the new warehouse folds the same M",
+      "Requires the proof below the headline total, where two errors stop cancelling",
+      "Stops at the model, and leaves warehouse redesign as separate work"
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "POWER-BI-MEASURE-TRANSLATION",
+  "version": "0.1.0",
+  "source_path": "artifacts/POWER-BI-MEASURE-TRANSLATION",
+  "applies_to": {
+    "frameworks": ["power-bi"]
+  },
+  "strength": "on-demand",
+  "topics": ["data-modeling", "analytics"],
+  "scope": "project",
+  "presentation": {
+    "name": "Translate a metric between SQL and DAX without changing the number",
+    "summary": "Rewrites an existing metric from SQL into DAX or from DAX into SQL, and treats the result as unchecked until the same grain and filters return the same number.",
+    "benefits": [
+      "Refuses a guessed formula when the grain, the filters, or the date are not known",
+      "Writes the assumptions down and marks each one as stated or assumed",
+      "Keeps a ratio, a snapshot, a time comparison, and a join fan-out as different numbers from a plain sum",
+      "Labels a translation unchecked when it cannot be run at the same grain, filters, and population"
+    ]
+  }
+}

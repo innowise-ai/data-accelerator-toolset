@@ -1,0 +1,19 @@
+{
+  "id": "DATASET-QUALITY-ASSESSMENT",
+  "version": "0.1.0",
+  "source_path": "artifacts/DATASET-QUALITY-ASSESSMENT",
+  "applies_to": {},
+  "strength": "on-demand",
+  "topics": ["data-quality", "analytics"],
+  "scope": "project",
+  "presentation": {
+    "name": "Assess a dataset for missing values, zeros, duplicates and outliers",
+    "summary": "Judges which columns of a dataset can be trusted before anyone builds a chart or a metric.",
+    "benefits": [
+      "Separates missing values from placeholders, so a zero used as unknown is not counted as a real zero",
+      "Names which duplicate claim failed: an exact row, the business key, or fan-out from a join",
+      "Keeps a statistical outlier as a candidate and lists domain-impossible values on their own",
+      "Reports a rate only when it was computed, and marks the rest insufficient evidence"
+    ]
+  }
+}
