@@ -601,6 +601,28 @@
       }
     },
     {
+      "id": "POWER-BI-MODEL-AUDIT",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-MODEL-AUDIT",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["debugging"],
+      "scope": "project",
+      "presentation": {
+        "name": "Assess an inherited semantic model before changing it",
+        "summary": "Assesses a semantic model and the report on it from the project folder: what is in it, which dependencies make a change risky, and what this folder cannot call unused.",
+        "benefits": [
+          "Builds the inventory that answers what a change would propagate through, including the callers of a user-defined function",
+          "Refuses to call a column unused in this report unused, and asks whether other reports share the model",
+          "Treats import, DirectQuery, and composite as findings only when the consequence is named",
+          "Records performance risks and leaves them for a measurement",
+          "Keeps a display-folder rename, a format string, and a description apart, because each means something different"
+        ]
+      }
+    },
+    {
       "id": "POWER-BI-REPORT-FAQ",
       "version": "0.1.0",
       "source_path": "artifacts/POWER-BI-REPORT-FAQ",

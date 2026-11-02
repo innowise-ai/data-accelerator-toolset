@@ -36,6 +36,11 @@ Its neighbours in this catalog:
   systems, and definitions in one document, so it belongs wherever the
   project keeps the report, under the same handling. Deciding whether a
   column should be in the model at all is that skill's question.
+- [power-bi-model-audit](../POWER-BI-MODEL-AUDIT/SKILL.md) reads the same
+  folder for the opposite audience. It assesses the model for whoever
+  maintains it, so the leftovers and the risks are its findings. A FAQ is
+  written for whoever reads the report, and everything the report does not
+  show is noise in it.
 
 ## Two inputs, and the second one is not optional
 
