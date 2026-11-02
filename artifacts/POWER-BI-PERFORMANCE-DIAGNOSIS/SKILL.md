@@ -21,6 +21,10 @@ does not prove, is in
 
 Its neighbours in this catalog:
 
+- [power-bi-measure-translation](../POWER-BI-MEASURE-TRANSLATION/SKILL.md)
+  stops at whether a SQL metric and a DAX measure are the same number.
+  Generated DAX stays unverified until it is measured, which is this skill
+  when the question is speed, and that skill when the question is the number.
 - [power-bi-model-audit](../POWER-BI-MODEL-AUDIT/SKILL.md) notes the structural
   risks it can see: iterator measures, bidirectional relationships, visual
   count, DirectQuery. Those are hypotheses. This skill tests them.

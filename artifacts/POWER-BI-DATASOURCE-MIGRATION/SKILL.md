@@ -30,6 +30,10 @@ Its neighbours:
   into dbt and reconciles it. That is the warehouse side of the same
   programme. Logic lifted out of Power Query belongs there. This artifact
   repoints a model.
+- [power-bi-measure-translation](../POWER-BI-MEASURE-TRANSLATION/SKILL.md)
+  is where the SQL and the DAX are brought into line. This skill treats DAX
+  as stable across the warehouse change and does not rewrite it to suit the
+  new engine.
 - [power-bi-model-audit](../POWER-BI-MODEL-AUDIT/SKILL.md) produces the
   inventory this migration starts from. Run it first if nobody knows what is
   in the model.

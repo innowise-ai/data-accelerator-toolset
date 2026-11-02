@@ -36,6 +36,14 @@ Its neighbours in this catalog:
   systems, and definitions in one document, so it belongs wherever the
   project keeps the report, under the same handling. Deciding whether a
   column should be in the model at all is that skill's question.
+- [power-bi-measure-translation](../POWER-BI-MEASURE-TRANSLATION/SKILL.md)
+  rewrites a metric between SQL and DAX. When a description and a formula
+  disagree, that skill does not pick a third definition. The description
+  remains the meaning.
+- [power-bi-copilot-readiness](../POWER-BI-COPILOT-READINESS/SKILL.md) decides
+  what a question engine may bind to. The description written here is the
+  description it will lean on. A second definition kept for Copilot will
+  drift from this one.
 - [power-bi-model-audit](../POWER-BI-MODEL-AUDIT/SKILL.md) reads the same
   folder for the opposite audience. It assesses the model for whoever
   maintains it, so the leftovers and the risks are its findings. A FAQ is

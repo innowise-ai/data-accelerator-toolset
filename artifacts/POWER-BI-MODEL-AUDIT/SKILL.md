@@ -19,6 +19,10 @@ cannot conclude, is in
 
 Its neighbours in this catalog:
 
+- [power-bi-copilot-readiness](../POWER-BI-COPILOT-READINESS/SKILL.md) uses
+  an inventory only to decide which fields should be askable. This audit is
+  for someone about to change the model. What Copilot may bind to is that
+  skill's question.
 - [power-bi-report-faq](../POWER-BI-REPORT-FAQ/SKILL.md) writes the report's
   documentation for the people who read it. This is an engineering assessment
   for the people who maintain the model, and the two want opposite things from
