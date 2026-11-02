@@ -63,12 +63,20 @@
   "Data engineering",
   "Airflow"
  ],
+ "POWER-BI-COPILOT-READINESS": [
+  "BI and analytics",
+  "Power BI"
+ ],
  "POWER-BI-DATASOURCE-MIGRATION": [
   "Data engineering",
   "Power BI"
  ],
  "POWER-BI-FUNCTION-IMPACT": [
   "Data engineering",
+  "Power BI"
+ ],
+ "POWER-BI-MEASURE-TRANSLATION": [
+  "BI and analytics",
   "Power BI"
  ],
  "POWER-BI-MODEL-AUDIT": [

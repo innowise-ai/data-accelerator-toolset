@@ -5,9 +5,9 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-55 artifacts today: 31 data-engineering specific (dbt, Snowflake, Spark, Airflow,
+57 artifacts today: 31 data-engineering specific (dbt, Snowflake, Spark, Airflow,
 Power BI, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality),
-3 for BI and analytics,
+5 for BI and analytics,
 4 for containers and local environments, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
 `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
@@ -59,13 +59,15 @@ one project gets.
 | **Repair Snowflake semantic view drift** (`SNOWFLAKE-SEMANTIC-VIEW-DRIFT`) | snowflake | data-modeling, data-quality | Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions. |
 | **Tune a slow Spark job from its Spark UI evidence** (`SPARK-JOB-TUNING`) | spark, databricks | performance, debugging | Finds the stage and the cause that dominate a slow or memory-failing Spark job, fixes that cause and measures the result. |
 
-## BI and analytics (3)
+## BI and analytics (5)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
 | **Draft dashboard pages, charts and KPIs from a dataset** (`DASHBOARD-CONCEPT-DRAFT`) | any | analytics | Drafts pages, chart types and KPIs from a dataset already in hand, each one tied to fields, grain and a quality caveat. |
 | **Write an EDA report a later dashboard can be based on** (`DATASET-EDA-REPORT`) | any | analytics, data-quality | Writes what a dataset is and which questions it can support, so a later dashboard has something to be based on. |
 | **Assess a dataset for missing values, zeros, duplicates and outliers** (`DATASET-QUALITY-ASSESSMENT`) | any | data-quality, analytics | Judges which columns of a dataset can be trusted before anyone builds a chart or a metric. |
+| **Prepare a semantic model so Copilot answers from the measures you defined** (`POWER-BI-COPILOT-READINESS`) | power-bi | data-modeling, analytics | Decides what Power BI Copilot can bind a question to, and checks that an answer or a drafted measure used the measure that was meant. |
+| **Translate a metric between SQL and DAX without changing the number** (`POWER-BI-MEASURE-TRANSLATION`) | power-bi | data-modeling, analytics | Rewrites an existing metric from SQL into DAX or from DAX into SQL, and treats the result as unchecked until the same grain and filters return the same number. |
 
 ## Containers and local environment (4)
 

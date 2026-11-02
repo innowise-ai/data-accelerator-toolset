@@ -659,6 +659,28 @@
       }
     },
     {
+      "id": "POWER-BI-COPILOT-READINESS",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-COPILOT-READINESS",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-modeling", "analytics"],
+      "scope": "project",
+      "presentation": {
+        "name": "Prepare a semantic model so Copilot answers from the measures you defined",
+        "summary": "Decides what Power BI Copilot can bind a question to, and checks that an answer or a drafted measure used the measure that was meant.",
+        "benefits": [
+          "Hides a column when a measure is the metric, so the answer is not the sum of a key, a rate, or a pre-aggregated total",
+          "Uses the measure description as the only definition, including grain, filters, unit, and what the metric is not",
+          "Treats a bidirectional relationship and a second date as different numbers, not as style",
+          "Names the role a check was run as, because a role that sees everything is a different population",
+          "Sends a drafted measure to the SQL-and-DAX equivalence check instead of accepting prose that sounds right"
+        ]
+      }
+    },
+    {
       "id": "POWER-BI-DATASOURCE-MIGRATION",
       "version": "0.1.0",
       "source_path": "artifacts/POWER-BI-DATASOURCE-MIGRATION",
@@ -700,6 +722,27 @@
           "Requires each caller to match the inlined calculation it replaced, and does not stop at a function that compiles",
           "Leaves the business definition on the measure description, and the grain with the caller",
           "Names the callers this folder cannot see when other reports share the model"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-MEASURE-TRANSLATION",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-MEASURE-TRANSLATION",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-modeling", "analytics"],
+      "scope": "project",
+      "presentation": {
+        "name": "Translate a metric between SQL and DAX without changing the number",
+        "summary": "Rewrites an existing metric from SQL into DAX or from DAX into SQL, and treats the result as unchecked until the same grain and filters return the same number.",
+        "benefits": [
+          "Refuses a guessed formula when the grain, the filters, or the date are not known",
+          "Writes the assumptions down and marks each one as stated or assumed",
+          "Keeps a ratio, a snapshot, a time comparison, and a join fan-out as different numbers from a plain sum",
+          "Labels a translation unchecked when it cannot be run at the same grain, filters, and population"
         ]
       }
     },
