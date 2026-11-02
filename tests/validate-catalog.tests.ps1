@@ -1346,4 +1346,358 @@ Describe 'validate-catalog.ps1' {
             $result.Errors | Should -Be @()
         }
     }
+
+    Context 'upstream artifacts' {
+        # An upstream artifact is a third party's skill, unchanged and pinned to
+        # a commit. These rules are the offline half: the pin is well formed, and
+        # the two files the catalog adds agree with it. Whether the bytes are
+        # the author's is sync-upstream.ps1 -Verify.
+
+        BeforeAll {
+            $upstreamRepo = 'https://github.com/example-owner/example-skills'
+            $upstreamCommit = '0123456789abcdef0123456789abcdef01234567'
+
+            function New-UpstreamArtifact {
+                param(
+                    [string] $Id = 'AS-0001',
+                    [hashtable] $Upstream,
+                    [hashtable] $Override = @{}
+                )
+                if (-not $PSBoundParameters.ContainsKey('Upstream')) {
+                    $Upstream = [ordered]@{
+                        repo = $upstreamRepo; commit = $upstreamCommit
+                        path = 'skills/example'; license = 'MIT'; exclude = @('assets/')
+                    }
+                }
+                $artifact = [ordered]@{
+                    id = $Id; version = '1.0.0'; source_path = "artifacts/$Id"
+                    upstream = $Upstream
+                    applies_to = @{}; strength = 'always'; topics = @()
+                }
+                foreach ($key in $Override.Keys) { $artifact[$key] = $Override[$key] }
+                $artifact
+            }
+
+            function New-UpstreamTree {
+                <#
+                    A checkout holding one upstream artifact as the sync script
+                    leaves it: the author's SKILL.md under the author's name,
+                    UPSTREAM.json, LICENSE, and a NOTICE naming the repository.
+                    Each switch removes or changes one of them.
+                #>
+                param(
+                    [string] $Name,
+                    [string] $Id = 'AS-0001',
+                    [string] $SkillName = 'example-skill',
+                    $Provenance,
+                    [string] $Notice = "Upstream:  https://github.com/example-owner/example-skills`n",
+                    [switch] $NoLicense,
+                    [switch] $NoProvenance,
+                    [string] $ProvenanceText
+                )
+                $root = Join-Path $TestDrive $Name
+                $dir = Join-Path $root "artifacts/$Id"
+                [void](New-Item -ItemType Directory -Path $dir -Force)
+                # The author's description carries no "Use when ..." sentence;
+                # that rule does not apply to an upstream artifact either.
+                Set-Content -LiteralPath (Join-Path $dir 'SKILL.md') -Value "---`nname: $SkillName`ndescription: Researches a topic.`n---`n" -Encoding utf8NoBOM
+                if (-not $NoLicense) {
+                    Set-Content -LiteralPath (Join-Path $dir 'LICENSE') -Value 'MIT License' -Encoding utf8NoBOM
+                }
+                if (-not $PSBoundParameters.ContainsKey('Provenance')) {
+                    $Provenance = [ordered]@{
+                        repo = $upstreamRepo; commit = $upstreamCommit
+                        path = 'skills/example'; license = 'MIT'; exclude = @('assets/')
+                        synced_by = 'scripts/sync-upstream.ps1'
+                    }
+                }
+                if ($PSBoundParameters.ContainsKey('ProvenanceText')) {
+                    Set-Content -LiteralPath (Join-Path $dir 'UPSTREAM.json') -Value $ProvenanceText -Encoding utf8NoBOM
+                } elseif (-not $NoProvenance) {
+                    $Provenance | ConvertTo-Json -Depth 5 |
+                        Set-Content -LiteralPath (Join-Path $dir 'UPSTREAM.json') -Encoding utf8NoBOM
+                }
+                Set-Content -LiteralPath (Join-Path $root 'NOTICE') -Value $Notice -Encoding utf8NoBOM
+                return $root
+            }
+        }
+
+        It 'accepts a well-formed upstream entry from the index alone' {
+            $path = New-TestIndex -Name 'up-ok' -Artifacts @((New-UpstreamArtifact))
+
+            $result = & $validator -IndexPath $path
+
+            $result.Errors | Should -Be @()
+        }
+
+        It "accepts a synced upstream artifact under its author's skill name" {
+            $indexPath = New-TestIndex -Name 'up-tree-ok' -Artifacts @((New-UpstreamArtifact))
+            $root = New-UpstreamTree -Name 'up-tree-ok'
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            $result.Errors | Should -Be @()
+        }
+
+        It 'rejects upstream as a scalar' {
+            $path = New-RawIndex -Name 'up-scalar' -Json @'
+{
+  "schema_version": "1",
+  "vocabulary": { "languages": ["python"], "topics": [] },
+  "artifacts": [
+    { "id": "AS-0001", "version": "1.0.0", "source_path": "artifacts/AS-0001",
+      "applies_to": {}, "strength": "always", "topics": [],
+      "upstream": "https://github.com/example-owner/example-skills" }
+  ]
+}
+'@
+
+            $result = & $validator -IndexPath $path
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'AS-0001 declares upstream as a scalar'
+        }
+
+        It 'rejects a missing required field and an unknown one' {
+            $path = New-TestIndex -Name 'up-fields' -Artifacts @(
+                (New-UpstreamArtifact -Upstream ([ordered]@{
+                        repo = $upstreamRepo; commit = $upstreamCommit; path = 'skills/example'; ref = 'main' }))
+            )
+
+            $result = & $validator -IndexPath $path
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match "upstream is missing required field 'license'"
+            @($result.Errors) -join "`n" | Should -Match "unknown upstream field 'ref'"
+        }
+
+        It 'rejects repo <Repo>' -TestCases @(
+            @{ Repo = 'https://github.com/example-owner/example-skills.git' }
+            @{ Repo = 'git@github.com:example-owner/example-skills' }
+            @{ Repo = 'https://gitlab.com/example-owner/example-skills' }
+            @{ Repo = 'http://github.com/example-owner/example-skills' }
+            @{ Repo = 'https://github.com/example-owner/example-skills/tree/main' }
+            @{ Repo = 'https://github.com/example-owner' }
+            @{ Repo = 'https://GitHub.com/example-owner/example-skills' }
+        ) {
+            param($Repo)
+            $path = New-TestIndex -Name ('up-repo-' + [guid]::NewGuid().ToString('N').Substring(0, 8)) -Artifacts @(
+                (New-UpstreamArtifact -Upstream ([ordered]@{
+                        repo = $Repo; commit = $upstreamCommit; path = 'skills/example'; license = 'MIT' }))
+            )
+
+            $result = & $validator -IndexPath $path
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'Write it as https://github.com/<owner>/<repo>'
+        }
+
+        It 'rejects commit <Commit>' -TestCases @(
+            @{ Commit = 'main' }
+            @{ Commit = 'v1.2.0' }
+            @{ Commit = '0123456' }
+            @{ Commit = '0123456789ABCDEF0123456789ABCDEF01234567' }
+            @{ Commit = '0123456789abcdef0123456789abcdef012345678' }
+        ) {
+            param($Commit)
+            $path = New-TestIndex -Name ('up-commit-' + [guid]::NewGuid().ToString('N').Substring(0, 8)) -Artifacts @(
+                (New-UpstreamArtifact -Upstream ([ordered]@{
+                        repo = $upstreamRepo; commit = $Commit; path = 'skills/example'; license = 'MIT' }))
+            )
+
+            $result = & $validator -IndexPath $path
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'not a full 40-character lower-case commit SHA'
+        }
+
+        It 'rejects license <License>' -TestCases @(
+            @{ License = 'GPL-3.0' }
+            @{ License = 'mit' }
+            @{ License = 'NOASSERTION' }
+        ) {
+            param($License)
+            $path = New-TestIndex -Name ('up-lic-' + [guid]::NewGuid().ToString('N').Substring(0, 8)) -Artifacts @(
+                (New-UpstreamArtifact -Upstream ([ordered]@{
+                        repo = $upstreamRepo; commit = $upstreamCommit; path = 'skills/example'; license = $License }))
+            )
+
+            $result = & $validator -IndexPath $path
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match "upstream.license '$License', which is not on the allowlist: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause"
+        }
+
+        It 'accepts every allowlisted licence' {
+            $artifacts = @('MIT', 'Apache-2.0', 'BSD-2-Clause', 'BSD-3-Clause') | ForEach-Object -Begin { $n = 0 } -Process {
+                $n++
+                New-UpstreamArtifact -Id "AS-000$n" -Upstream ([ordered]@{
+                        repo = $upstreamRepo; commit = $upstreamCommit; path = 'skills/example'; license = $_ })
+            }
+            $path = New-TestIndex -Name 'up-lic-ok' -Artifacts $artifacts
+
+            (& $validator -IndexPath $path).Errors | Should -Be @()
+        }
+
+        It 'holds path to the source_path rules: <Case>' -TestCases @(
+            @{ Case = 'a .. segment'; Path = 'skills/../secrets'; Expected = "upstream.path 'skills/../secrets', which contains a '.' or '..' segment" }
+            @{ Case = 'an absolute path'; Path = '/skills/example'; Expected = "upstream.path '/skills/example', which is absolute" }
+            @{ Case = 'a backslash'; Path = 'skills\example'; Expected = "upstream.path 'skills\example', which uses '\' separators" }
+            @{ Case = 'a reserved device name'; Path = 'skills/CON'; Expected = "upstream.path 'skills/CON' uses the Windows reserved device name 'CON'" }
+            @{ Case = 'a trailing dot'; Path = 'skills/example.'; Expected = "upstream.path 'skills/example.' ends component" }
+        ) {
+            param($Case, $Path, $Expected)
+            $index = New-TestIndex -Name ('up-path-' + [guid]::NewGuid().ToString('N').Substring(0, 8)) -Artifacts @(
+                (New-UpstreamArtifact -Upstream ([ordered]@{
+                        repo = $upstreamRepo; commit = $upstreamCommit; path = $Path; license = 'MIT' }))
+            )
+
+            $result = & $validator -IndexPath $index
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match ([regex]::Escape($Expected))
+        }
+
+        It 'holds every exclude item to the same rules' {
+            $path = New-TestIndex -Name 'up-exclude-path' -Artifacts @(
+                (New-UpstreamArtifact -Upstream ([ordered]@{
+                        repo = $upstreamRepo; commit = $upstreamCommit; path = 'skills/example'; license = 'MIT'
+                        exclude = @('assets/', '../README.md') }))
+            )
+
+            $result = & $validator -IndexPath $path
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match "upstream.exclude item '\.\./README.md', which contains a '.' or '..' segment"
+        }
+
+        It 'rejects an empty exclude list, which should be omitted instead' {
+            $path = New-RawIndex -Name 'up-exclude-empty' -Json @'
+{
+  "schema_version": "1",
+  "vocabulary": { "languages": ["python"], "topics": [] },
+  "artifacts": [
+    { "id": "AS-0001", "version": "1.0.0", "source_path": "artifacts/AS-0001",
+      "applies_to": {}, "strength": "always", "topics": [],
+      "upstream": { "repo": "https://github.com/example-owner/example-skills",
+        "commit": "0123456789abcdef0123456789abcdef01234567",
+        "path": "skills/example", "license": "MIT", "exclude": [] } }
+  ]
+}
+'@
+
+            $result = & $validator -IndexPath $path
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'upstream.exclude must be a non-empty list'
+        }
+
+        It 'rejects an upstream artifact with no UPSTREAM.json' {
+            $indexPath = New-TestIndex -Name 'up-no-prov' -Artifacts @((New-UpstreamArtifact))
+            $root = New-UpstreamTree -Name 'up-no-prov' -NoProvenance
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'AS-0001 is an upstream artifact with no UPSTREAM.json'
+        }
+
+        It 'rejects an UPSTREAM.json that is not JSON' {
+            $indexPath = New-TestIndex -Name 'up-prov-bad' -Artifacts @((New-UpstreamArtifact))
+            $root = New-UpstreamTree -Name 'up-prov-bad' -ProvenanceText '{ not json'
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'UPSTREAM.json that is not valid JSON'
+        }
+
+        It 'rejects an UPSTREAM.json that disagrees with the index' {
+            # A different commit, no exclude, and a field the index never had:
+            # each is reported, so one run shows the whole drift.
+            $indexPath = New-TestIndex -Name 'up-prov-drift' -Artifacts @((New-UpstreamArtifact))
+            $root = New-UpstreamTree -Name 'up-prov-drift' -Provenance ([ordered]@{
+                    repo = $upstreamRepo; commit = 'fedcba9876543210fedcba9876543210fedcba98'
+                    path = 'skills/example'; license = 'MIT'; branch = 'main'
+                    synced_by = 'scripts/sync-upstream.ps1'
+                })
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            $result.IsValid | Should -BeFalse
+            $all = @($result.Errors) -join "`n"
+            $all | Should -Match "UPSTREAM.json has commit 'fedcba98.*', but the index says '0123456789abcdef"
+            $all | Should -Match "UPSTREAM.json has no 'exclude'"
+            $all | Should -Match "UPSTREAM.json declares 'branch'"
+        }
+
+        It 'rejects an upstream artifact with no LICENSE' {
+            $indexPath = New-TestIndex -Name 'up-no-license' -Artifacts @((New-UpstreamArtifact))
+            $root = New-UpstreamTree -Name 'up-no-license' -NoLicense
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'AS-0001 is an upstream artifact with no LICENSE file'
+        }
+
+        It 'rejects a NOTICE that does not mention the repository, even one naming a longer repository' {
+            $indexPath = New-TestIndex -Name 'up-notice' -Artifacts @((New-UpstreamArtifact))
+            $root = New-UpstreamTree -Name 'up-notice' -Notice "Upstream:  https://github.com/example-owner/example-skills-extra`n"
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match 'example-skills, which NOTICE does not mention'
+        }
+
+        It "rejects an upstream skill name that matches another artifact's case-insensitively" {
+            # Two skills answering to one name in an agent's list: the author's
+            # name is kept, so it is the one that has to be unique.
+            $indexPath = New-TestIndex -Name 'up-name-clash' -Artifacts @(
+                (New-UpstreamArtifact -Id 'AS-0001'),
+                @{
+                    id = 'EXAMPLE-SKILL'; version = '1.0.0'; source_path = 'artifacts/EXAMPLE-SKILL'
+                    applies_to = @{}; strength = 'always'; topics = @()
+                }
+            )
+            $root = New-UpstreamTree -Name 'up-name-clash' -SkillName 'Example-Skill'
+            $own = Join-Path $root 'artifacts/EXAMPLE-SKILL'
+            [void](New-Item -ItemType Directory -Path $own -Force)
+            Set-Content -LiteralPath (Join-Path $own 'SKILL.md') -Value "---`nname: example-skill`ndescription: x`n---`n" -Encoding utf8NoBOM
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match "AS-0001 \('Example-Skill'\), EXAMPLE-SKILL \('example-skill'\) have SKILL.md names that are the same case-insensitively"
+        }
+
+        It 'still requires a name in an upstream SKILL.md frontmatter' {
+            $indexPath = New-TestIndex -Name 'up-no-name' -Artifacts @((New-UpstreamArtifact))
+            $root = New-UpstreamTree -Name 'up-no-name'
+            Set-Content -LiteralPath (Join-Path $root 'artifacts/AS-0001/SKILL.md') -Value "---`ndescription: x`n---`n" -Encoding utf8NoBOM
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            $result.IsValid | Should -BeFalse
+            @($result.Errors) -join "`n" | Should -Match "AS-0001 has a SKILL.md with no 'name' in its frontmatter\.$"
+        }
+
+        It 'keeps the lower-case-id name rule for an artifact that is not upstream' {
+            $indexPath = New-TestIndex -Name 'up-own-name' -Artifacts @(
+                @{
+                    id = 'AS-0002'; version = '1.0.0'; source_path = 'artifacts/AS-0002'
+                    applies_to = @{}; strength = 'always'; topics = @()
+                }
+            )
+            $root = Join-Path $TestDrive 'up-own-name'
+            $dir = Join-Path $root 'artifacts/AS-0002'
+            [void](New-Item -ItemType Directory -Path $dir -Force)
+            Set-Content -LiteralPath (Join-Path $dir 'SKILL.md') -Value "---`nname: example-skill`ndescription: x`n---`n" -Encoding utf8NoBOM
+
+            $result = & $validator -IndexPath $indexPath -CatalogRoot $root
+
+            @($result.Errors) -join "`n" | Should -Match "SKILL.md name 'example-skill'. The name is the id in lower case: 'as-0002'"
+        }
+    }
 }

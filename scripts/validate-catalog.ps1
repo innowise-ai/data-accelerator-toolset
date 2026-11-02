@@ -84,6 +84,24 @@ $ReservedDeviceNames = @('CON', 'PRN', 'AUX', 'NUL') +
 
 $MaximumPathLength = 240
 
+# An upstream artifact is the author's skill, unchanged and pinned to a commit.
+# The licences are the ones that let this MIT catalog carry a verbatim copy with
+# nothing more than the licence text beside it; anything else is a decision for
+# review, not for an allowlist edit in passing.
+$UpstreamLicenses = @('MIT', 'Apache-2.0', 'BSD-2-Clause', 'BSD-3-Clause')
+$UpstreamRequiredFields = @('repo', 'commit', 'path', 'license')
+$UpstreamFields = $UpstreamRequiredFields + @('exclude')
+
+# GitHub only, written one way. A second spelling of the same repository (a
+# .git suffix, the SSH form) would be a second key for NOTICE and for review to
+# miss; another host is a validator change when someone needs it.
+$UpstreamRepoPattern = '^https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9._-]+$'
+
+# The two files the catalog adds to an upstream artifact. Everything else in its
+# directory is the author's.
+$UpstreamProvenanceFile = 'UPSTREAM.json'
+$UpstreamLicenseFile = 'LICENSE'
+
 $errors = [System.Collections.Generic.List[string]]::new()
 
 function Add-CatalogError {
@@ -283,13 +301,61 @@ function Test-CatalogPathRule {
     }
 }
 
-function Test-CatalogSourcePath {
+function Test-CatalogDeclaredPath {
     <#
-        The same rules over a declared source_path, plus the three that only a
-        declared string can break: an absolute path, a '\' separator, and a '.'
-        or '..' segment. A path walked out of a checkout is relative and
+        The same rules over a path declared in index.json, plus the three that
+        only a declared string can break: an absolute path, a '\' separator, and
+        a '.' or '..' segment. A path walked out of a checkout is relative and
         '/'-separated by construction; one typed into index.json is whatever the
         author typed.
+
+        Serves source_path and the paths an upstream entry names in its author's
+        repository. The upstream ones become catalog paths once synced, and an
+        exclude item that climbs out of 'path' would delete something that is
+        not the author's skill.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string] $Id,
+
+        [Parameter(Mandatory)]
+        [string] $Field,
+
+        [Parameter(Mandatory)]
+        [AllowEmptyString()]
+        [string] $Value
+    )
+
+    $label = "Artifact $Id declares $Field '$Value', which"
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        Add-CatalogError "$label is empty. Write a repository-relative path."
+        return
+    }
+
+    if ($Value.Contains('\')) {
+        Add-CatalogError "$label uses '\' separators. Catalog paths are repository-relative with '/' separators."
+    }
+
+    if ($Value.StartsWith('/') -or $Value -match '^[A-Za-z]:') {
+        Add-CatalogError "$label is absolute. Catalog paths are repository-relative."
+    }
+
+    $segments = $Value.Replace('\', '/').Split('/')
+    if ($segments -contains '.' -or $segments -contains '..') {
+        Add-CatalogError "$label contains a '.' or '..' segment. Catalog paths may not point outside their own subtree."
+    }
+
+    Test-CatalogPathComponent -Path $Value.Replace('\', '/') -Label "Artifact $Id $Field '$Value'"
+
+    if ($Value.Length -gt $MaximumPathLength) {
+        Add-CatalogError "Artifact $Id $Field '$Value' is $($Value.Length) characters long, over the $MaximumPathLength-character maximum. Longer paths need core.longpaths=true, which not every developer has; shorten it."
+    }
+}
+
+function Test-CatalogSourcePath {
+    <#
+        The declared-path rules over source_path.
 
         Still not resolved against the filesystem - an artifact whose
         source_path names a directory that does not exist remains a documented
@@ -303,26 +369,7 @@ function Test-CatalogSourcePath {
         [string] $SourcePath
     )
 
-    $label = "Artifact $Id declares source_path '$SourcePath', which"
-
-    if ($SourcePath.Contains('\')) {
-        Add-CatalogError "$label uses '\' separators. Catalog paths are repository-relative with '/' separators."
-    }
-
-    if ($SourcePath.StartsWith('/') -or $SourcePath -match '^[A-Za-z]:') {
-        Add-CatalogError "$label is absolute. Catalog paths are repository-relative."
-    }
-
-    $segments = $SourcePath.Replace('\', '/').Split('/')
-    if ($segments -contains '.' -or $segments -contains '..') {
-        Add-CatalogError "$label contains a '.' or '..' segment. Catalog paths may not point outside their own subtree."
-    }
-
-    Test-CatalogPathComponent -Path $SourcePath.Replace('\', '/') -Label "Artifact $Id source_path '$SourcePath'"
-
-    if ($SourcePath.Length -gt $MaximumPathLength) {
-        Add-CatalogError "Artifact $Id source_path '$SourcePath' is $($SourcePath.Length) characters long, over the $MaximumPathLength-character maximum. Longer paths need core.longpaths=true, which not every developer has; shorten it."
-    }
+    Test-CatalogDeclaredPath -Id $Id -Field 'source_path' -Value $SourcePath
 }
 
 function Test-CatalogArtifactDirectory {
@@ -360,38 +407,33 @@ function Test-CatalogSkillName {
 
         Read from the checkout, so it runs only with -CatalogRoot. An artifact
         without a SKILL.md is not checked: not every artifact is a skill.
+
+        An upstream artifact keeps its author's name, because enforcing ours
+        would mean editing the author's file. The installed directory is still
+        named for the id. What it must be instead is unique, which the caller
+        checks across the whole catalog.
     #>
     param(
-        [Parameter(Mandatory)]
-        [string] $Root,
-
         [Parameter(Mandatory)]
         [string] $Id,
 
         [Parameter(Mandatory)]
-        [string] $SourcePath
+        [hashtable] $Skill,
+
+        [switch] $Upstream
     )
 
-    $skillPath = Join-Path (Join-Path $Root $SourcePath) 'SKILL.md'
-    if (-not (Test-Path -LiteralPath $skillPath -PathType Leaf)) { return }
+    if (-not $Skill.Exists) { return }
 
     $expected = $Id.ToLowerInvariant()
-    $lines = @(Get-Content -LiteralPath $skillPath -TotalCount 50 -Encoding utf8)
-    $name = $null
-    if ($lines.Count -gt 0 -and $lines[0].Trim() -eq '---') {
-        for ($n = 1; $n -lt $lines.Count; $n++) {
-            if ($lines[$n].Trim() -eq '---') { break }
-            if ($lines[$n] -match '^name:\s*(?<name>.*?)\s*$') {
-                $name = $Matches.name.Trim('"', "'")
-                break
-            }
+    if ($null -eq $Skill.Name) {
+        if ($Upstream) {
+            Add-CatalogError "Artifact $Id has a SKILL.md with no 'name' in its frontmatter."
+        } else {
+            Add-CatalogError "Artifact $Id has a SKILL.md with no 'name' in its frontmatter. Expected 'name: $expected'."
         }
-    }
-
-    if ($null -eq $name) {
-        Add-CatalogError "Artifact $Id has a SKILL.md with no 'name' in its frontmatter. Expected 'name: $expected'."
-    } elseif ($name -cne $expected) {
-        Add-CatalogError "Artifact $Id has SKILL.md name '$name'. The name is the id in lower case: '$expected'."
+    } elseif (-not $Upstream -and $Skill.Name -cne $expected) {
+        Add-CatalogError "Artifact $Id has SKILL.md name '$($Skill.Name)'. The name is the id in lower case: '$expected'."
     }
 }
 
@@ -662,6 +704,218 @@ function Test-CatalogArtifact {
             }
         }
     }
+
+    # Optional: present only on an artifact whose content is a third party's
+    # skill, unchanged. The installer ignores it and reads source_path as for
+    # any other artifact.
+    if ($null -ne $Artifact.PSObject.Properties['upstream']) {
+        Test-CatalogUpstreamEntry -Id $id -Upstream $Artifact.upstream
+    }
+}
+
+function Test-CatalogUpstreamEntry {
+    <#
+        The shape of an upstream object in index.json: where the author's skill
+        lives and which exact commit of it the catalog carries. Read from the
+        index alone, so it runs on every invocation; whether the files match
+        that commit is scripts/sync-upstream.ps1 -Verify, which needs the
+        network.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string] $Id,
+
+        [Parameter(Mandatory)]
+        [AllowNull()]
+        $Upstream
+    )
+
+    if ($null -eq $Upstream -or $Upstream -is [string] -or $Upstream -is [ValueType] -or
+        $Upstream -is [array]) {
+        Add-CatalogError "Artifact $Id declares upstream as a scalar rather than an object with $($UpstreamRequiredFields -join ', ')."
+        return
+    }
+
+    $declared = @($Upstream.PSObject.Properties | ForEach-Object { $_.Name })
+    foreach ($field in $declared) {
+        if ($UpstreamFields -cnotcontains $field) {
+            Add-CatalogError "Artifact $Id declares unknown upstream field '$field'. Known fields: $($UpstreamFields -join ', ')."
+        }
+    }
+
+    foreach ($field in $UpstreamRequiredFields) {
+        if ($declared -cnotcontains $field -or $Upstream.$field -isnot [string] -or
+            [string]::IsNullOrWhiteSpace($Upstream.$field)) {
+            Add-CatalogError "Artifact $Id upstream is missing required field '$field', or it is not a non-empty string."
+        }
+    }
+
+    if ($declared -ccontains 'repo' -and $Upstream.repo -is [string] -and
+        -not [string]::IsNullOrWhiteSpace($Upstream.repo)) {
+        $repoName = $Upstream.repo.Split('/')[-1]
+        if ($Upstream.repo -cnotmatch $UpstreamRepoPattern -or $repoName -like '*.git' -or
+            $repoName -match '^\.+$') {
+            Add-CatalogError "Artifact $Id declares upstream.repo '$($Upstream.repo)'. Write it as https://github.com/<owner>/<repo>: no .git suffix, no SSH form, no other host."
+        }
+    }
+
+    if ($declared -ccontains 'commit' -and $Upstream.commit -is [string] -and
+        -not [string]::IsNullOrWhiteSpace($Upstream.commit) -and
+        $Upstream.commit -cnotmatch '^[0-9a-f]{40}$') {
+        Add-CatalogError "Artifact $Id declares upstream.commit '$($Upstream.commit)', which is not a full 40-character lower-case commit SHA. A branch or tag can move; pin the commit."
+    }
+
+    if ($declared -ccontains 'license' -and $Upstream.license -is [string] -and
+        -not [string]::IsNullOrWhiteSpace($Upstream.license) -and
+        $UpstreamLicenses -cnotcontains $Upstream.license) {
+        Add-CatalogError "Artifact $Id declares upstream.license '$($Upstream.license)', which is not on the allowlist: $($UpstreamLicenses -join ', ')."
+    }
+
+    if ($declared -ccontains 'path' -and $Upstream.path -is [string] -and
+        -not [string]::IsNullOrWhiteSpace($Upstream.path)) {
+        Test-CatalogDeclaredPath -Id $Id -Field 'upstream.path' -Value $Upstream.path
+    }
+
+    if ($declared -ccontains 'exclude') {
+        $items = @($Upstream.exclude)
+        if ($null -eq $Upstream.exclude -or $Upstream.exclude -is [string] -or
+            $Upstream.exclude -is [ValueType] -or $items.Count -eq 0 -or
+            @($items | Where-Object { $_ -isnot [string] }).Count -gt 0) {
+            Add-CatalogError "Artifact $Id upstream.exclude must be a non-empty list of paths. Omit it when nothing is left out."
+        } else {
+            foreach ($item in $items) {
+                Test-CatalogDeclaredPath -Id $Id -Field 'upstream.exclude item' -Value $item
+            }
+        }
+    }
+}
+
+function Get-CatalogSkillName {
+    <#
+        The 'name' in an artifact's SKILL.md frontmatter. Exists is false when
+        there is no SKILL.md; Name is $null when the frontmatter has no name.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string] $Root,
+
+        [Parameter(Mandatory)]
+        [string] $SourcePath
+    )
+
+    $skillPath = Join-Path (Join-Path $Root $SourcePath) 'SKILL.md'
+    if (-not (Test-Path -LiteralPath $skillPath -PathType Leaf)) {
+        return @{ Exists = $false; Name = $null }
+    }
+
+    $lines = @(Get-Content -LiteralPath $skillPath -TotalCount 50 -Encoding utf8)
+    $name = $null
+    if ($lines.Count -gt 0 -and $lines[0].Trim() -eq '---') {
+        for ($n = 1; $n -lt $lines.Count; $n++) {
+            if ($lines[$n].Trim() -eq '---') { break }
+            if ($lines[$n] -match '^name:\s*(?<name>.*?)\s*$') {
+                $name = $Matches.name.Trim('"', "'")
+                break
+            }
+        }
+    }
+
+    return @{ Exists = $true; Name = $name }
+}
+
+function Test-CatalogUpstreamFiles {
+    <#
+        What the catalog adds to an upstream artifact, checked against the
+        index: UPSTREAM.json says where the files came from and must say what
+        the index says, LICENSE travels with every installed copy because MIT
+        and Apache-2.0 require it, and NOTICE records the repository for the
+        catalog as a whole. Offline: whether the files are the author's bytes
+        is sync-upstream.ps1 -Verify.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string] $Root,
+
+        [Parameter(Mandatory)]
+        [string] $Id,
+
+        [Parameter(Mandatory)]
+        [string] $SourcePath,
+
+        [Parameter(Mandatory)]
+        $Upstream,
+
+        [Parameter(Mandatory)]
+        [AllowEmptyString()]
+        [string] $NoticeText
+    )
+
+    $artifactRoot = Join-Path $Root $SourcePath
+    if (-not (Test-Path -LiteralPath $artifactRoot -PathType Container)) {
+        Add-CatalogError "Artifact $Id is an upstream artifact but '$SourcePath' does not exist. Run scripts/sync-upstream.ps1 -Id $Id."
+        return
+    }
+
+    # Compared by enumeration rather than Test-Path, so the answer is the same
+    # on a case-sensitive runner and a case-insensitive laptop: an author's
+    # 'license' satisfies the rule, and the sync script does not add a second
+    # file that would collide with it on Windows.
+    $topLevelFiles = @(Get-ChildItem -LiteralPath $artifactRoot -File -Force | ForEach-Object { $_.Name })
+    if (@($topLevelFiles | Where-Object { $_ -ieq $UpstreamLicenseFile }).Count -eq 0) {
+        Add-CatalogError "Artifact $Id is an upstream artifact with no $UpstreamLicenseFile file. The licence has to travel with every installed copy; run scripts/sync-upstream.ps1 -Id $Id."
+    }
+
+    $provenancePath = Join-Path $artifactRoot $UpstreamProvenanceFile
+    if ($topLevelFiles -cnotcontains $UpstreamProvenanceFile) {
+        Add-CatalogError "Artifact $Id is an upstream artifact with no $UpstreamProvenanceFile. Run scripts/sync-upstream.ps1 -Id $Id."
+    } else {
+        $provenance = $null
+        try {
+            $provenance = Get-Content -LiteralPath $provenancePath -Raw -Encoding utf8 | ConvertFrom-Json -ErrorAction Stop
+        } catch {
+            Add-CatalogError "Artifact $Id has an $UpstreamProvenanceFile that is not valid JSON: $($_.Exception.Message)"
+        }
+
+        if ($null -ne $provenance -and ($provenance -is [string] -or $provenance -is [ValueType] -or $provenance -is [array])) {
+            Add-CatalogError "Artifact $Id has an $UpstreamProvenanceFile that is not a JSON object."
+        } elseif ($null -ne $provenance) {
+            $provenanceFields = @($provenance.PSObject.Properties | ForEach-Object { $_.Name })
+            $indexFields = @($Upstream.PSObject.Properties | ForEach-Object { $_.Name })
+
+            # synced_by is the one field the index has no counterpart for.
+            foreach ($field in $provenanceFields) {
+                if ($field -cne 'synced_by' -and $indexFields -cnotcontains $field) {
+                    Add-CatalogError "Artifact $Id $UpstreamProvenanceFile declares '$field', which its index entry's upstream does not. The two must agree field for field."
+                }
+            }
+
+            foreach ($field in $indexFields) {
+                if ($provenanceFields -cnotcontains $field) {
+                    Add-CatalogError "Artifact $Id $UpstreamProvenanceFile has no '$field', which its index entry's upstream declares. The two must agree field for field."
+                    continue
+                }
+
+                # Lists compared element by element in order: the file records
+                # what the sync script was told, and a reordered list is a
+                # different instruction to a reader comparing the two.
+                $expected = @($Upstream.$field) -join "`n"
+                $actual = @($provenance.$field) -join "`n"
+                if (@($Upstream.$field).Count -ne @($provenance.$field).Count -or $expected -cne $actual) {
+                    Add-CatalogError "Artifact $Id $UpstreamProvenanceFile has $field '$(@($provenance.$field) -join ', ')', but the index says '$(@($Upstream.$field) -join ', ')'. Run scripts/sync-upstream.ps1 -Id $Id."
+                }
+            }
+        }
+    }
+
+    if ($null -ne $Upstream.PSObject.Properties['repo'] -and $Upstream.repo -is [string] -and
+        -not [string]::IsNullOrWhiteSpace($Upstream.repo)) {
+        # Bounded on the right so 'owner/skills' is not satisfied by a NOTICE
+        # that only mentions 'owner/skills-extra'.
+        $pattern = [regex]::Escape($Upstream.repo) + '(?![A-Za-z0-9_-]|\.[A-Za-z0-9])'
+        if ($NoticeText -notmatch $pattern) {
+            Add-CatalogError "Artifact $Id takes its content from $($Upstream.repo), which NOTICE does not mention. Add an entry for the repository with its licence text."
+        }
+    }
 }
 
 function Test-CatalogRequiresDeclared {
@@ -837,6 +1091,17 @@ if ($checkoutPaths.Count -gt 0) {
 # Frontmatter names and shipped scripts need the files themselves, which only a
 # walked checkout provides; a -PathList run has paths and nothing else.
 if (-not [string]::IsNullOrWhiteSpace($CatalogRoot)) {
+    $noticePath = Join-Path $CatalogRoot 'NOTICE'
+    $noticeText = ''
+    if (Test-Path -LiteralPath $noticePath -PathType Leaf) {
+        $noticeText = [string](Get-Content -LiteralPath $noticePath -Raw -Encoding utf8)
+    }
+
+    # Every SKILL.md name, folded the way ids are, so an upstream artifact's
+    # name - which is its author's, not our id - cannot shadow another skill in
+    # an agent's skill list.
+    $skillNames = [ordered]@{}
+
     for ($i = 0; $i -lt $artifacts.Count; $i++) {
         $artifact = $artifacts[$i]
         if ($null -eq $artifact -or $artifact -is [string] -or $artifact -is [ValueType]) { continue }
@@ -850,10 +1115,35 @@ if (-not [string]::IsNullOrWhiteSpace($CatalogRoot)) {
         # a hostile path in the index never becomes a filesystem lookup.
         if ([string]$artifact.source_path -cne "artifacts/$artifactId") { continue }
 
-        Test-CatalogSkillName -Root $CatalogRoot -Id $artifactId -SourcePath ([string]$artifact.source_path)
+        $isUpstream = $null -ne $artifact.PSObject.Properties['upstream'] -and
+            $null -ne $artifact.upstream -and $artifact.upstream -isnot [string] -and
+            $artifact.upstream -isnot [ValueType] -and $artifact.upstream -isnot [array]
+
+        $skill = Get-CatalogSkillName -Root $CatalogRoot -SourcePath ([string]$artifact.source_path)
+        Test-CatalogSkillName -Id $artifactId -Skill $skill -Upstream:$isUpstream
+        if ($skill.Exists -and $null -ne $skill.Name) {
+            $nameKey = $skill.Name.ToUpperInvariant()
+            if (-not $skillNames.Contains($nameKey)) { $skillNames[$nameKey] = @() }
+            $skillNames[$nameKey] += , @{ Id = $artifactId; Name = $skill.Name; Upstream = $isUpstream }
+        }
+
         if ($null -eq $artifact.PSObject.Properties['requires']) {
             Test-CatalogRequiresDeclared -Root $CatalogRoot -Id $artifactId -SourcePath ([string]$artifact.source_path)
         }
+
+        if ($isUpstream) {
+            Test-CatalogUpstreamFiles -Root $CatalogRoot -Id $artifactId -SourcePath ([string]$artifact.source_path) `
+                -Upstream $artifact.upstream -NoticeText $noticeText
+        }
+    }
+
+    # Only collisions involving an upstream artifact are reported: between two
+    # of our own, the names are the ids in lower case, and a duplicate there is
+    # already a wrong name reported above.
+    foreach ($owners in $skillNames.Values) {
+        if ($owners.Count -lt 2 -or @($owners | Where-Object { $_.Upstream }).Count -eq 0) { continue }
+        $described = ($owners | ForEach-Object { "$($_.Id) ('$($_.Name)')" }) -join ', '
+        Add-CatalogError "Artifacts $described have SKILL.md names that are the same case-insensitively. An upstream artifact keeps its author's name, so that name must be unique across the catalog."
     }
 }
 

@@ -72,6 +72,24 @@ pass, then tag it. The release notes name every vocabulary change, because each
 one may need an installer change (see
 [the authoring guide](docs/authoring-artifacts.md#the-current-vocabulary)).
 
+### Which number moves
+
+The installer gives the number no meaning beyond order: it resolves "latest" as
+the highest stable `vX.Y.Z` tag, and a profile pins one tag exactly. The number
+is for the person deciding whether to move a profile to a new tag, so it moves
+by what that person has to do about the release, not by how much went into it:
+
+| Bump | When the release contains |
+|---|---|
+| **major** | A renamed or removed artifact id, or a new `schema_version`. Installed copies under the old id are removed, and an edited one is kept beside the new one |
+| **minor** | A vocabulary change, since the installer's scanner may not detect the new value yet. A new field or mechanism in the catalog contract, such as `requires` or upstream artifacts. A new `always` artifact, since it installs into existing profiles without anyone choosing it |
+| **patch** | New `on-demand` artifacts, however many, and new versions of existing ones. Nothing reaches a profile until someone picks it in the questionnaire |
+
+The highest row any change in the release reaches decides the bump. A large
+batch of `on-demand` artifacts is still a patch; say in the release notes that
+it is large rather than spending a minor on it, so a minor keeps meaning "check
+the installer".
+
 Before announcing a new tag, tick each item:
 
 - [ ] Validation, `Invoke-Pester -Path ./tests` and the Python script tests pass on the tagged commit
