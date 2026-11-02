@@ -5,7 +5,7 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-48 artifacts today: 30 data-engineering specific (dbt, Snowflake, Airflow,
+49 artifacts today: 31 data-engineering specific (dbt, Snowflake, Airflow,
 Tableau, Python pipeline code, sensitive data handling, stack-agnostic pipeline
 quality),
 4 for containers and local environments, 2 for infrastructure as code, and 12
@@ -23,7 +23,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (30)
+## Data engineering (31)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -52,6 +52,7 @@ one project gets.
 | **Diagnose one Snowflake query from its profile** (`SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS`) | snowflake | performance, debugging, database-administration | Diagnoses one Snowflake query from its profile and operator statistics. |
 | **Rewrite Snowflake SQL without changing results** (`SNOWFLAKE-QUERY-REWRITE`) | snowflake | performance, refactoring | Rewrites a Snowflake query for performance without changing its results. |
 | **Repair Snowflake semantic view drift** (`SNOWFLAKE-SEMANTIC-VIEW-DRIFT`) | snowflake | data-modeling, data-quality | Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions. |
+| **Build cohort, trend and ranking calculations that survive filters** (`TABLEAU-ANALYTICAL-CALCS`) | tableau | data-modeling | Implements known metric shapes in Tableau by choosing between a row-level expression, a level-of-detail expression and a table calculation, and knowing which filters change the answer. |
 | **Write a dashboard FAQ from the workbook, not from memory** (`TABLEAU-DASHBOARD-FAQ`) | tableau | documentation | Documents an existing Tableau dashboard from its workbook file and a screenshot of the landing view, taking each metric definition from the workbook rather than inferring one. |
 | **Repoint a Tableau workbook at a new warehouse safely** (`TABLEAU-DATASOURCE-MIGRATION`) | tableau | refactoring | Works out what in a workbook will not survive a connection swap, and proves the dashboard still produces the same numbers afterwards. |
 | **Find out why a Tableau dashboard is slow before rewriting it** (`TABLEAU-PERFORMANCE-DIAGNOSIS`) | tableau | performance | Establishes which interaction is slow and where the time actually goes — the queries, Tableau's own compute, or rendering — before anything is rewritten. |

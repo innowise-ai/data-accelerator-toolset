@@ -849,6 +849,29 @@
       }
     },
     {
+      "id": "TABLEAU-ANALYTICAL-CALCS",
+      "version": "0.1.0",
+      "source_path": "artifacts/TABLEAU-ANALYTICAL-CALCS",
+      "applies_to": {
+        "frameworks": ["tableau"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-modeling"],
+      "scope": "project",
+      "presentation": {
+        "name": "Build cohort, trend and ranking calculations that survive filters",
+        "summary": "Implements known metric shapes in Tableau by choosing between a row-level expression, a level-of-detail expression and a table calculation, and knowing which filters change the answer.",
+        "benefits": [
+          "Chooses the construct by what the metric has to see, rather than by what is easiest to write",
+          "Catches the period-over-period defect where an offset shifts by position and a quiet month breaks every comparison after it",
+          "Keeps a cohort anchor from being redefined by the user's date filter",
+          "Separates filtering, late filtering and hiding, which give three different totals",
+          "Pairs every shape with the query that has to agree with it, including the slices where it fails",
+          "Treats a plausible-looking calculation as unverified, because Tableau formulas are where confident answers are most often wrong"
+        ]
+      }
+    },
+    {
       "id": "TABLEAU-DASHBOARD-FAQ",
       "version": "0.1.0",
       "source_path": "artifacts/TABLEAU-DASHBOARD-FAQ",
