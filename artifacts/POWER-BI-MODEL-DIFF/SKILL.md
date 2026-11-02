@@ -22,6 +22,10 @@ Its other neighbours:
 - [power-bi-model-audit](../POWER-BI-MODEL-AUDIT/SKILL.md) assesses one
   version, with no change on the table. This compares two, and reuses that
   inventory as the thing being compared.
+- [power-bi-function-impact](../POWER-BI-FUNCTION-IMPACT/SKILL.md) is the
+  proof a function-body change asks for: each caller still matches the
+  calculation it replaced. This skill classifies the edit and stops when the
+  caller set is unknown. It does not run that proof.
 - [power-bi-report-faq](../POWER-BI-REPORT-FAQ/SKILL.md) is what a description
   change puts at risk. The FAQ repeats the measure description. A description
   can be rewritten while the formula stays, and the FAQ then lies with the

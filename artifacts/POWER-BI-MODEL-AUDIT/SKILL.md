@@ -30,6 +30,9 @@ Its neighbours in this catalog:
 - [power-bi-model-diff](../POWER-BI-MODEL-DIFF/SKILL.md) reviews a change by
   comparing two versions. This assesses one version, with no change on the
   table.
+- [power-bi-function-impact](../POWER-BI-FUNCTION-IMPACT/SKILL.md) judges
+  whether introducing or changing a function is safe. This audit lists the
+  callers. It does not decide that the function matches what it replaced.
 - [data-quality-controls](../DATA-QUALITY-CONTROLS/SKILL.md),
   [pipeline-check-selection](../PIPELINE-CHECK-SELECTION/SKILL.md), and
   [pipeline-output-review](../PIPELINE-OUTPUT-REVIEW/SKILL.md) judge pipeline
