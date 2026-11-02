@@ -27,6 +27,9 @@ Its neighbours in this catalog:
 - [power-bi-performance-diagnosis](../POWER-BI-PERFORMANCE-DIAGNOSIS/SKILL.md)
   takes over when something is actually slow. This audit records the
   performance risks visible in the structure and stops there.
+- [power-bi-model-diff](../POWER-BI-MODEL-DIFF/SKILL.md) reviews a change by
+  comparing two versions. This assesses one version, with no change on the
+  table.
 - [data-quality-controls](../DATA-QUALITY-CONTROLS/SKILL.md),
   [pipeline-check-selection](../PIPELINE-CHECK-SELECTION/SKILL.md), and
   [pipeline-output-review](../PIPELINE-OUTPUT-REVIEW/SKILL.md) judge pipeline

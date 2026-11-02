@@ -623,6 +623,28 @@
       }
     },
     {
+      "id": "POWER-BI-MODEL-DIFF",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-MODEL-DIFF",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["code-review"],
+      "scope": "project",
+      "presentation": {
+        "name": "Review what changed between two Power BI project versions",
+        "summary": "Compares two versions of a Power BI Project by what changed in the model and the report, and separates changes that can move a number from format strings, descriptions, and cosmetic edits.",
+        "benefits": [
+          "Refuses a text diff of a packaged file, and treats a line diff of the project as noise rather than the review",
+          "Reports formula, relationship, filter, Power Query, role, and calculation-item changes apart from everything else",
+          "Gives format strings and descriptions their own classes, because one changes what the reader sees and the other can make the FAQ lie",
+          "Treats a display-folder rename as cosmetic only when nothing selects by that folder",
+          "Stops on a function-body change when the caller set is not known, including callers on reports outside this folder"
+        ]
+      }
+    },
+    {
       "id": "POWER-BI-PERFORMANCE-DIAGNOSIS",
       "version": "0.1.0",
       "source_path": "artifacts/POWER-BI-PERFORMANCE-DIAGNOSIS",
