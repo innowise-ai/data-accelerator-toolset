@@ -5,7 +5,7 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-50 artifacts today: 29 data-engineering specific (dbt, Snowflake, Spark, Airflow,
+51 artifacts today: 30 data-engineering specific (dbt, Snowflake, Spark, Airflow,
 Power BI, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality),
 4 for containers and local environments, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
@@ -22,7 +22,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (29)
+## Data engineering (30)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -42,6 +42,7 @@ one project gets.
 | **Generate SQL from natural language, validated before it runs** (`NL2SQL-QUERY-VALIDATION`) | sql | data-quality | Generates SQL from natural language without letting an unvalidated query reach the database. |
 | **Pick the cheapest checks a pipeline change needs** (`PIPELINE-CHECK-SELECTION`) | any | testing, data-quality | Selects the cheapest checks that would actually catch the regression a change can cause. |
 | **Review the data a pipeline run actually produced** (`PIPELINE-OUTPUT-REVIEW`) | any | code-review, data-quality | Reviews the data a pipeline run actually produced, not just whether tests passed. |
+| **See what a connection swap breaks, and prove the numbers** (`POWER-BI-DATASOURCE-MIGRATION`) | power-bi | refactoring | Works out what in a Power BI model will not survive a warehouse connection swap, and proves the report still returns the same numbers afterwards. |
 | **Assess an inherited semantic model before changing it** (`POWER-BI-MODEL-AUDIT`) | power-bi | debugging | Assesses a semantic model and the report on it from the project folder: what is in it, which dependencies make a change risky, and what this folder cannot call unused. |
 | **Review what changed between two Power BI project versions** (`POWER-BI-MODEL-DIFF`) | power-bi | code-review | Compares two versions of a Power BI Project by what changed in the model and the report, and separates changes that can move a number from format strings, descriptions, and cosmetic edits. |
 | **Find out why a Power BI report is slow before rewriting it** (`POWER-BI-PERFORMANCE-DIAGNOSIS`) | power-bi | performance | Establishes which of three problems is slow — refresh, an interaction's query, or rendering — and requires a measurement before anything is rewritten. |

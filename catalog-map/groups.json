@@ -63,6 +63,10 @@
   "Data engineering",
   "Airflow"
  ],
+ "POWER-BI-DATASOURCE-MIGRATION": [
+  "Data engineering",
+  "Power BI"
+ ],
  "POWER-BI-MODEL-AUDIT": [
   "Data engineering",
   "Power BI"
