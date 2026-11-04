@@ -142,10 +142,25 @@ Beta; `MODIFY` covers all three.
 
 ## Revoking
 
-Find every path first. From the table above, take each row through which the
-principal reaches the object: a direct grant, a grant on the schema or catalog,
-or a grant to a group they are in. Revoke on the object or container named in
-`INHERITED_FROM`, from the principal it was granted to:
+Find every path first. A principal reaches an object through any of these:
+
+- a direct grant on the object;
+- a grant on its schema or catalog, which `INHERITED_FROM` names;
+- a grant to any group they belong to, including through nested groups;
+- ownership of the object;
+- `MANAGE` on the object, its schema or its catalog, which lets its holder
+  grant themselves `SELECT`.
+
+`INHERITED_FROM` shows only the second kind. An empty `INHERITED_FROM` for one
+group says nothing about another group the same person is in, or about an
+owner or a `MANAGE` holder. Work out the other paths from the person's group
+memberships, the object's owner (`DESCRIBE TABLE EXTENDED`) and `SHOW GRANTS`
+on the object, schema and catalog. A caller with `MANAGE` sees only their own
+grants in `information_schema`, so the check looks clean for them however many
+other grants exist.
+
+Revoke each grant path where it is granted, from the principal it was granted
+to:
 
 ```sql
 REVOKE SELECT ON SCHEMA main.sales FROM `contractors`;
@@ -156,8 +171,14 @@ revoking it removes their access too. The fix is then a change of group
 membership, or a narrower group. That decision belongs to the owner of the
 group or the data, so present it to them.
 
+Access through ownership is not revoked; it goes only with a transfer, which is
+a decision (see below). Access through `MANAGE` goes only when `MANAGE` is
+revoked.
+
 `REVOKE` succeeds even when nothing was granted, so a successful statement
-proves nothing. Read the grants again and confirm no path remains.
+proves nothing. Re-check every path in the list above. Then confirm the revoke
+the same way as a grant, by a query that must now fail (see
+[Verify and report](#verify-and-report)).
 
 ## Ownership
 
@@ -272,8 +293,10 @@ default, after which its files are deleted.
    rows.
 2. Confirm access works as the principal it was meant for. Unity Catalog has no
    way for the agent to assume another identity, so ask a member of the target
-   group to run a one-row query, or hand the query over. For a revoke, confirm
-   that `INHERITED_FROM` shows no remaining path.
+   group to run a one-row query, or hand the query over. For a revoke, the same
+   query, run by the person who should have lost access or a member of the
+   revoked group, must fail. An empty `INHERITED_FROM` is not enough. It does
+   not show access through another group, ownership or `MANAGE`.
 3. To answer "who changed this", query `system.access.audit` for
    `service_name = 'unityCatalog'` and `action_name = 'updatePermissions'`.
 4. Report every grant made, every one proposed but not applied, and anything the

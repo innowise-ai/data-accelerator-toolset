@@ -47,7 +47,8 @@ Before changing anything, establish from the project and the pipeline settings:
   them publishes differently, so do not mix forms in one change.
 - **Compute and edition.** Serverless or classic, and the product edition.
   AUTO CDC needs serverless or the Pro or Advanced edition, expectations need
-  Advanced, and a materialized view refreshes incrementally only on serverless;
+  Advanced (serverless always runs Advanced, so this matters only on classic
+  compute), and a materialized view refreshes incrementally only on serverless;
   elsewhere it is recomputed in full on every update.
 - **How it runs.** Triggered (each update processes what is available, then
   stops) or continuous. Databricks discourages the built-in continuous mode for
