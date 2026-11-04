@@ -1,0 +1,19 @@
+{
+  "id": "DASHBOARD-CONCEPT-DRAFT",
+  "version": "0.1.0",
+  "source_path": "artifacts/DASHBOARD-CONCEPT-DRAFT",
+  "applies_to": {},
+  "strength": "on-demand",
+  "topics": ["analytics"],
+  "scope": "project",
+  "presentation": {
+    "name": "Draft dashboard pages, charts and KPIs from a dataset",
+    "summary": "Drafts pages, chart types and KPIs from a dataset already in hand, each one tied to fields, grain and a quality caveat.",
+    "benefits": [
+      "Names the source fields, the grain and the quality caveat on every proposed metric",
+      "Drops a column marked unsafe, or keeps it with the caveat in the same line",
+      "Separates a KPI from a breakdown, and treats a visual that mixes grains as a finding",
+      "Stays a short, assumed list when the audience or the decision is not known"
+    ]
+  }
+}
