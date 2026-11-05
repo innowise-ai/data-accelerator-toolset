@@ -95,18 +95,6 @@
   "Data engineering",
   "Power BI"
  ],
- "DATASET-QUALITY-ASSESSMENT": [
-  "BI and analytics",
-  "Dataset intake"
- ],
- "DATASET-EDA-REPORT": [
-  "BI and analytics",
-  "Dataset intake"
- ],
- "DASHBOARD-CONCEPT-DRAFT": [
-  "BI and analytics",
-  "Dataset intake"
- ],
  "ETL-DECOMPOSITION": [
   "Data engineering",
   "Pipelines, SQL and data safety"
