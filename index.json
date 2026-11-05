@@ -168,6 +168,56 @@
       }
     },
     {
+      "id": "DATABRICKS-DECLARATIVE-PIPELINE-DESIGN",
+      "version": "0.1.0",
+      "source_path": "artifacts/DATABRICKS-DECLARATIVE-PIPELINE-DESIGN",
+      "applies_to": {
+        "frameworks": ["databricks"]
+      },
+      "strength": "on-demand",
+      "topics": ["ingestion", "data-modeling", "data-quality"],
+      "scope": "project",
+      "requires": {
+        "access": ["A Databricks workspace with a development pipeline or target where the agent may run validate and development updates"]
+      },
+      "presentation": {
+        "name": "Design Databricks declarative pipelines: table types, expectations, CDC",
+        "summary": "Designs Lakeflow pipelines (formerly DLT): a streaming table or materialized view per dataset, expectations, AUTO CDC and Auto Loader ingestion, without a full refresh losing history.",
+        "benefits": [
+          "Picks a streaming table or a materialized view by whether old rows must change when their inputs change",
+          "Chooses warn, drop or fail for each expectation by what a bad record costs, and keeps failing records when someone needs to see them",
+          "Builds SCD Type 1 or 2 with AUTO CDC, with ordering, deletes and tracked columns set deliberately",
+          "Sets Auto Loader types and schema evolution so new or malformed columns are not dropped silently",
+          "Protects streaming tables whose source cannot be replayed from a full refresh"
+        ]
+      }
+    },
+    {
+      "id": "DATABRICKS-UNITY-CATALOG-ACCESS-CHANGE",
+      "version": "0.1.0",
+      "source_path": "artifacts/DATABRICKS-UNITY-CATALOG-ACCESS-CHANGE",
+      "applies_to": {
+        "frameworks": ["databricks"]
+      },
+      "strength": "on-demand",
+      "topics": ["security", "database-administration"],
+      "scope": "project",
+      "requires": {
+        "access": ["A SQL warehouse or cluster on Unity Catalog the agent can run SQL through", "A read identity with BROWSE (or USE CATALOG and USE SCHEMA) and READ METADATA on the catalogs in scope"]
+      },
+      "presentation": {
+        "name": "Change Unity Catalog access without over-granting",
+        "summary": "Grants, revokes and restricts access in Databricks Unity Catalog with the smallest change that does the job, after tracing every path through which access is inherited.",
+        "benefits": [
+          "Shows every path to an object, including grants inherited from schemas, catalogs and groups",
+          "Grants at the lowest level that covers the request, and says what a schema or catalog grant also reaches",
+          "Revokes where the access actually comes from, and confirms no path remains",
+          "Applies row filters and column masks after checking which readers they would lock out",
+          "Reads by default and confirms each grant, revoke or ownership transfer before running it"
+        ]
+      }
+    },
+    {
       "id": "DBT-BUILD-FAILURE-DIAGNOSIS",
       "version": "0.1.1",
       "source_path": "artifacts/DBT-BUILD-FAILURE-DIAGNOSIS",
