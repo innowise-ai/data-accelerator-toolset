@@ -131,25 +131,6 @@
       }
     },
     {
-      "id": "DASHBOARD-CONCEPT-DRAFT",
-      "version": "0.1.0",
-      "source_path": "artifacts/DASHBOARD-CONCEPT-DRAFT",
-      "applies_to": {},
-      "strength": "on-demand",
-      "topics": ["analytics"],
-      "scope": "project",
-      "presentation": {
-        "name": "Draft dashboard pages, charts and KPIs from a dataset",
-        "summary": "Drafts pages, chart types and KPIs from a dataset already in hand, each one tied to fields, grain and a quality caveat.",
-        "benefits": [
-          "Names the source fields, the grain and the quality caveat on every proposed metric",
-          "Drops a column marked unsafe, or keeps it with the caveat in the same line",
-          "Separates a KPI from a breakdown, and treats a visual that mixes grains as a finding",
-          "Stays a short, assumed list when the audience or the decision is not known"
-        ]
-      }
-    },
-    {
       "id": "DATA-INCIDENT-TRACING",
       "version": "0.1.1",
       "source_path": "artifacts/DATA-INCIDENT-TRACING",
@@ -184,44 +165,6 @@
           "Compares each publish with the last one per entity and field, against thresholds kept in configuration",
           "Scores each source against all sources, before and after processing, with exports safe to share with one source",
           "Leaves room for an approval gate and bundled releases without rebuilding the pipeline"
-        ]
-      }
-    },
-    {
-      "id": "DATASET-EDA-REPORT",
-      "version": "0.1.0",
-      "source_path": "artifacts/DATASET-EDA-REPORT",
-      "applies_to": {},
-      "strength": "on-demand",
-      "topics": ["analytics", "data-quality"],
-      "scope": "project",
-      "presentation": {
-        "name": "Write an EDA report a later dashboard can be based on",
-        "summary": "Writes what a dataset is and which questions it can support, so a later dashboard has something to be based on.",
-        "benefits": [
-          "States the grain, the time coverage and the unit of each measure before a chart is chosen",
-          "Labels each relationship as declared or inferred, and leaves an inferred join inferred",
-          "Ties a question the dataset cannot support to a missing column, a broken grain or a quality finding",
-          "Cites the quality assessment instead of computing the null and duplicate rates a second time"
-        ]
-      }
-    },
-    {
-      "id": "DATASET-QUALITY-ASSESSMENT",
-      "version": "0.1.0",
-      "source_path": "artifacts/DATASET-QUALITY-ASSESSMENT",
-      "applies_to": {},
-      "strength": "on-demand",
-      "topics": ["data-quality", "analytics"],
-      "scope": "project",
-      "presentation": {
-        "name": "Assess a dataset for missing values, zeros, duplicates and outliers",
-        "summary": "Judges which columns of a dataset can be trusted before anyone builds a chart or a metric.",
-        "benefits": [
-          "Separates missing values from placeholders, so a zero used as unknown is not counted as a real zero",
-          "Names which duplicate claim failed: an exact row, the business key, or fan-out from a join",
-          "Keeps a statistical outlier as a candidate and lists domain-impossible values on their own",
-          "Reports a rate only when it was computed, and marks the rest insufficient evidence"
         ]
       }
     },
