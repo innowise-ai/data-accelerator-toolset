@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 // Builds dist/page.html from ../index.json, groups.json and template.html.
-// No dependencies. Run: node build.js
+// No dependencies. Run: node build.js [--out <file>]
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const zlib = require('zlib');
 const { execFileSync } = require('child_process');
 
 const here = __dirname;
+const outArg = process.argv.indexOf('--out');
+const out = outArg > 0 ? path.resolve(process.argv[outArg + 1]) : path.join(here, 'dist', 'page.html');
 const index = JSON.parse(fs.readFileSync(path.join(here, '..', 'index.json'), 'utf8'));
 const groups = JSON.parse(fs.readFileSync(path.join(here, 'groups.json'), 'utf8'));
 const ru = JSON.parse(fs.readFileSync(path.join(here, 'ru.json'), 'utf8'));
@@ -71,9 +74,45 @@ const data = index.artifacts.map(a => {
   };
 });
 
+// Every file of every artifact, for the page's "Download ZIP". Each file is
+// deflated here, so the page only stitches finished entries into a ZIP and
+// the embedded payload is about a third of the raw files. The whole directory
+// goes in, as the installer copies it.
+const crcTable = new Uint32Array(256).map((_, n) => {
+  let c = n;
+  for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+  return c >>> 0;
+});
+const crc32 = buf => {
+  let c = 0xffffffff;
+  for (const b of buf) c = crcTable[(c ^ b) & 0xff] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+};
+const walk = dir => fs.readdirSync(dir, { withFileTypes: true })
+  .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
+  .flatMap(e => (e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]));
+const files = {};
+let payload = 0;
+for (const a of index.artifacts) {
+  const root = path.join(here, '..', a.source_path);
+  files[a.id] = walk(root).map(f => {
+    // The repository stores text with LF (.gitattributes), but a Windows checkout
+    // may hold CRLF; a shell script with CRLF fails on Linux. A file with a NUL
+    // byte is binary and goes in untouched.
+    let bytes = fs.readFileSync(f);
+    if (!bytes.includes(0)) bytes = Buffer.from(bytes.toString('latin1').replace(/\r\n/g, '\n'), 'latin1');
+    const packed = zlib.deflateRawSync(bytes, { level: 9 }).toString('base64');
+    payload += packed.length;
+    // A script with a shebang keeps its executable bit after unzip on macOS and Linux.
+    const mode = bytes.subarray(0, 2).toString() === '#!' ? 0o755 : 0o644;
+    return [path.relative(root, f).split(path.sep).join('/'), crc32(bytes), bytes.length, mode, packed];
+  });
+}
+
 // The count shown in the intro text follows the index.
 let html = template
   .replace('__DATA__', () => JSON.stringify(data).replace(/</g, '\\u003c'))
+  .replace('__FILES__', () => JSON.stringify(files))
   .replace(/__VERSION__/g, version);
 html = html.replace(/38 skills/g, `${data.length} skills`).replace(/38 скиллов/g, `${data.length} скиллов`);
 
@@ -86,10 +125,11 @@ html =
   html.slice(split) +
   '\n</body></html>\n';
 
-fs.mkdirSync(path.join(here, 'dist'), { recursive: true });
-fs.writeFileSync(path.join(here, 'dist', 'page.html'), html);
+fs.mkdirSync(path.dirname(out), { recursive: true });
+fs.writeFileSync(out, html);
 
-console.log(`Built dist/page.html: ${data.length} skills from ${index.toolset_ref}`);
+console.log(`Built ${path.relative(process.cwd(), out)}: ${data.length} skills from ${index.toolset_ref}`);
+console.log(`Embedded skill files for Download ZIP: ${(payload / 1048576).toFixed(2)} MB`);
 if (previousIds) {
   const added = data.filter(a => a.nw).map(a => a.id);
   console.log(`New since ${previousTag}: ${added.length ? added.join(', ') : 'none'}`);
