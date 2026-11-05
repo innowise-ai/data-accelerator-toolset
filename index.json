@@ -575,6 +575,29 @@
       }
     },
     {
+      "id": "MIGRATION-DATA-RECONCILIATION",
+      "version": "0.1.0",
+      "source_path": "artifacts/MIGRATION-DATA-RECONCILIATION",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["data-quality"],
+      "scope": "project",
+      "requires": {
+        "access": ["Read access to the legacy extract or warehouse and to the lakehouse tables being compared, through a SQL connection the agent can use", "Write access to the schema the project uses for reconciliation, for the reference copy of the legacy data and the results"]
+      },
+      "presentation": {
+        "name": "Reconcile migrated data with the legacy warehouse, column by column",
+        "summary": "Compares data moved from a legacy warehouse (SAP BW, Teradata, Oracle) with its lakehouse copy, separates format differences from real ones, and reports only the real ones.",
+        "benefits": [
+          "Pairs rows on keys first, and finds the key column whose format stops rows from pairing",
+          "Classifies every differing column as padding, blanks, whitespace, number or date format, case, currency scaling or a real difference",
+          "Adds a normalization only where a difference is proven to be format, never to make a column pass",
+          "Covers the format traps of SAP BW, Teradata and Oracle, including SAP currency shifts and ALPHA padding",
+          "Fills the configuration of the project's own reconciliation framework when it has one, or works with plain SQL"
+        ]
+      }
+    },
+    {
       "id": "NL2SQL-QUERY-VALIDATION",
       "version": "0.1.1",
       "source_path": "artifacts/NL2SQL-QUERY-VALIDATION",

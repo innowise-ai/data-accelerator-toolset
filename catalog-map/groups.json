@@ -95,6 +95,10 @@
   "Data engineering",
   "Pipelines, SQL and data safety"
  ],
+ "MIGRATION-DATA-RECONCILIATION": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
  "PIPELINE-OUTPUT-REVIEW": [
   "Data engineering",
   "Pipelines, SQL and data safety"
