@@ -48,13 +48,13 @@ chain on every dashboard query is where warehouse spend goes.
 
 Teams that speak in medallion terms map them onto these layers roughly as follows.
 
-| Medallion | dbt | Where they differ |
+| Medallion | dbt | Notes |
 |---|---|---|
-| Bronze | Sources + staging | Staging already renames and casts, which medallion puts in silver |
-| Silver | Intermediate | Deduplication and conforming across sources |
+| Bronze | Raw sources | The loader writes the raw tables; dbt declares them as sources and does not transform them |
+| Silver | Staging + intermediate | Staging renames and casts; intermediate deduplicates and conforms across sources |
 | Gold | Marts | Close match |
 
-The mapping is approximate, so pick one vocabulary per project and say which. What
+Pick one vocabulary per project and say which. What
 each medallion layer is for, including lakehouses with no dbt in them, is
 [medallion-layer-boundaries](../MEDALLION-LAYER-BOUNDARIES/SKILL.md).
 

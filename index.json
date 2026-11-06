@@ -169,7 +169,7 @@
     },
     {
       "id": "DATABRICKS-DECLARATIVE-PIPELINE-DESIGN",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/DATABRICKS-DECLARATIVE-PIPELINE-DESIGN",
       "applies_to": {
         "frameworks": ["databricks"]

@@ -36,7 +36,9 @@ be recomputed, and bronze is the one layer that cannot.
 `VARIANT` or binary. A strict schema at ingestion turns an unexpected value into
 a failed load or, worse, a silently nulled column, and the original value is then
 unrecoverable. Casting is silver's job, where a failure can be quarantined and
-retried.
+retried. When bronze does read with a schema, keep what does not fit: Databricks
+Auto Loader puts values that do not match the schema into a `_rescued_data`
+column instead of dropping them.
 
 **Record load metadata on every row:** the source system, the ingestion timestamp,
 and the file or batch it came from (and the offset, for a stream). Without it,
@@ -60,8 +62,8 @@ raw = (
 raw.write.format("delta").mode("append").saveAsTable("bronze.crm_customers")
 ```
 
-`_metadata` is the hidden file-metadata column of Spark's file sources (Spark 3.3
-and later); `input_file_name()` is the older equivalent.
+`_metadata` is the hidden file-metadata column that any Spark file source can
+select (Spark 3.3 and later); `input_file_name()` is the older equivalent.
 
 **Append-only still has to be idempotent.** Re-running the same load must not
 land the same file twice. Either track which files were loaded (Databricks Auto
@@ -69,16 +71,21 @@ Loader and `COPY INTO` do this; a hand-written job needs its own record of loade
 files), or write each batch to its own partition keyed by `_batch_id` and
 overwrite that partition on a re-run.
 
-**Bronze is only replayable while it is retained.** Delta `VACUUM` and retention
-settings delete old files; a bronze table vacuumed to seven days can replay seven
-days. Decide bronze retention from how far back a fix may need to reach, not from
-the default.
+**Bronze replays as far back as nobody deletes its rows.** The replay window is
+set by deliberate deletion: a `DELETE` of old partitions, a retention job, or a
+lifecycle rule on the underlying storage. Decide it from how far back a fix may
+need to reach, and write it down where the deletion is configured. Delta `VACUUM`
+is not that setting. It removes only data files the current table version no
+longer references, and in an append-only table every appended file is still
+referenced, so `VACUUM` limits time travel to older versions, not replay.
 
 ## Silver: the trustworthy base
 
-Silver holds at least one validated, non-aggregated row per real-world record:
-deduplicated, typed, conformed, and checked. It is what every gold table builds
-on, so cleanup written here is written once.
+Silver holds validated, non-aggregated records: deduplicated, typed, conformed,
+and checked. A current-state table holds exactly one row per business key; when
+the history of changes matters, keep it as a Type 2 table with one row per
+version (see [scd2-implementation](../SCD2-IMPLEMENTATION/SKILL.md)). Silver is
+what every gold table builds on, so cleanup written here is written once.
 
 **Deduplicate on the business key with a deterministic tie-break.** Sources
 redeliver, and bronze kept every delivery on purpose. Pick the latest version per
@@ -114,9 +121,12 @@ WHEN MATCHED AND s.source_updated_at >= t.source_updated_at THEN UPDATE SET *
 WHEN NOT MATCHED THEN INSERT *
 ```
 
-The deduplication inside `USING` is not optional. Delta's `MERGE` fails when more
-than one source row matches the same target row, and other engines either fail
-the same way or apply the duplicates in an undefined order. The guard on
+The deduplication inside `USING` is not optional. When two source rows share a
+key that is not yet in the target, both fall into `WHEN NOT MATCHED` and both are
+inserted, with no error: silver now holds a duplicate that every gold table will
+count. Only when duplicates match an existing target row does Delta's `MERGE`
+fail, and other engines either fail the same way or apply the duplicates in an
+undefined order. The guard on
 `source_updated_at` keeps a replayed older batch from overwriting a newer row.
 
 ## Gold: serving consumers
@@ -149,8 +159,9 @@ depends on what the target table is keyed by.
 A plain `append` to silver or gold is the common mistake: it works on the first
 run, and the first retry doubles the rows. Partition overwrite needs care too.
 Spark's default `spark.sql.sources.partitionOverwriteMode=static` with `mode("overwrite")`
-replaces the whole table, not the partitions the batch touched; set it to `dynamic`,
-or on Delta use `replaceWhere` with the exact range being rebuilt.
+replaces the whole table, not the partitions the batch touched; set it to `dynamic`
+(on Delta this needs Delta Lake 2.0 or Databricks Runtime 11.1 and later), or on
+Delta use `replaceWhere` with the exact range being rebuilt.
 
 ## Where the quality checks sit
 
@@ -233,21 +244,31 @@ gold as a warehouse.
   ON MISMATCH DROP` (or `FAIL`). Incremental refresh needs Delta change data feed
   on the source tables; without it a refresh is full or skipped. For logic that is
   not SQL, use notebooks.
-- Silver and gold are Delta tables by default, written with V-Order, which speeds
-  reads by the SQL endpoint and Power BI.
+- **V-Order is not on by default for Spark writes.** New workspaces default to the
+  `writeHeavy` resource profile, which sets `spark.sql.parquet.vorder.default` to
+  `false`. Check the workspace's resource profile, and enable V-Order for gold
+  tables that the SQL endpoint or Power BI read heavily: it speeds those reads at
+  the cost of slower writes, which is the wrong trade for bronze.
 
 ### Databricks
 
 Bronze, silver and gold usually map to Unity Catalog schemas or catalogs, so
 grants follow the layers: most users read gold, few read silver, almost nobody reads
-bronze. Auto Loader handles bronze file ingestion with loaded-file tracking and
-schema evolution, and adds `_metadata` for the file path. Lakeflow Declarative
-Pipelines (formerly Delta Live Tables) express silver and gold as streaming tables
-and materialized views, with expectations (`expect`, `expect_or_drop`,
-`expect_or_fail`) as the silver gate. Databricks explicitly advises against writing
-to silver directly from ingestion: schema changes and corrupt records in the source
-then fail silver loads instead of being absorbed by bronze. For tuning the Spark
-jobs between layers, see [spark-job-tuning](../SPARK-JOB-TUNING/SKILL.md).
+bronze. Granting and revoking per layer is
+[databricks-unity-catalog-access-change](../DATABRICKS-UNITY-CATALOG-ACCESS-CHANGE/SKILL.md).
+
+Auto Loader handles bronze file ingestion with loaded-file tracking and schema
+evolution. Lakeflow pipelines (Spark Declarative Pipelines, earlier called Delta
+Live Tables) express silver and gold as streaming tables and materialized views,
+with expectations as the silver gate; designing one, including Auto Loader and
+where expectations go, is
+[databricks-declarative-pipeline-design](../DATABRICKS-DECLARATIVE-PIPELINE-DESIGN/SKILL.md).
+That skill leaves the choice of layer to this one.
+
+Databricks explicitly advises against writing to silver directly from ingestion:
+schema changes and corrupt records in the source then fail silver loads instead of
+being absorbed by bronze. For tuning the Spark jobs between layers, see
+[spark-job-tuning](../SPARK-JOB-TUNING/SKILL.md).
 
 ### Plain Spark
 
@@ -259,15 +280,13 @@ readers see.
 
 ### dbt
 
-dbt's layers overlap with medallion, but the boundaries do not line up exactly.
-
-| Medallion | dbt | Where they differ |
+| Medallion | dbt | Notes |
 |---|---|---|
-| Bronze | Sources + staging | Staging already renames and casts, which medallion puts in silver. The raw tables themselves are written by the loader; dbt only declares them as sources. |
-| Silver | Intermediate | Deduplication and conforming across sources. Typing happened a layer earlier, in staging. |
-| Gold | Marts | Close match. |
+| Bronze | Raw sources | The loader writes the raw tables; dbt declares them as sources and does not transform them |
+| Silver | Staging + intermediate | Staging renames and casts; intermediate deduplicates and conforms across sources |
+| Gold | Marts | Close match |
 
-The mapping is approximate, so pick one vocabulary per project and say which. For
+Pick one vocabulary per project and say which. For
 what belongs in each dbt layer, see
 [dbt-layer-boundaries](../DBT-LAYER-BOUNDARIES/SKILL.md). For keeping a dimension's
 history in silver or gold, see [scd2-implementation](../SCD2-IMPLEMENTATION/SKILL.md).

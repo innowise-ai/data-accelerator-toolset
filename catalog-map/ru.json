@@ -306,7 +306,7 @@
     ]
   },
   "DATABRICKS-DECLARATIVE-PIPELINE-DESIGN": {
-    "v": "0.1.0",
+    "v": "0.1.1",
     "req": {
       "access": ["Рабочее пространство Databricks с пайплайном или target для разработки, где агенту можно запускать validate и development-обновления"]
     },

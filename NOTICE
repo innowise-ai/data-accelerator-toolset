@@ -421,8 +421,8 @@ layers, a table of write modes and quality gates, and a list of pitfalls. The
 artifact keeps that layer model and those pitfalls, rewritten as prose that
 explains why each boundary holds. Content was added that upstream does not
 contain, including loose typing and per-row load metadata in bronze, idempotent
-bronze loads and bronze retention as the limit of replay, a deterministic
-tie-break for silver deduplication, the duplicate-key failure of MERGE and the
+bronze loads, what limits how far bronze can replay, a deterministic tie-break
+for silver deduplication, how MERGE handles duplicate source keys, the
 whole-table trap of static partition overwrite, when fewer layers are enough, and
 platform notes for Microsoft Fabric, Databricks, plain Spark and dbt. Platform
 statements were checked against the Microsoft Fabric and Databricks documentation.
