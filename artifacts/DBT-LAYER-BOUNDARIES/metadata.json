@@ -1,6 +1,6 @@
 {
   "id": "DBT-LAYER-BOUNDARIES",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "source_path": "artifacts/DBT-LAYER-BOUNDARIES",
   "applies_to": {
     "frameworks": ["dbt"]
