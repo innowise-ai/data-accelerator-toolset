@@ -179,4 +179,22 @@ establish a cause.
 Whether the numbers are correct. Why the report is slow. What a reader sees
 first. Who uses it. Whether a description is still true of its formula: they
 are separate pieces of text. A `.pbix` does not substitute for the folder. If
-that is the only input, say what cannot be seen and stop.
+that is the only input, say what cannot be seen and stop. `model.bim` is
+not TMDL; do not convert it.
+
+## Anti-patterns
+
+- Treating a count of measures as a finding. Four hundred measures feeding
+  a large report can be a normal model; thirty that nobody can safely edit
+  is a problem, and the count does not say which.
+- Calling something unused because it is absent from this report. Another
+  report can use a shared model, and this folder cannot see those callers.
+- Promoting storage mode to a finding without a consequence. Import,
+  DirectQuery, and composite are facts; "should be import" is not.
+- Treating iterators, bidirectional relationships, visual count, or
+  DirectQuery as a performance cause. Structure suggests cost; the cause is
+  a measurement.
+- Reconstructing a function that is not in `functions.tmdl`. Inventing a
+  signature is how a review approves a function the model does not contain.
+- Taking a `.pbix` or `model.bim` as the model. Neither is the
+  `definition/` folder, and converting them is not this task.

@@ -1,6 +1,6 @@
 {
   "id": "POWER-BI-PERFORMANCE-DIAGNOSIS",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "source_path": "artifacts/POWER-BI-PERFORMANCE-DIAGNOSIS",
   "applies_to": {
     "frameworks": ["power-bi"]
@@ -14,8 +14,7 @@
     "benefits": [
       "Separates refresh, an interaction's query, and rendering, which rarely share a cause",
       "Treats iterator measures, bidirectional relationships, visual count, and DirectQuery as hypotheses until a timing says where the time went",
-      "Reads a Desktop recording as the time of one interaction, which does not split engine time, formula time, and warehouse time",
-      "Says what a server trace's parts mean and what they do not prove",
+      "Names the artifact: a Performance Analyzer JSON times one interaction, a server trace splits formula engine from storage engine and warehouse, and a .vpax is size rather than a timing",
       "Hands a DirectQuery warehouse query to the warehouse's own diagnosis, and does not rewrite a measure here"
     ]
   }

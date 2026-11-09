@@ -4,6 +4,18 @@ Written for the diagnosis in [`../SKILL.md`](../SKILL.md). This is how to
 read a recording someone already has. It is not a path through the product
 to capture one.
 
+The diagnosis names a measurement. These are the files that measurement
+arrives as. Do not read a `.vpax` as why a page is slow. Do not read query
+duration as "the DAX is expensive". Refresh duration still comes from the
+service, not from these files.
+
+| Artifact | What it is | What it is not |
+|---|---|---|
+| Desktop recording | Performance Analyzer export, JSON, one interaction; per visual: query duration, render duration, remainder | not engine split, not refresh, not the service |
+| Server trace | DAX Studio server timings or a profiler trace | the only artifact that splits formula-engine / storage-engine / warehouse statement |
+| `.vpax` | VertiPaq Analyzer: model size | not a timing |
+| `.pbix` | a package | neither size evidence nor a timing |
+
 ## A Desktop recording of one interaction
 
 The recording belongs to one interaction: the slicer change, the bookmark,

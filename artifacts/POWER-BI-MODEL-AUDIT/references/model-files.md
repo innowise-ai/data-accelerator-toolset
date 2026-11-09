@@ -34,7 +34,12 @@ On a measure, keep the formula (the expression after `=`), `formatString`,
 `displayFolder`, the `///` description immediately above the measure, and
 `annotation` entries apart. They are four different facts. A calculated
 column is a column whose declaration carries an expression. A data column
-names a `sourceColumn` and does not.
+names a `sourceColumn` and does not. A visible column with
+`summarizeBy: sum` will be summed even when a measure was meant to replace
+it. Hidden is not the only fact.
+
+The date-table mark is `dataCategory: Time` on the table, and a calendar
+object when present. A table named Date is not that mark.
 
 A partition's `mode` is `import`, `directQuery`, or `dual`. Composite is not
 a mode on one partition. It is a model that mixes those modes, or that

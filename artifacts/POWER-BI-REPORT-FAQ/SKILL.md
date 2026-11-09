@@ -175,3 +175,20 @@ project changes. A commit of the project folder can show which measure or
 visual moved; the FAQ will not update itself, and nothing will flag it.
 Documentation that is wrong and trusted is worse than documentation that is
 missing.
+
+## Anti-patterns
+
+- Paraphrasing the formula into a definition. The DAX does not state the
+  business rule, and a title list that looks like a FAQ leaves the reader
+  unable to tell that the definitions are absent.
+- Guessing refresh as "daily". The schedule lives in the service, and a
+  plausible cadence is the most damaging sentence the FAQ can contain.
+- Starting without the landing screenshot. The files can name an active
+  page; they cannot show which slicers are visible or what a bookmark
+  adds, so "how to use it" gets written for a report that does not exist.
+- Inventing purpose or audience. Page names label things; they do not say
+  which decision the report exists to support, and invented purpose is the
+  most convincing wrong content in the document.
+- Using a description this session just wrote as a source. Text an agent
+  added has not been accepted, and copying it into the FAQ gives a draft
+  the authority of documentation.

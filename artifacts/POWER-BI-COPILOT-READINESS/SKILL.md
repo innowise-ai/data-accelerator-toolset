@@ -19,6 +19,10 @@ sum is a confident wrong number, and the prose around it can still sound
 like the metric. Hiding the column when the measure is the metric is what
 makes the measure the thing that gets chosen.
 
+Where each of those facts lives in the project, and which facts a screenshot
+cannot supply, is in
+[references/model-facts.md](references/model-facts.md).
+
 Its neighbours in this catalog:
 
 - [power-bi-report-faq](../POWER-BI-REPORT-FAQ/SKILL.md) writes what a human
@@ -40,8 +44,10 @@ Each of these changes the number. None of them is a naming preference.
 
 **A column sitting next to the measure.** The measure is the metric. The
 column is a sum waiting to happen. Hide the column when the measure replaces
-it. Leaving both visible means a question that says the measure’s name can
-still be answered by summing the column, and the two answers will not match.
+it. If the column must stay visible, set `summarizeBy: none`. Leaving both
+visible with `summarizeBy: sum` means a question that says the measure’s
+name can still be answered by summing the column, and the two answers will
+not match. Hidden is not the only fact.
 
 **The description.** It is the definition the answer will repeat. It has to
 state the grain, the filters, the unit, and what the metric is not. A
@@ -56,13 +62,15 @@ table in almost every model that has grown for a while. The question does
 not know which table was meant. Rename or describe the field before it is
 visible. A synonym belongs to a business word people actually type, and it
 points at one field. A synonym that points at two fields is an invitation to
-pick the wrong one.
+pick the wrong one. Do not invent a synonym the files do not already have.
 
 **Which date "last month" uses.** The date table has to be the date table,
-and the relationship has to be the date the question means. Order date and
-ship date both answer "sales last month", and they are different numbers.
-If both relationships exist, say which one a question in those words will
-follow, and treat the other as a different metric that needs its own name.
+and the relationship has to be the date the question means. The mark is
+`dataCategory: Time` on the table, and a calendar object when present. A
+table named Date is not that mark. Order date and ship date both answer
+"sales last month", and they are different numbers. If both relationships
+exist, say which one a question in those words will follow, and treat the
+other as a different metric that needs its own name.
 
 **A relationship that filters both ways.** Filter context then crosses into
 a table the question did not name. A question about one dimension can change
@@ -77,22 +85,27 @@ question that does not name its role is verified for someone else.
 
 ## Preparing the model
 
-Preparing the model is editing what is visible and what is described. One
-measure per business concept. Columns hidden when a measure replaces them.
-Descriptions and synonyms written from the definition you can source, not
-from a paraphrase of the formula and not from a description an agent wrote
-and nobody accepted. The date table identified. A short set of verified
-questions.
+Preparing the model is editing those properties in those files: `isHidden`
+and `summarizeBy` on the column, the `///` description on the measure,
+synonyms in `definition/cultures/*.tmdl`, the date-table mark, the active
+relationship, and the role. One measure per business concept. Columns hidden
+when a measure replaces them, or `summarizeBy: none` if they must stay
+visible. Descriptions and synonyms written from the definition you can
+source, not from a paraphrase of the formula and not from a description an
+agent wrote and nobody accepted. Do not invent synonyms. Do not write a
+second description for "the AI". The date table identified by its mark, not
+by its name. A short set of verified questions.
 
 Each verified question names the measure, the filters, and the grain. The
 answer is a number you computed at that grain under those filters. Do not
 invent a verified answer you did not compute. A question without a number
 next to it is a candidate, not a verified question.
 
-If you cannot see the model, stop and ask for the measure list, the
-descriptions, which columns are hidden, the relationships, and the date
-table. A report screenshot does not carry those. Do not invent them from
-the page.
+If `definition/` is missing, stop. The hidden flags, the descriptions, the
+synonyms, the relationships, the roles, and the date-table mark cannot be
+seen. A `.pbix` is a package. `model.bim` is not TMDL. Do not convert
+either. A report screenshot does not carry those facts. Do not invent them
+from the page.
 
 ## Checking an answer or a drafted measure
 
@@ -122,3 +135,30 @@ measure you intended.
   filters, its grain, and its role.
 - Any answer or drafted measure under review: the measure it used, the
   filters, and whether that number was checked. Unchecked stays unchecked.
+
+## Anti-patterns
+
+- Inventing hidden columns, descriptions, synonyms, relationships, or the
+  date table from a screenshot. Those facts live in the TMDL; a page cannot
+  supply them.
+- Starting from a `.pbix` or from `model.bim`. Neither is the `definition/`
+  folder, and converting them is not this task.
+- Leaving a column visible with `summarizeBy: sum` when a measure replaces
+  it. Hidden is not the only fact; Copilot will still sum the column.
+- Inventing a synonym, or writing a second description for "the AI". Copilot
+  repeats the `///` on the measure, and a synonym that points at two fields
+  picks the wrong one.
+- Time intelligence on a table named Date that is not marked
+  `dataCategory: Time`. The name is not the mark, so "last month" is a
+  different calendar.
+- Recording a bidirectional filter as style. Filter context then crosses
+  into a table the question did not name, and the population is different.
+- A verified question that does not name its role. A check run as a role
+  that sees everything is verified for someone else.
+- Inventing a verified answer you did not compute. A question without a
+  number next to it is a candidate.
+- Treating Copilot’s prose as the check. The sentence can sound like the
+  metric while the answer summed the column the measure was meant to
+  replace.
+- Rewriting a drafted measure in looser words here. The equivalence check
+  against the SQL metric belongs to measure translation.

@@ -108,3 +108,19 @@ This SQL is a test of the function as called. It is not a design for the
 warehouse, and it is not a reason to rewrite the function into SQL. If the
 warehouse query and the caller disagree, the function is not yet safe,
 however clean the body looks.
+
+## Anti-patterns
+
+- Reconstructing a signature that is not in the file. Inventing a body in
+  order to continue is how a review approves a function the model does not
+  contain.
+- Inventing when an argument is evaluated if the declaration does not say.
+  The two timings see different filters; mixing them up is how an isolated
+  example passes and the visual fails.
+- Calling the change safe when other reports share the model. Callers on
+  those reports are invisible from this folder, and a function that is
+  right here can be wrong there.
+- Moving the metric definition onto the function. The FAQ reads the
+  measure description; a note on the function is not a substitute, and
+  leaving the measure’s description behind makes the FAQ describe a
+  calculation the measure no longer is.

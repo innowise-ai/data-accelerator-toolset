@@ -1,6 +1,6 @@
 {
   "id": "POWER-BI-COPILOT-READINESS",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "source_path": "artifacts/POWER-BI-COPILOT-READINESS",
   "applies_to": {
     "frameworks": ["power-bi"]
@@ -12,7 +12,8 @@
     "name": "Prepare a semantic model so Copilot answers from the measures you defined",
     "summary": "Decides what Power BI Copilot can bind a question to, and checks that an answer or a drafted measure used the measure that was meant.",
     "benefits": [
-      "Hides a column when a measure is the metric, so the answer is not the sum of a key, a rate, or a pre-aggregated total",
+      "Reads hidden flags, summarizeBy, descriptions, synonyms, roles, and the date-table mark from the TMDL, and stops when those files are not there",
+      "Hides a column when a measure is the metric, or sets summarizeBy to none if it must stay visible, so the answer is not the sum of a key, a rate, or a pre-aggregated total",
       "Uses the measure description as the only definition, including grain, filters, unit, and what the metric is not",
       "Treats a bidirectional relationship and a second date as different numbers, not as style",
       "Names the role a check was run as, because a role that sees everything is a different population",

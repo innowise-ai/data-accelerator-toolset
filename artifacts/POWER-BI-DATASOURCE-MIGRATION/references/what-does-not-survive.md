@@ -5,11 +5,14 @@ parts of a model that depend on the warehouse. DAX does not, which is why a
 review that starts by rewriting measures is looking in the wrong place.
 
 Read the model from the project folder. Connections are in
-`definition/dataSources.tmdl`. Power Query is the partition `source` and
+`definition/dataSources.tmdl`. That file is often empty: the connection is
+frequently only in the partition M. An empty `dataSources.tmdl` is not "no
+sources". Power Query is the partition `source` and
 `definition/expressions.tmdl`. A native query is an M expression that embeds
 a SQL string. Types are on the columns. Which measures and functions depend
 on a column is the call graph from the audit's inventory. If the only input
-is a `.pbix`, say what cannot be seen and stop.
+is a `.pbix`, say what cannot be seen and stop. If the model is only
+`model.bim`, stop; do not convert it.
 
 ## Folding
 
@@ -20,10 +23,10 @@ new one. Local evaluation can change the result, not only the time: a date
 boundary, a rounding, or a null comparison then happens in M rather than in
 the warehouse, and the two do not agree.
 
-The evidence is the SQL the connector sends, captured on the old connection
-and again on the new one, for the steps the report relies on. If you cannot
-see that SQL, folding is unverified. Do not infer it from the M looking
-simple.
+The evidence is a captured native SQL string: the SQL the connector sends,
+captured on the old connection and again on the new one, for the steps the
+report relies on. That string is not a project file. If you cannot see it,
+folding is unverified. Do not infer it from the M looking simple.
 
 A native SQL string does not fold further. Steps after it run locally. The
 string itself is dialect. Identifiers, date functions, and quoting that were
@@ -48,9 +51,10 @@ on a column nothing uses is inventory, not a finding.
 ## Date tables
 
 DAX time intelligence needs a date table that is complete at the grain the
-measures assume, marked as the date table, and related to the facts. A date
-table generated in the model travels with the model and is not the swap's
-problem. A date table loaded from the warehouse does not travel. If the new
+measures assume, marked as the date table, and related to the facts. The
+mark is `dataCategory: Time` on the table, and a calendar object when
+present. A table named Date is not that mark. A date table generated in
+the model travels with the model and is not the swap's problem. A date table loaded from the warehouse does not travel. If the new
 table has gaps, a different week start, or a different set of fiscal
 periods, every time-intelligence measure moves and none of their formulas
 changed.

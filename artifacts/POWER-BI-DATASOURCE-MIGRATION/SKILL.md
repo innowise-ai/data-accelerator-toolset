@@ -53,7 +53,8 @@ gone.
 
 - **Every connection**, including sources no visual uses. They will all try
   to rebind. Read them from the project, not from a screenshot of the model
-  view.
+  view. `dataSources.tmdl` is often empty; the connection is then only in
+  the partition M. An empty file is not "no sources".
 - **Every Power Query expression**, partition and shared, with the warehouse
   objects it names. A native SQL string is the largest single source of
   breakage, because it carries a dialect and identifiers nothing checks
@@ -123,3 +124,22 @@ opens, visual names still resolve, and the numbers belong to another model.
 If that is the change in front of you, name the two models and run the same
 baseline. Do not treat it as a Power Query problem, and do not follow it
 into how the service publishes either model.
+
+## Anti-patterns
+
+- Rewriting DAX to "suit" the new warehouse. A measure does not contain
+  the dialect; rewriting it because the warehouse changed is how a
+  migration invents new bugs.
+- Treating "it opens" as proof. The report renders after a name-matched
+  rebind whose meaning moved, and nothing in the project flags it.
+- Reconciling only the grand total. Two errors cancel there and show up
+  in the slices; the baseline is the grain the page actually cuts by.
+- Inferring folding from simple M. Folding evidence is the SQL the
+  connector sends, captured on both warehouses; the M looking simple is
+  not that SQL.
+- Reading an empty `dataSources.tmdl` as no sources. The connection is
+  frequently only in the partition M, and every connection will try to
+  rebind.
+- Merging warehouse redesign into the swap. Changing grain or renaming
+  columns inside the swap removes the baseline you needed to prove the
+  report.

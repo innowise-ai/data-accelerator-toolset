@@ -15,9 +15,9 @@ nothing is also a fix that nobody re-examines.
 So this is diagnosis, and it ends at a cause with evidence behind it. A
 rewrite starts after that, and not in this skill.
 
-What a Desktop recording contains, and what a server trace adds and still
-does not prove, is in
-[references/measurements.md](references/measurements.md).
+What a Desktop recording contains, what a server trace adds and still
+does not prove, and which file is a timing rather than a model-size dump,
+is in [references/measurements.md](references/measurements.md).
 
 Its neighbours in this catalog:
 
@@ -124,3 +124,27 @@ If the cause is rendering, a rewritten measure does not touch it. If the
 cause is refresh, a rewritten measure does not touch it either, unless the
 measure is a calculated column in disguise and the refresh trace says so.
 Say that before anyone starts editing.
+
+## Anti-patterns
+
+- Rewriting the measure here. Diagnosis ends at a cause; a replacement that
+  was never compared at the same grain and filters is a different number,
+  and it does not touch rendering or refresh.
+- Diagnosing Snowflake SQL here instead of handing the statement off. This
+  skill cannot read a warehouse, and a week on the model is how the wait
+  stays in the query.
+- Treating iterator measures, bidirectional relationships, visual count, or
+  DirectQuery as the cause. Structure is a hypothesis until a timing says
+  the time is there.
+- Reading query duration as "the DAX is expensive". A Performance Analyzer
+  JSON does not split formula engine from storage engine or from the
+  warehouse.
+- Reading a `.vpax` or a `.pbix` as why a page is slow. VertiPaq Analyzer
+  is model size, not a timing, and a package is neither size nor a timing.
+- Treating a Desktop recording as the service refresh, or as the report
+  running under the capacity its readers use. The JSON is one interaction
+  on the machine that captured it.
+- Using a trace of a different interaction as evidence about this one. A
+  slow bookmark is not a slow slicer.
+- Treating generated DAX that compiles as verified. A plausible number can
+  still be a different number.

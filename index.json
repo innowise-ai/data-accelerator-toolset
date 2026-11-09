@@ -603,7 +603,7 @@
     },
     {
       "id": "POWER-BI-COPILOT-READINESS",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "source_path": "artifacts/POWER-BI-COPILOT-READINESS",
       "applies_to": {
         "frameworks": ["power-bi"]
@@ -615,7 +615,8 @@
         "name": "Prepare a semantic model so Copilot answers from the measures you defined",
         "summary": "Decides what Power BI Copilot can bind a question to, and checks that an answer or a drafted measure used the measure that was meant.",
         "benefits": [
-          "Hides a column when a measure is the metric, so the answer is not the sum of a key, a rate, or a pre-aggregated total",
+          "Reads hidden flags, summarizeBy, descriptions, synonyms, roles, and the date-table mark from the TMDL, and stops when those files are not there",
+          "Hides a column when a measure is the metric, or sets summarizeBy to none if it must stay visible, so the answer is not the sum of a key, a rate, or a pre-aggregated total",
           "Uses the measure description as the only definition, including grain, filters, unit, and what the metric is not",
           "Treats a bidirectional relationship and a second date as different numbers, not as style",
           "Names the role a check was run as, because a role that sees everything is a different population",
@@ -625,7 +626,7 @@
     },
     {
       "id": "POWER-BI-DATASOURCE-MIGRATION",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "source_path": "artifacts/POWER-BI-DATASOURCE-MIGRATION",
       "applies_to": {
         "frameworks": ["power-bi"]
@@ -648,7 +649,7 @@
     },
     {
       "id": "POWER-BI-FUNCTION-IMPACT",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "source_path": "artifacts/POWER-BI-FUNCTION-IMPACT",
       "applies_to": {
         "frameworks": ["power-bi"]
@@ -670,7 +671,7 @@
     },
     {
       "id": "POWER-BI-MEASURE-TRANSLATION",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "source_path": "artifacts/POWER-BI-MEASURE-TRANSLATION",
       "applies_to": {
         "frameworks": ["power-bi"]
@@ -682,16 +683,18 @@
         "name": "Translate a metric between SQL and DAX without changing the number",
         "summary": "Rewrites an existing metric from SQL into DAX or from DAX into SQL, and treats the result as unchecked until the same grain and filters return the same number.",
         "benefits": [
-          "Refuses a guessed formula when the grain, the filters, or the date are not known",
-          "Writes the assumptions down and marks each one as stated or assumed",
-          "Keeps a ratio, a snapshot, a time comparison, and a join fan-out as different numbers from a plain sum",
+          "Binds each SQL table, column, and date to a TMDL object before writing DAX, and copies those identifiers as they are written",
+          "Refuses a guessed formula when the grain, the filters, the date, or the bindings are not known",
+          "Writes the assumptions down and marks each binding as stated or assumed",
+          "Keeps a ratio, a snapshot, a time comparison, a join fan-out, a running total, and a conditional sum as different numbers from a plain sum",
+          "Keeps a visual's filter with KEEPFILTERS, and treats CASE without ELSE as a blank rather than a zero",
           "Labels a translation unchecked when it cannot be run at the same grain, filters, and population"
         ]
       }
     },
     {
       "id": "POWER-BI-MODEL-AUDIT",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "source_path": "artifacts/POWER-BI-MODEL-AUDIT",
       "applies_to": {
         "frameworks": ["power-bi"]
@@ -713,7 +716,7 @@
     },
     {
       "id": "POWER-BI-MODEL-DIFF",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "source_path": "artifacts/POWER-BI-MODEL-DIFF",
       "applies_to": {
         "frameworks": ["power-bi"]
@@ -735,7 +738,7 @@
     },
     {
       "id": "POWER-BI-PERFORMANCE-DIAGNOSIS",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "source_path": "artifacts/POWER-BI-PERFORMANCE-DIAGNOSIS",
       "applies_to": {
         "frameworks": ["power-bi"]
@@ -749,15 +752,14 @@
         "benefits": [
           "Separates refresh, an interaction's query, and rendering, which rarely share a cause",
           "Treats iterator measures, bidirectional relationships, visual count, and DirectQuery as hypotheses until a timing says where the time went",
-          "Reads a Desktop recording as the time of one interaction, which does not split engine time, formula time, and warehouse time",
-          "Says what a server trace's parts mean and what they do not prove",
+          "Names the artifact: a Performance Analyzer JSON times one interaction, a server trace splits formula engine from storage engine and warehouse, and a .vpax is size rather than a timing",
           "Hands a DirectQuery warehouse query to the warehouse's own diagnosis, and does not rewrite a measure here"
         ]
       }
     },
     {
       "id": "POWER-BI-REPORT-FAQ",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "source_path": "artifacts/POWER-BI-REPORT-FAQ",
       "applies_to": {
         "frameworks": ["power-bi"]

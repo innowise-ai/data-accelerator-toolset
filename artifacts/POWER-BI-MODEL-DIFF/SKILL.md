@@ -135,3 +135,18 @@ for a report you do not have. That a format string which looks harmless is
 harmless to a reader who compares this month's screenshot with last month's.
 State the limit next to the class it belongs to, rather than adding a
 conclusion the files do not support.
+
+## Anti-patterns
+
+- Treating a line diff of the TMDL as the review. Identifiers, annotations,
+  and layout move when nothing a reader would call a change has happened,
+  and the three lines that matter sit inside hundreds that do not.
+- Diffing a `.pbix`. The package is not the measures, the relationships,
+  the Power Query, or the roles, and converting it is not this task.
+- Filing a format-string or description change as cosmetic. The format
+  string changes what the reader sees without changing the value; the
+  description can make the FAQ lie while the formula stays put.
+- Calling a function-body change safe when callers outside this folder are
+  unknown. Other reports that share the model are invisible here, and a
+  function that is right for this report can be wrong for one you cannot
+  see.

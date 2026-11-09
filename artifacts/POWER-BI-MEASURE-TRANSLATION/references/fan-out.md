@@ -22,6 +22,16 @@ which side is "the amount" is how the fan-out gets counted twice.
 
 `COUNT` after that join, `COUNT` of the fact rows, and `DISTINCTCOUNT` of a
 key are three results. Match the SQL’s distinctness exactly, at the grain
-the `GROUP BY` named. The check includes the row count at that grain, not
-only the aggregate. A sum can match while the row count shows the fan-out is
-still in one side.
+the `GROUP BY` named:
+
+```dax
+COUNTROWS(Fact)              -- SQL COUNT(*) of fact rows
+COUNT(Fact[OrderId])         -- SQL COUNT(col): non-blank
+DISTINCTCOUNT(Fact[OrderId]) -- SQL COUNT(DISTINCT col)
+```
+
+The names are the pattern in [`../SKILL.md`](../SKILL.md). Copy the
+identifiers you bound. If you cannot tell which column still holds one
+row per fact, stop. The check includes the row count at that grain, not
+only the aggregate. A sum can match while the row count shows the fan-out
+is still in one side.
