@@ -2,13 +2,13 @@
 
 The artifact catalog. Consumers fetch selected artifacts from this repository using Git partial clone with cone-mode sparse checkout, so a client downloads only the artifacts it needs rather than the whole catalog.
 
-The catalog holds fifty-five artifacts in five groups. Thirty-two are data-engineering specific, covering dbt, Snowflake, Spark, Airflow, Tableau, Python pipeline code, sensitive data handling, and stack-agnostic pipeline quality practice, including data quality controls built into a pipeline and metric definitions precise enough to implement twice. Two are BI and analytics: translating a metric between SQL and a Tableau level-of-detail expression without changing the number, and defining Pulse metrics so the generated insight matches the warehouse number. Four cover containers and local environments: Dockerfile build rules, Compose stacks, a first Docker scaffold, and a guardrail for destructive Docker commands. Two cover infrastructure as code: reviewing a Terraform plan, with Terragrunt, Atlantis and AWS access policies, before it is applied, and adding or moving Terragrunt units in bulk across tenants and environments without drift. Fifteen are general skills that apply to any stack: change review, project documentation, code comments, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`, research into what people said about a topic in the last 30 days, a daily standup update written from the engineer's actual activity, and request refinement, which turns a rough request into a complete one before the agent starts work. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
+The catalog holds fifty-nine artifacts in five groups. Thirty-six are data-engineering specific, covering dbt, Snowflake, Spark, Databricks, Airflow, Tableau, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality practice, including data quality controls built into a pipeline, medallion (bronze, silver, gold) lakehouse layering on any platform, the reconciliation of data migrated from a legacy warehouse, and metric definitions precise enough to implement twice. Two are BI and analytics: translating a metric between SQL and a Tableau level-of-detail expression without changing the number, and defining Pulse metrics so the generated insight matches the warehouse number. Four cover containers and local environments: Dockerfile build rules, Compose stacks, a first Docker scaffold, and a guardrail for destructive Docker commands. Two cover infrastructure as code: reviewing a Terraform plan, with Terragrunt, Atlantis and AWS access policies, before it is applied, and adding or moving Terragrunt units in bulk across tenants and environments without drift. Fifteen are general skills that apply to any stack: change review, project documentation, code comments, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`, research into what people said about a topic in the last 30 days, a daily standup update written from the engineer's actual activity, and request refinement, which turns a rough request into a complete one before the agent starts work. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
 
 `RECENT-DISCUSSION-RESEARCH` is the one [upstream artifact](docs/authoring-artifacts.md#upstream-artifacts): its directory is a third party's skill (`last30days`), unchanged and pinned to a commit of the author's repository, rather than our own text. Every other artifact is written or adapted here.
 
 Every artifact except one is `on-demand`, so a profile receives only what its declared topics select and the user explicitly chooses. The exception is `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every project that uses Docker, because losing a data volume is not something a team should have to remember to ask protection against. See [`docs/authoring-artifacts.md`](docs/authoring-artifacts.md) for what an `always` artifact has to justify.
 
-Fifty-one artifacts are `project` scope. Four are `user` scope, personal tools that do not belong in a shared project plan: `TECHNICAL-PROSE-EDITING`, an editing tool, `DAILY-STANDUP-UPDATE`, which reports one engineer's own work, `RECENT-DISCUSSION-RESEARCH`, which calls third-party APIs with the user's own keys and can read their browser cookies with consent, and `REQUEST-REFINEMENT`, which runs only when a person types its command.
+Fifty-five artifacts are `project` scope. Four are `user` scope, personal tools that do not belong in a shared project plan: `TECHNICAL-PROSE-EDITING`, an editing tool, `DAILY-STANDUP-UPDATE`, which reports one engineer's own work, `RECENT-DISCUSSION-RESEARCH`, which calls third-party APIs with the user's own keys and can read their browser cookies with consent, and `REQUEST-REFINEMENT`, which runs only when a person types its command.
 
 ## Layout
 
@@ -24,6 +24,8 @@ artifacts/
   DAILY-STANDUP-UPDATE/
   DATA-INCIDENT-TRACING/
   DATA-QUALITY-CONTROLS/
+  DATABRICKS-DECLARATIVE-PIPELINE-DESIGN/
+  DATABRICKS-UNITY-CATALOG-ACCESS-CHANGE/
   DBT-BUILD-FAILURE-DIAGNOSIS/
   DBT-COLUMN-LINEAGE/
   DBT-INCREMENTAL-STRATEGY/
@@ -41,6 +43,8 @@ artifacts/
   ETL-DECOMPOSITION/
   IMPLEMENTATION-PLANNING/
   KPI-DEFINITION-BUILDING/
+  MEDALLION-LAYER-BOUNDARIES/
+  MIGRATION-DATA-RECONCILIATION/
   NL2SQL-QUERY-VALIDATION/
   PIPELINE-CHECK-SELECTION/
   PIPELINE-OUTPUT-REVIEW/

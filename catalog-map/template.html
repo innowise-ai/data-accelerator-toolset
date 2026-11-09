@@ -83,7 +83,27 @@ button{cursor:pointer}
 .sg{margin-left:14px;padding-left:14px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
 .sgt{font-size:12px;color:var(--muted);font-weight:600;margin:6px 0 0}
 .item{background:var(--surface);border:1px solid var(--line);border-radius:6px}
-.item>button{width:100%;text-align:left;background:none;border:0;padding:8px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center}
+.ihead{display:flex;align-items:flex-start}
+.exp{flex:1 1 auto;min-width:0;text-align:left;background:none;border:0;padding:8px 12px;display:grid;grid-template-columns:minmax(0,1fr);gap:4px 12px;align-items:center}
+.add{flex:none;margin:8px 10px 8px 0;border:1px solid var(--line);background:var(--surface);color:var(--accent);border-radius:6px;padding:2px 10px;font-size:12px;white-space:nowrap}
+.add[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:600}
+td .add{margin:0;padding:0 8px}
+/* basket: fixed to the bottom while something is selected */
+.basket{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(0,0,0,.08);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.basket[hidden]{display:none}
+.bwrap{max-width:1100px;margin-inline:auto;display:flex;flex-direction:column;gap:8px}
+.brow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.brow b{font-variant-numeric:tabular-nums}
+.bnote{color:var(--muted);font-size:12px}
+.blist{display:flex;flex-wrap:wrap;gap:6px;max-height:30vh;overflow:auto}
+.blist[hidden]{display:none}
+.bchip{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:4px;padding:0 0 0 7px;background:var(--bg)}
+.bchip button{border:0;background:none;color:var(--muted);padding:0 6px;font-size:14px;line-height:1.4}
+.bspace{flex:1 1 auto}
+.primary{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:6px;padding:6px 14px;font-weight:600}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .primary{color:#0f151c}}
+:root[data-theme="dark"] .primary{color:#0f151c}
+body.has-basket{padding-bottom:120px}
 .iid{font-family:var(--mono);font-size:12.5px;font-weight:500;overflow-wrap:anywhere}
 .iname{color:var(--muted);font-size:13px;grid-column:1}
 .tags{display:flex;flex-wrap:wrap;gap:4px;grid-column:1 / -1}
@@ -109,7 +129,6 @@ td.l{font-family:var(--mono);white-space:nowrap}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--gc)}
 tr.gh td{background:var(--code);font-weight:600;text-align:left;font-family:var(--font)}
 .empty{padding:24px;text-align:center;color:var(--muted)}
-.item>button{grid-template-columns:minmax(0,1fr)}
 @media (prefers-reduced-motion:no-preference){.item,.chip{transition:background .12s,border-color .12s}}
 </style>
 
@@ -138,6 +157,7 @@ tr.gh td{background:var(--code);font-weight:600;text-align:left;font-family:var(
     <div class="top">
       <input id="q" type="search" data-ph="search" aria-label="Search">
       <span class="count" id="count"></span>
+      <button class="link" id="add-shown"></button>
       <button class="link" id="reset" data-i="reset"></button>
     </div>
     <div class="frow"><span class="flabel" data-i="fTopic"></span><span class="frow"><span id="f-new"></span><span id="f-topic"></span></span></div>
@@ -147,18 +167,37 @@ tr.gh td{background:var(--code);font-weight:600;text-align:left;font-family:var(
   <main id="main"></main>
 </div>
 
+<section class="basket" id="basket" aria-label="Selected skills" hidden>
+  <div class="bwrap">
+    <div class="brow">
+      <b id="b-count"></b>
+      <button class="link" id="b-toggle" aria-expanded="false"></button>
+      <span class="bnote" id="b-note"></span>
+      <span class="bspace"></span>
+      <button class="link" id="b-clear" data-i="bClear"></button>
+      <button class="primary" id="b-dl" data-i="bDl"></button>
+    </div>
+    <div class="blist" id="b-list" hidden></div>
+  </div>
+</section>
+
 <script>
 const DATA = __DATA__;
+const FILES = __FILES__;
 const REF = '__VERSION__';
 const REPO = 'https://github.com/innowise-ai/data-accelerator-toolset';
 const T = {
-  en:{title:'Skill Catalog Map', forVersion:'Built for catalog version', repo:'Toolset on GitHub', sub:'38 skills from the Data Accelerator toolset, grouped by area. Filter by topic or by the framework or language a skill applies to, and open any skill to see what it does.',
+  en:{title:'Skill Catalog Map', forVersion:'Built for catalog version', repo:'Toolset on GitHub', sub:'38 skills from the Data Accelerator toolset, grouped by area. Filter by topic or by the framework or language a skill applies to, and open any skill to see what it does. To install skills by hand, add them and download one ZIP.',
+      add:'+ Add', added:'Added', addShown:'Add all shown ({n})', selected:'{n} selected', bShow:'Show list', bHide:'Hide list', remove:'Remove',
+      bNote:'{k} of them need setup: see README.txt in the ZIP', bTip:'Unzip into your agent\'s skills folder: see README.txt in the ZIP', bClear:'Clear', bDl:'Download ZIP',
       tree:'Tree', matrix:'Topic matrix', search:'Search by id, name or description', reset:'Reset', fTopic:'Topic', fAp:'Applies to',
       of:'of', none:'Nothing found. Reset the filters.', any:'any project', what:'What it does', benefits:'What you get', where:'Path in repo', ver:'Version',
       colSkill:'skill', colAp:'applies to',
       needs:'What it needs', tools:'Install', access:'Access', nothing:'Nothing beyond the agent', setup:'needs setup', nw:'new', nwTip:'Added in this catalog version',
       s1:'skills', s2:'data engineering', s7:'BI and analytics', s6:'database administration', s3:'containers', s5:'infrastructure as code', s4:'general, any stack', lang:'lang '},
-  ru:{title:'Карта каталога скиллов', forVersion:'Собрано для версии каталога', repo:'Toolset на GitHub', sub:'38 скиллов из Data Accelerator toolset по областям. Фильтруйте по теме, фреймворку или языку, на которые рассчитан скилл, и открывайте любой скилл, чтобы увидеть, что он делает.',
+  ru:{title:'Карта каталога скиллов', forVersion:'Собрано для версии каталога', repo:'Toolset на GitHub', sub:'38 скиллов из Data Accelerator toolset по областям. Фильтруйте по теме, фреймворку или языку, на которые рассчитан скилл, и открывайте любой скилл, чтобы увидеть, что он делает. Чтобы поставить скиллы вручную, добавьте их и скачайте одним ZIP.',
+      add:'+ Добавить', added:'Добавлен', addShown:'Добавить все показанные ({n})', selected:'Выбрано: {n}', bShow:'Показать список', bHide:'Скрыть список', remove:'Убрать',
+      bNote:'Из них {k} требуют настройки: см. README.txt в ZIP', bTip:'Распакуйте в папку скиллов вашего агента: см. README.txt в ZIP', bClear:'Очистить', bDl:'Скачать ZIP',
       tree:'Дерево', matrix:'Матрица тем', search:'Поиск по id, названию или описанию', reset:'Сбросить', fTopic:'Тема', fAp:'Применимость',
       of:'из', none:'Ничего не найдено. Сбросьте фильтры.', any:'любой проект', what:'Что делает', benefits:'Что даёт', where:'Путь в репо', ver:'Версия',
       colSkill:'скилл', colAp:'применимость',
@@ -174,9 +213,98 @@ const GROUPS = [
   {k:'General', t:{en:'General, any stack', ru:'Общие, любой стек'}, c:'--g-gn', s:'--g-gn-soft'}
 ];
 const SUB_RU = {'Pipelines, SQL and data safety':'Pipelines, SQL и безопасность данных','Review and testing':'Review и тесты','Development process':'Процесс разработки','Docs and writing':'Документы и текст','Research':'Исследования'};
-const st = {q:'', topics:new Set(), ap:new Set(), nw:new Set(), view:'tree', lang:'en', open:new Set()};
+const st = {q:'', topics:new Set(), ap:new Set(), nw:new Set(), view:'tree', lang:'en', open:new Set(), basket:new Set(), shown:[]};
 try { if (localStorage.getItem('skillmap-view') === 'matrix') st.view = 'matrix';
-      if (localStorage.getItem('skillmap-lang') === 'ru') st.lang = 'ru'; } catch(e){}
+      if (localStorage.getItem('skillmap-lang') === 'ru') st.lang = 'ru';
+      // A remembered id the current catalog no longer has is dropped.
+      const ids = new Set(DATA.map(a=>a.id));
+      JSON.parse(localStorage.getItem('skillmap-basket') || '[]').forEach(id => { if (ids.has(id)) st.basket.add(id); }); } catch(e){}
+
+// ZIP:BEGIN Download ZIP: README text and a ZIP writer. tests/test_catalog_map_zip.py runs this block in Node.
+// build.js stores each file as [path, crc32, size, mode, base64 of raw deflate], so entries go in finished.
+const ZIP_TEXT = {
+  en:{head:'Skills from the Data Accelerator toolset', ver:'Catalog version', date:'Downloaded',
+      manual:['This is a manual install. These copies do not update, and Accelerator\'s update,',
+              'uninstall and feedback commands do not know about them. For an install that the',
+              'team and CI reproduce, use Accelerator:',
+              'https://github.com/innowise-ai/data-accelerator-installation'],
+      where:'Where to put them', whereText:'Each folder is one skill. Copy the folders into your agent\'s skills folder:',
+      agents:[['Claude Code','.claude/skills/ in the project, or ~/.claude/skills/ for every project'],
+              ['Codex','.agents/skills/ in the project, or ~/.agents/skills/ for every project'],
+              ['Cursor','.cursor/skills/ in the project']],
+      restart:'Then start a new agent session.',
+      clash:['If you later install one of these skills with Accelerator, delete this copy first:',
+             'both use the folder named after the skill id.'],
+      skills:'Skills', tools:'Needs', access:'Access'},
+  ru:{head:'Скиллы из Data Accelerator toolset', ver:'Версия каталога', date:'Скачано',
+      manual:['Это ручная установка. Эти копии не обновляются, а команды Accelerator update,',
+              'uninstall и feedback о них не знают. Для установки, которую повторяют команда и CI,',
+              'используйте Accelerator:',
+              'https://github.com/innowise-ai/data-accelerator-installation'],
+      where:'Куда положить', whereText:'Каждая папка — это один скилл. Скопируйте папки в папку скиллов вашего агента:',
+      agents:[['Claude Code','.claude/skills/ в проекте или ~/.claude/skills/ для всех проектов'],
+              ['Codex','.agents/skills/ в проекте или ~/.agents/skills/ для всех проектов'],
+              ['Cursor','.cursor/skills/ в проекте']],
+      restart:'Затем начните новую сессию агента.',
+      clash:['Если позже поставите один из этих скиллов через Accelerator, сначала удалите эту копию:',
+             'оба используют папку с именем id скилла.'],
+      skills:'Скиллы', tools:'Нужно', access:'Доступы'}
+};
+function readme(ids, lang, now){
+  const t = ZIP_TEXT[lang] || ZIP_TEXT.en;
+  const ru = lang === 'ru';
+  const lines = [t.head, '', `${t.ver}: ${REF}`, `${t.date}: ${now.toISOString().slice(0,10)}`, '', ...t.manual, '',
+    t.where, t.whereText, ...t.agents.map(([a,p]) => `  ${a.padEnd(14)}${p}`), t.restart, '', ...t.clash, '',
+    `${t.skills} (${ids.length})`];
+  for (const id of ids){
+    const a = DATA.find(x=>x.id===id);
+    const rq = (ru && a.ru && a.ru.rq) ? a.ru.rq : a.rq;
+    lines.push('', `  ${a.id}  ${a.v}`, `    ${(ru && a.ru) ? a.ru.n : a.n}`);
+    if (rq && rq.tools && rq.tools.length) lines.push(`    ${t.tools}: ${rq.tools.join('; ')}`);
+    if (rq && rq.access && rq.access.length) lines.push(`    ${t.access}: ${rq.access.join('; ')}`);
+  }
+  return lines.join('\r\n') + '\r\n';
+}
+const CRC_T = new Uint32Array(256).map((_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+const crc32 = b => { let c = 0xffffffff; for (const x of b) c = CRC_T[(c ^ x) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+// One folder per skill, named by its id as the installer names it, plus README.txt.
+function bundle(ids, lang, now){
+  const entries = [];
+  for (const id of ids) for (const [p, crc, size, mode, packed] of FILES[id])
+    entries.push({path:`${id}/${p}`, crc, size, mode, method:8, data:unb64(packed)});
+  const text = new TextEncoder().encode(readme(ids, lang, now));
+  entries.push({path:'README.txt', crc:crc32(text), size:text.length, mode:0o644, method:0, data:text});
+  return entries;
+}
+function zipBlob(entries, now){
+  const enc = new TextEncoder(), parts = [], central = [];
+  const time = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
+  const date = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+  let off = 0;
+  for (const e of entries){
+    const name = enc.encode(e.path);
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, e.method, true);
+    h.setUint16(10, time, true); h.setUint16(12, date, true); h.setUint32(14, e.crc, true);
+    h.setUint32(18, e.data.length, true); h.setUint32(22, e.size, true); h.setUint16(26, name.length, true);
+    parts.push(new Uint8Array(h.buffer), name, e.data);
+    const c = new DataView(new ArrayBuffer(46));
+    // Made by Unix (3), so unzip on macOS and Linux applies the file mode in the high 16 bits.
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 0x0314, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true);
+    c.setUint16(10, e.method, true); c.setUint16(12, time, true); c.setUint16(14, date, true); c.setUint32(16, e.crc, true);
+    c.setUint32(20, e.data.length, true); c.setUint32(24, e.size, true); c.setUint16(28, name.length, true);
+    c.setUint32(38, ((0o100000 | e.mode) << 16) >>> 0, true); c.setUint32(42, off, true);
+    central.push(new Uint8Array(c.buffer), name);
+    off += 30 + name.length + e.data.length;
+  }
+  const size = central.reduce((s, p) => s + p.length, 0);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, entries.length, true); end.setUint16(10, entries.length, true);
+  end.setUint32(12, size, true); end.setUint32(16, off, true);
+  return new Blob([...parts, ...central, new Uint8Array(end.buffer)], {type:'application/zip'});
+}
+// ZIP:END
 
 const $ = id => document.getElementById(id);
 const tr = k => T[st.lang][k];
@@ -226,12 +354,16 @@ function item(a, g){
     <div><h3>${tr('needs')}</h3>${needsOf(a)}</div>
     <div><h3>${tr('where')}</h3><p class="mono"><a href="${REPO}/blob/${esc(REF)}/${esc(a.p)}/SKILL.md" target="_blank" rel="noopener">${esc(a.p)}/SKILL.md</a></p>
     <h3>${tr('ver')}</h3><p class="mono">${esc(a.v)}</p></div></div>` : '';
-  return `<div class="item" style="--gc:var(${g.c});--gs:var(${g.s})">
-    <button data-id="${esc(a.id)}" aria-expanded="${open}">
+  return `<div class="item" style="--gc:var(${g.c});--gs:var(${g.s})"><div class="ihead">
+    <button class="exp" data-id="${esc(a.id)}" aria-expanded="${open}">
       <span class="iid">${esc(a.id)}</span>
       <span class="iname">${esc(L(a,'n'))}</span>
       <span class="tags">${tagsOf(a)}</span>
-    </button>${det}</div>`;
+    </button>${addBtn(a)}</div>${det}</div>`;
+}
+function addBtn(a){
+  const on = st.basket.has(a.id);
+  return `<button class="add" data-add="${esc(a.id)}" aria-pressed="${on}" aria-label="${esc((on ? tr('remove') : tr('add')) + ' ' + a.id)}">${on ? '✓ ' + tr('added') : tr('add')}</button>`;
 }
 // A skill can sit in several groups (a.gs is a list of [group, subgroup]); it shows once in each.
 const inGroup = (a,k) => a.gs.some(p=>p[0]===k);
@@ -247,11 +379,11 @@ function renderTree(list){
 }
 function renderMatrix(list){
   if(!list.length) return `<div class="panel empty">${tr('none')}</div>`;
-  const head = `<tr><th class="l">${tr('colSkill')}</th>${topics.map(t=>`<th class="rot"><span>${esc(t)}</span></th>`).join('')}<th>${tr('colAp')}</th></tr>`;
+  const head = `<tr><th class="l">${tr('colSkill')}</th>${topics.map(t=>`<th class="rot"><span>${esc(t)}</span></th>`).join('')}<th>${tr('colAp')}</th><th></th></tr>`;
   let rows = '';
   GROUPS.forEach(g=>{ const items=list.filter(a=>inGroup(a,g.k)); if(!items.length) return;
-    rows += `<tr class="gh"><td colspan="${topics.length+2}" style="color:var(${g.c})">${g.t[st.lang]}</td></tr>`;
-    rows += items.map(a=>`<tr style="--gc:var(${g.c})"><td class="l">${esc(a.id)}</td>${topics.map(t=>`<td>${a.t.includes(t)?'<span class="dot"></span>':''}</td>`).join('')}<td class="mono">${esc(apList(a).join(', ')||'—')}</td></tr>`).join('');
+    rows += `<tr class="gh"><td colspan="${topics.length+3}" style="color:var(${g.c})">${g.t[st.lang]}</td></tr>`;
+    rows += items.map(a=>`<tr style="--gc:var(${g.c})"><td class="l">${esc(a.id)}</td>${topics.map(t=>`<td>${a.t.includes(t)?'<span class="dot"></span>':''}</td>`).join('')}<td class="mono">${esc(apList(a).join(', ')||'—')}</td><td>${addBtn(a)}</td></tr>`).join('');
   });
   return `<div class="panel mwrap"><table><thead>${head}</thead><tbody>${rows}</tbody></table></div>`;
 }
@@ -272,16 +404,54 @@ function i18n(){
   buildChips($('f-ap'), aps, st.ap, apLabel);
   stats();
 }
+function renderBasket(){
+  const n = st.basket.size;
+  $('basket').hidden = !n;
+  document.body.classList.toggle('has-basket', n > 0);
+  if (!n) { $('b-list').hidden = true; return; }
+  const sel = DATA.filter(a=>st.basket.has(a.id));
+  const k = sel.filter(a=>a.rq).length;
+  $('b-count').textContent = tr('selected').replace('{n}', n);
+  $('b-note').textContent = k ? tr('bNote').replace('{k}', k) : tr('bTip');
+  const open = !$('b-list').hidden;
+  $('b-toggle').textContent = open ? tr('bHide') : tr('bShow');
+  $('b-toggle').setAttribute('aria-expanded', open);
+  $('b-list').innerHTML = sel.map(a=>`<span class="bchip">${esc(a.id)}<button data-rm="${esc(a.id)}" aria-label="${esc(tr('remove') + ' ' + a.id)}">×</button></span>`).join('');
+}
 function render(){
   const list = DATA.filter(match);
+  st.shown = list.map(a=>a.id);
   $('count').textContent = `${list.length} ${tr('of')} ${DATA.length}`;
+  const missing = st.shown.filter(id=>!st.basket.has(id)).length;
+  $('add-shown').hidden = !missing;
+  $('add-shown').textContent = tr('addShown').replace('{n}', missing);
   $('main').innerHTML = `<div style="display:flex;flex-direction:column;gap:20px">${st.view==='tree'?renderTree(list):renderMatrix(list)}</div>`;
   $('v-tree').setAttribute('aria-pressed', st.view==='tree');
   $('v-matrix').setAttribute('aria-pressed', st.view==='matrix');
+  renderBasket();
 }
-$('main').onclick = e => { const b=e.target.closest('.item>button'); if(!b) return;
+function saveBasket(){ try{localStorage.setItem('skillmap-basket', JSON.stringify([...st.basket]));}catch(e){} }
+$('main').onclick = e => {
+  const add = e.target.closest('.add');
+  if (add){ const id = add.dataset.add; st.basket.has(id) ? st.basket.delete(id) : st.basket.add(id); saveBasket(); render();
+    const nb = document.querySelector(`.add[data-add="${id}"]`); if (nb) nb.focus(); return; }
+  const b=e.target.closest('.exp'); if(!b) return;
   const id=b.dataset.id; st.open.has(id)?st.open.delete(id):st.open.add(id); render();
-  const nb=document.querySelector(`.item>button[data-id="${id}"]`); if(nb) nb.focus(); };
+  const nb=document.querySelector(`.exp[data-id="${id}"]`); if(nb) nb.focus(); };
+$('add-shown').onclick = () => { st.shown.forEach(id=>st.basket.add(id)); saveBasket(); render(); };
+$('b-list').onclick = e => { const b=e.target.closest('[data-rm]'); if(!b) return;
+  st.basket.delete(b.dataset.rm); saveBasket(); render(); };
+$('b-toggle').onclick = () => { $('b-list').hidden = !$('b-list').hidden; renderBasket(); };
+$('b-clear').onclick = () => { st.basket.clear(); saveBasket(); render(); };
+$('b-dl').onclick = () => {
+  const now = new Date();
+  const ids = DATA.map(a=>a.id).filter(id=>st.basket.has(id));
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(zipBlob(bundle(ids, st.lang, now), now));
+  a.download = `accelerator-skills-${REF}.zip`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 10000);
+};
 $('q').oninput = e => { st.q = e.target.value.trim().toLowerCase(); render(); };
 $('reset').onclick = () => { st.q=''; $('q').value=''; st.topics.clear(); st.ap.clear(); st.nw.clear();
   document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false')); render(); };

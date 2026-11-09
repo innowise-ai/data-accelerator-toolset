@@ -389,8 +389,8 @@ Upstream:  https://github.com/Unknown-333/awesome-data-engineering-skills (commi
 Licence:   Apache License 2.0, as modified by the upstream repository (see below)
 Copyright: Copyright 2026 awesome-data-engineering-skills contributors
 
-One skill was adapted into an artifact in this catalog, with one section of a
-reference file of a second skill used as an additional source.
+Two skills were adapted into artifacts in this catalog, one of them with one
+section of a reference file of a third skill used as an additional source.
 
 About the licence: the repository's LICENSE file is the Apache License 2.0 with
 parts removed, which is why GitHub reports it as NOASSERTION. Section 4(d), the
@@ -400,9 +400,13 @@ the appendix. The grants of sections 2 and 3 are
 intact. This catalog treats the work as licensed under Apache-2.0 and meets that
 licence's conditions; the upstream file is reproduced below exactly as published.
 
-Changes made (Apache-2.0 section 4(b)): this artifact is a modified version, not a
-copy. Upstream's skill is a short checklist of patterns and pitfalls; the artifact
-was rewritten as prose that explains why each fix works, and restructured to
+Changes made (Apache-2.0 section 4(b)): each artifact is a modified version, not a
+copy. Upstream publishes no NOTICE file of its own. In both, upstream's trigger
+conditions in the SKILL.md frontmatter were re-expressed as catalog metadata
+(`applies_to`, `strength`, `topics`).
+
+SPARK-JOB-TUNING: upstream's skill is a short checklist of patterns and pitfalls;
+the artifact was rewritten as prose that explains why each fix works, and restructured to
 follow SNOWFLAKE-QUERY-PROFILE-DIAGNOSIS: collect the Spark UI evidence, name the
 dominant cause from a table of evidence and causes, fix that cause, re-measure.
 Content was added that upstream does not contain, including the Jobs timeline
@@ -410,13 +414,22 @@ check for driver-side time, join fan-out as a cause of spill, null join keys as 
 source of skew, the limits of broadcast joins and of AQE skew handling, the
 salting code, the parallelism trap of coalesce, partition pruning checks, and
 comparing output as well as timings after a fix. Defaults quoted in the artifact
-were checked against the Apache Spark documentation. Upstream's trigger
-conditions in the SKILL.md frontmatter were re-expressed as catalog metadata
-(`applies_to`, `strength`, `topics`). Upstream publishes no NOTICE file of its
-own.
+were checked against the Apache Spark documentation.
+
+MEDALLION-LAYER-BOUNDARIES: upstream's skill is a short checklist of the three
+layers, a table of write modes and quality gates, and a list of pitfalls. The
+artifact keeps that layer model and those pitfalls, rewritten as prose that
+explains why each boundary holds. Content was added that upstream does not
+contain, including loose typing and per-row load metadata in bronze, idempotent
+bronze loads, what limits how far bronze can replay, a deterministic tie-break
+for silver deduplication, how MERGE handles duplicate source keys, the
+whole-table trap of static partition overwrite, when fewer layers are enough, and
+platform notes for Microsoft Fabric, Databricks, plain Spark and dbt. Platform
+statements were checked against the Microsoft Fabric and Databricks documentation.
 
 Artifacts derived from this source:
 
+  MEDALLION-LAYER-BOUNDARIES <- skills/designing-medallion-architecture
   SPARK-JOB-TUNING <- skills/optimizing-pyspark-jobs
                       skills/optimizing-sql-queries/references/ENGINES.md
                       (the "Spark SQL / Databricks" section only)

@@ -59,6 +59,14 @@
   "Data engineering",
   "Snowflake"
  ],
+ "DATABRICKS-DECLARATIVE-PIPELINE-DESIGN": [
+  "Data engineering",
+  "Databricks"
+ ],
+ "DATABRICKS-UNITY-CATALOG-ACCESS-CHANGE": [
+  ["Data engineering", "Databricks"],
+  ["Database administration", "Databricks"]
+ ],
  "AIRFLOW-DAG-STRUCTURE": [
   "Data engineering",
   "Airflow"
@@ -111,6 +119,10 @@
   "Data engineering",
   "Pipelines, SQL and data safety"
  ],
+ "MEDALLION-LAYER-BOUNDARIES": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
  "NL2SQL-QUERY-VALIDATION": [
   "Data engineering",
   "Pipelines, SQL and data safety"
@@ -120,6 +132,10 @@
   "Pipelines, SQL and data safety"
  ],
  "DATA-QUALITY-CONTROLS": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
+ "MIGRATION-DATA-RECONCILIATION": [
   "Data engineering",
   "Pipelines, SQL and data safety"
  ],

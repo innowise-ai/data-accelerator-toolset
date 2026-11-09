@@ -1,0 +1,25 @@
+{
+  "id": "DATABRICKS-UNITY-CATALOG-ACCESS-CHANGE",
+  "version": "0.1.0",
+  "source_path": "artifacts/DATABRICKS-UNITY-CATALOG-ACCESS-CHANGE",
+  "applies_to": {
+    "frameworks": ["databricks"]
+  },
+  "strength": "on-demand",
+  "topics": ["security", "database-administration"],
+  "scope": "project",
+  "requires": {
+    "access": ["A SQL warehouse or cluster on Unity Catalog the agent can run SQL through", "A read identity with BROWSE (or USE CATALOG and USE SCHEMA) and READ METADATA on the catalogs in scope"]
+  },
+  "presentation": {
+    "name": "Change Unity Catalog access without over-granting",
+    "summary": "Grants, revokes and restricts access in Databricks Unity Catalog with the smallest change that does the job, after tracing every path through which access is inherited.",
+    "benefits": [
+      "Shows every path to an object, including grants inherited from schemas, catalogs and groups",
+      "Grants at the lowest level that covers the request, and says what a schema or catalog grant also reaches",
+      "Revokes where the access actually comes from, and confirms no path remains",
+      "Applies row filters and column masks after checking which readers they would lock out",
+      "Reads by default and confirms each grant, revoke or ownership transfer before running it"
+    ]
+  }
+}

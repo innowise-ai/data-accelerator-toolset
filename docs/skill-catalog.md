@@ -5,9 +5,9 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-55 artifacts today: 32 data-engineering specific (dbt, Snowflake, Spark, Airflow,
-Tableau, Python pipeline code, sensitive data handling, stack-agnostic pipeline
-quality), 2 for BI and analytics,
+59 artifacts today: 36 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
+Tableau, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality
+and lakehouse layering), 2 for BI and analytics,
 4 for containers and local environments, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
 `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
@@ -23,13 +23,15 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (32)
+## Data engineering (36)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
 | **Structure Airflow DAGs for safe, cheap imports** (`AIRFLOW-DAG-STRUCTURE`) | airflow | orchestration | Structures Airflow DAGs so nothing expensive or fragile runs at import time. |
 | **Trace wrong data when the pipeline succeeded** (`DATA-INCIDENT-TRACING`) | any | debugging, data-quality | Traces wrong data back to the code that produced it when the pipeline reported success. |
 | **Build data quality controls: quarantine, release diff, scorecards** (`DATA-QUALITY-CONTROLS`) | any | data-quality, ingestion | Builds the controls that keep invalid records out of published data, show what each publish changes, and score data quality per source and stage. |
+| **Design Databricks declarative pipelines: table types, expectations, CDC** (`DATABRICKS-DECLARATIVE-PIPELINE-DESIGN`) | databricks | ingestion, data-modeling, data-quality | Designs Lakeflow pipelines (formerly DLT): a streaming table or materialized view per dataset, expectations, AUTO CDC and Auto Loader ingestion, without a full refresh losing history. |
+| **Change Unity Catalog access without over-granting** (`DATABRICKS-UNITY-CATALOG-ACCESS-CHANGE`) | databricks | security, database-administration | Grants, revokes and restricts access in Databricks Unity Catalog with the smallest change that does the job, after tracing every path through which access is inherited. |
 | **Diagnose a failing dbt build from compiled SQL** (`DBT-BUILD-FAILURE-DIAGNOSIS`) | dbt | debugging | Diagnoses a failing dbt build from the compiled SQL rather than the error text. |
 | **Trace a dbt column upstream and downstream** (`DBT-COLUMN-LINEAGE`) | dbt | data-modeling | Traces where a dbt model's column came from and what depends on it, without reading SQL by hand across the model chain. Requires dbt Cloud + MCP server. |
 | **Choose a dbt incremental strategy and unique key** (`DBT-INCREMENTAL-STRATEGY`) | dbt | data-modeling, performance | Chooses an incremental strategy and unique key that survive late data and schema drift. |
@@ -41,6 +43,8 @@ one project gets.
 | **Pick dbt schema tests for each column role** (`DBT-MODEL-TESTING`) | dbt | testing, data-quality | Picks dbt schema tests that catch real defects for each column role. |
 | **Split a monolithic ETL function into testable units** (`ETL-DECOMPOSITION`) | python | refactoring, orchestration | Splits a monolithic extract-transform-load function into testable units with I/O at the edges. |
 | **Turn a requested metric into a definition that can be implemented twice** (`KPI-DEFINITION-BUILDING`) | any | data-modeling | Turns a metric requested in words into a specification precise enough that two independent implementations produce the same number. |
+| **Define what belongs in each medallion layer, on any platform** (`MEDALLION-LAYER-BOUNDARIES`) | any | data-modeling, ingestion | Sets what bronze, silver and gold each hold and must not hold, how data moves between them safely, and where quality checks sit, for Fabric, Databricks, plain Spark or dbt. |
+| **Reconcile migrated data with the legacy warehouse, column by column** (`MIGRATION-DATA-RECONCILIATION`) | any | data-quality | Compares data moved from a legacy warehouse (SAP BW, Teradata, Oracle) with its lakehouse copy, separates format differences from real ones, and reports only the real ones. |
 | **Generate SQL from natural language, validated before it runs** (`NL2SQL-QUERY-VALIDATION`) | sql | data-quality | Generates SQL from natural language without letting an unvalidated query reach the database. |
 | **Pick the cheapest checks a pipeline change needs** (`PIPELINE-CHECK-SELECTION`) | any | testing, data-quality | Selects the cheapest checks that would actually catch the regression a change can cause. |
 | **Review the data a pipeline run actually produced** (`PIPELINE-OUTPUT-REVIEW`) | any | code-review, data-quality | Reviews the data a pipeline run actually produced, not just whether tests passed. |

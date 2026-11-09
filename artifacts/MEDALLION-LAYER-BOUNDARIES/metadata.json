@@ -1,0 +1,20 @@
+{
+  "id": "MEDALLION-LAYER-BOUNDARIES",
+  "version": "0.1.0",
+  "source_path": "artifacts/MEDALLION-LAYER-BOUNDARIES",
+  "applies_to": {},
+  "strength": "on-demand",
+  "topics": ["data-modeling", "ingestion"],
+  "scope": "project",
+  "presentation": {
+    "name": "Define what belongs in each medallion layer, on any platform",
+    "summary": "Sets what bronze, silver and gold each hold and must not hold, how data moves between them safely, and where quality checks sit, for Fabric, Databricks, plain Spark or dbt.",
+    "benefits": [
+      "Keeps bronze a replayable copy of what arrived, so a logic fix is recomputed rather than re-pulled from the source",
+      "Makes every write between layers safe to re-run, so retries and backfills do not duplicate rows",
+      "Puts blocking checks in silver and business-rule checks in gold, where a failure stops the fewest consumers",
+      "Says when three layers are more than the pipeline needs",
+      "Covers Fabric lakehouse versus warehouse, OneLake shortcuts, Unity Catalog, and how the layers map onto dbt"
+    ]
+  }
+}

@@ -44,6 +44,20 @@ materialising it as a table doubles storage to persist a near-copy of the source
 **Marts are tables.** They are read often and joined against; recomputing a view
 chain on every dashboard query is where warehouse spend goes.
 
+### Bronze, silver and gold
+
+Teams that speak in medallion terms map them onto these layers roughly as follows.
+
+| Medallion | dbt | Notes |
+|---|---|---|
+| Bronze | Raw sources | The loader writes the raw tables; dbt declares them as sources and does not transform them |
+| Silver | Staging + intermediate | Staging renames and casts; intermediate deduplicates and conforms across sources |
+| Gold | Marts | Close match |
+
+Pick one vocabulary per project and say which. What
+each medallion layer is for, including lakehouses with no dbt in them, is
+[medallion-layer-boundaries](../MEDALLION-LAYER-BOUNDARIES/SKILL.md).
+
 ## The staging rule
 
 **Staging is 1:1 with the source. No joins, no business logic.**
