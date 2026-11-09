@@ -31,9 +31,10 @@ Neighbours:
 - Designing quarantine, a release comparison and quality scores is
   [data-quality-controls](../DATA-QUALITY-CONTROLS/SKILL.md). Expectations below
   are the mechanism a pipeline uses to apply such rules.
+- Which medallion layer a dataset belongs to, and what each layer may contain,
+  is [medallion-layer-boundaries](../MEDALLION-LAYER-BOUNDARIES/SKILL.md).
 - Delta table maintenance (`MERGE` outside a pipeline, `OPTIMIZE`, `VACUUM`,
-  clustering) and which medallion layer a dataset belongs to are outside this
-  skill.
+  clustering) is outside this skill.
 
 ## First: read the pipeline as it is
 
