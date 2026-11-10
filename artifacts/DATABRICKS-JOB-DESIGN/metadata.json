@@ -1,0 +1,25 @@
+{
+  "id": "DATABRICKS-JOB-DESIGN",
+  "version": "0.1.0",
+  "source_path": "artifacts/DATABRICKS-JOB-DESIGN",
+  "applies_to": {
+    "frameworks": ["databricks"]
+  },
+  "strength": "on-demand",
+  "topics": ["orchestration"],
+  "scope": "project",
+  "requires": {
+    "access": ["A Databricks workspace with a development target where the agent may deploy and run the job"]
+  },
+  "presentation": {
+    "name": "Design Databricks jobs that retry and repair without duplicating data",
+    "summary": "Designs Lakeflow Jobs so that retries, repairs, queued runs and triggers never write the same data twice, with the right compute for each task.",
+    "benefits": [
+      "Makes every task safe to re-run, with an explicit window per run instead of one computed from the clock",
+      "Explains what a repair re-runs and why it uses the job's current settings, not the original run's",
+      "Sets run-if conditions, retries, timeouts, concurrency and queueing so runs are neither skipped nor overlapping",
+      "Chooses schedule, file-arrival, table-update or continuous triggers, and serverless, job or SQL warehouse compute per task",
+      "Configures the dbt task for dbt Core with pinned adapter, commands and Git source"
+    ]
+  }
+}

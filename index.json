@@ -193,6 +193,31 @@
       }
     },
     {
+      "id": "DATABRICKS-JOB-DESIGN",
+      "version": "0.1.0",
+      "source_path": "artifacts/DATABRICKS-JOB-DESIGN",
+      "applies_to": {
+        "frameworks": ["databricks"]
+      },
+      "strength": "on-demand",
+      "topics": ["orchestration"],
+      "scope": "project",
+      "requires": {
+        "access": ["A Databricks workspace with a development target where the agent may deploy and run the job"]
+      },
+      "presentation": {
+        "name": "Design Databricks jobs that retry and repair without duplicating data",
+        "summary": "Designs Lakeflow Jobs so that retries, repairs, queued runs and triggers never write the same data twice, with the right compute for each task.",
+        "benefits": [
+          "Makes every task safe to re-run, with an explicit window per run instead of one computed from the clock",
+          "Explains what a repair re-runs and why it uses the job's current settings, not the original run's",
+          "Sets run-if conditions, retries, timeouts, concurrency and queueing so runs are neither skipped nor overlapping",
+          "Chooses schedule, file-arrival, table-update or continuous triggers, and serverless, job or SQL warehouse compute per task",
+          "Configures the dbt task for dbt Core with pinned adapter, commands and Git source"
+        ]
+      }
+    },
+    {
       "id": "DATABRICKS-UNITY-CATALOG-ACCESS-CHANGE",
       "version": "0.1.0",
       "source_path": "artifacts/DATABRICKS-UNITY-CATALOG-ACCESS-CHANGE",
@@ -1021,6 +1046,31 @@
           "Explains why each fix works: broadcast joins, AQE, salting, partition sizing, repartition versus coalesce",
           "Catches driver-side work and Python UDFs that no cluster setting can speed up",
           "Confirms the gain by re-running on the same input and checking the output did not change"
+        ]
+      }
+    },
+    {
+      "id": "SPARK-STREAMING-QUERY-DESIGN",
+      "version": "0.1.0",
+      "source_path": "artifacts/SPARK-STREAMING-QUERY-DESIGN",
+      "applies_to": {
+        "frameworks": ["spark", "databricks"]
+      },
+      "strength": "on-demand",
+      "topics": ["ingestion"],
+      "scope": "project",
+      "requires": {
+        "access": ["A Spark or Databricks environment where the agent may run the query against a development checkpoint and target"]
+      },
+      "presentation": {
+        "name": "Design Spark streaming queries that restart without loss or duplicates",
+        "summary": "Designs Structured Streaming queries outside declarative pipelines so that restarts, code changes and failures neither skip nor repeat data, and state stays bounded.",
+        "benefits": [
+          "Keeps one checkpoint per query and says which code changes it survives and which need a planned migration",
+          "Makes foreachBatch writes idempotent with MERGE or Delta transaction ids, including after a new checkpoint",
+          "Chooses available-now, processing-time or real-time triggers, within what serverless supports",
+          "Bounds state with watermarks for aggregations, deduplication and stream-stream joins",
+          "Sets Kafka and Delta source options so expired or changed data fails loudly instead of disappearing"
         ]
       }
     },
