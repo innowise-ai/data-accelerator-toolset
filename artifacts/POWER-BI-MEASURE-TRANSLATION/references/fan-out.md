@@ -5,9 +5,14 @@ multiplied rows is already baked into a SQL `SUM`. The model does not keep
 that join as a `JOIN`. It keeps it as a relationship, and the measure
 aggregates a column in filter context.
 
-Re-aggregating the fact column is the translation that preserves the number,
-provided the relationship has the cardinality and the filter direction of
-the join you are replacing. State both. A many-to-many, or a relationship
+A relationship filters the fact table; it does not duplicate fact rows. So
+re-aggregating the fact column returns the sum at the fact grain, which is
+not the SQL number if the join inflated it. Decide with the author whether
+that inflation was a bug or the metric they meant. If it was a bug, the DAX
+is the corrected number and the difference is reported, not hidden. If it
+was intended, the DAX has to reproduce the multiplication explicitly, for
+example by iterating the joined rows. Either way, state the cardinality and
+the filter direction of the relationship that replaces the join. A many-to-many, or a relationship
 that filters both ways, is not the join the SQL wrote, and the number can
 move without the measure text changing.
 
@@ -27,8 +32,11 @@ the `GROUP BY` named:
 ```dax
 COUNTROWS(Fact)              -- SQL COUNT(*) of fact rows
 COUNT(Fact[OrderId])         -- SQL COUNT(col): non-blank
-DISTINCTCOUNT(Fact[OrderId]) -- SQL COUNT(DISTINCT col)
+DISTINCTCOUNTNOBLANK(Fact[OrderId]) -- SQL COUNT(DISTINCT col)
 ```
+
+`DISTINCTCOUNT` counts BLANK as one value; SQL `COUNT(DISTINCT col)` ignores
+NULL. On a column that has blanks, only `DISTINCTCOUNTNOBLANK` matches.
 
 The names are the pattern in [`../SKILL.md`](../SKILL.md). Copy the
 identifiers you bound. If you cannot tell which column still holds one
