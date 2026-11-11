@@ -103,6 +103,38 @@
   "Data engineering",
   "Power BI"
  ],
+ "TABLEAU-ANALYTICAL-CALCS": [
+  "Data engineering",
+  "Tableau"
+ ],
+ "TABLEAU-DASHBOARD-FAQ": [
+  "Data engineering",
+  "Tableau"
+ ],
+ "TABLEAU-WORKBOOK-AUDIT": [
+  "Data engineering",
+  "Tableau"
+ ],
+ "TABLEAU-PERFORMANCE-DIAGNOSIS": [
+  "Data engineering",
+  "Tableau"
+ ],
+ "TABLEAU-WORKBOOK-DIFF": [
+  "Data engineering",
+  "Tableau"
+ ],
+ "TABLEAU-DATASOURCE-MIGRATION": [
+  "Data engineering",
+  "Tableau"
+ ],
+ "TABLEAU-MEASURE-TRANSLATION": [
+  "BI and analytics",
+  "Tableau"
+ ],
+ "TABLEAU-PULSE-READINESS": [
+  "BI and analytics",
+  "Tableau"
+ ],
  "ETL-DECOMPOSITION": [
   "Data engineering",
   "Pipelines, SQL and data safety"
@@ -112,6 +144,10 @@
   "Pipelines, SQL and data safety"
  ],
  "SCD2-IMPLEMENTATION": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
+ "KPI-DEFINITION-BUILDING": [
   "Data engineering",
   "Pipelines, SQL and data safety"
  ],
