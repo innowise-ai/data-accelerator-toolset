@@ -78,21 +78,24 @@ write-up.
 A Desktop performance recording times one interaction on the machine that
 captured it. For each visual it separates the time spent waiting for that
 visual's query from the time spent drawing the visual, plus a remainder that
-is neither. That split is enough to tell a query problem from a rendering
-problem for that interaction.
+is neither. When a table is DirectQuery, it also records how long the
+external query took to return, as its own duration. That split is enough to
+tell a query problem from a rendering problem, and warehouse time from the
+rest, for that interaction.
 
-It is not enough to tell engine time from formula time from warehouse time.
-The query duration is one number. On an imported table that number mixes the
-formula engine and the storage engine. On DirectQuery it includes the wait
-for the warehouse. The recording does not contain those parts, and it does
-not time a service refresh at all. A recording from Desktop is also not the
+It is not enough to tell formula-engine time from storage-engine time. The
+DAX query duration is one number, and on an imported table it mixes the
+two. The recording does not contain that split, and it does not time a
+service refresh at all. A recording from Desktop is also not the
 report running in the service under the capacity its readers use. Say which
 machine and which interaction the number belongs to.
 
 If a server trace of that same interaction is present, read it for the split
 the Desktop recording lacks. Formula-engine time is DAX the storage engine
-did not answer, including the cases where the formula engine calls back into
-the data row by row. Storage-engine time is scans of imported data. On
+did not answer. Storage-engine time is scans of imported data, and it
+includes callbacks: when a scan meets an expression it cannot compute, the
+storage engine calls the formula engine row by row (`CallbackDataID` in the
+xmSQL), and that work sits inside the storage-engine query. On
 DirectQuery, the trace can carry the warehouse statement and how long that
 statement took. Those parts explain where the query duration went. They do
 not prove that this query is the one the reader complained about, that a
@@ -137,8 +140,9 @@ Say that before anyone starts editing.
   DirectQuery as the cause. Structure is a hypothesis until a timing says
   the time is there.
 - Reading query duration as "the DAX is expensive". A Performance Analyzer
-  JSON does not split formula engine from storage engine or from the
-  warehouse.
+  JSON does not split formula engine from storage engine; it reports
+  DirectQuery time separately, so read that duration before blaming the
+  model.
 - Reading a `.vpax` or a `.pbix` as why a page is slow. VertiPaq Analyzer
   is model size, not a timing, and a package is neither size nor a timing.
 - Treating a Desktop recording as the service refresh, or as the report

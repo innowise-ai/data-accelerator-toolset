@@ -11,8 +11,8 @@ service, not from these files.
 
 | Artifact | What it is | What it is not |
 |---|---|---|
-| Desktop recording | Performance Analyzer export, JSON, one interaction; per visual: query duration, render duration, remainder | not engine split, not refresh, not the service |
-| Server trace | DAX Studio server timings or a profiler trace | the only artifact that splits formula-engine / storage-engine / warehouse statement |
+| Desktop recording | Performance Analyzer export, JSON, one interaction; per visual: DAX query duration, DirectQuery duration when a table is DirectQuery, render duration, remainder | not engine split, not refresh, not the service |
+| Server trace | DAX Studio server timings or a profiler trace | the only artifact that splits formula-engine / storage-engine time, and the one that carries the warehouse statement text |
 | `.vpax` | VertiPaq Analyzer: model size | not a timing |
 | `.pbix` | a package | neither size evidence nor a timing |
 
@@ -20,17 +20,19 @@ service, not from these files.
 
 The recording belongs to one interaction: the slicer change, the bookmark,
 the page open, the drill that was slow. It lists each visual that did work
-and attributes that visual's time to three buckets:
+and attributes that visual's time to these buckets:
 
 - **The query.** How long that visual waited for a result.
+- **Direct query.** When a table is DirectQuery, how long the external
+  query took to return results.
 - **The display.** How long that visual spent drawing after the result
   arrived.
 - **The remainder.** Time in the interaction that is neither of those.
 
-The query bucket is one duration. It does not split formula-engine time from
-storage-engine time, and on DirectQuery it does not split the model's own
-work from the warehouse's. Do not read a long query duration as "the DAX is
-expensive" or as "the warehouse is slow". It is the wait, and the split is
+The DAX query bucket is one duration. It does not split formula-engine time
+from storage-engine time. Do not read a long query duration as "the DAX is
+expensive". On DirectQuery, read the Direct query duration first: it is the
+warehouse's part of the wait. The formula-engine / storage-engine split is
 not in this file.
 
 The recording does not include:
@@ -49,8 +51,8 @@ adds together.
 
 | Part | What it means | What it does not prove |
 |---|---|---|
-| Formula engine | DAX evaluated outside a storage-engine scan, including a callback that pulls rows back one at a time | That an iterator in the model is this time. The trace has to name the query |
-| Storage engine | Scans of imported data | That the model is "too big". A scan of a small table can dominate if the query runs it repeatedly |
+| Formula engine | DAX evaluated outside a storage-engine scan | That an iterator in the model is this time. The trace has to name the query |
+| Storage engine | Scans of imported data, including callbacks: a scan whose xmSQL shows `CallbackDataID` calls the formula engine row by row, and that time sits inside the storage-engine query | That the model is "too big". A scan of a small table can dominate if the query runs it repeatedly |
 | DirectQuery statement | The SQL the interaction sent, and how long the warehouse took | That the wait is the model's to fix. If the statement is the time, the next diagnosis is the warehouse's |
 
 Match the trace to the interaction. A trace collected at a different moment,
