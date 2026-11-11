@@ -8,7 +8,6 @@ findings are, and about the ways a naive search gets them wrong.
 
 A `.twb` is XML already. A `.twbx` is a zip around one, together with whatever the
 workbook packaged: extracts, file-based data, images.
-    10|
 ```bash
 unzip -o <workbook>.twbx -d <tmp>
 ```
@@ -19,7 +18,7 @@ workbook, and a small one can hold the worst workbook in the project.
 
 The root element records the Tableau version the workbook was last saved with.
 That is a cheap and useful audit fact — it bounds which features can be present,
-    20|and a version several years behind the project's current one says something about
+and a version several years behind the project's current one says something about
 when anyone last opened this file deliberately.
 
 ## Where each fact lives
@@ -30,7 +29,7 @@ when anyone last opened this file deliberately.
 | Extract or live | An extract element inside the data source; its absence means live |
 | Custom SQL | A relation marked as text, carrying the query as its body, rather than one naming a table |
 | Joins defined in the workbook | The relation tree on the data source, where join relations carry their clauses |
-    30|| Fields | Column elements: internal name, user-facing caption, datatype, dimension or measure role, and whether hidden |
+| Fields | Column elements: internal name, user-facing caption, datatype, dimension or measure role, and whether hidden |
 | Calculated fields | A column with a calculation child, whose formula is a string attribute |
 | Parameters | Columns on the parameters data source, with a domain type, a current value and the allowed set |
 | Worksheets | Worksheet elements, each naming the data sources it uses and carrying its own filters |
@@ -42,7 +41,7 @@ when anyone last opened this file deliberately.
 calculated field the internal name is usually generated and looks nothing like the
 caption a user sees.
 
-    40|That single fact decides whether the audit is right or useless:
+That single fact decides whether the audit is right or useless:
 
 - Searching for a caption finds the field's **declaration**. It will not find a
   single use of it, because no formula contains the caption.
@@ -52,7 +51,7 @@ caption a user sees.
 So the usable index is built in two passes: collect every field as a pair of
 internal name and caption, then search for each internal name across the whole
 file. Report in captions, search in internal names. Skipping the first pass is the
-   50|standard way to produce a report claiming most of a workbook is dead.
+standard way to produce a report claiming most of a workbook is dead.
 
 ## Everywhere a reference can hide
 
@@ -64,7 +63,7 @@ easy to miss because they are not shelves:
 - a tooltip or a dynamic title, where fields are embedded in formatted text
 - a group, set, bin or hierarchy built on the field
 - a reference line, band or trend-line definition
-   60|- an action — filter, highlight, parameter or set — which can carry source and
+- an action — filter, highlight, parameter or set — which can carry source and
   target field names
 - a sort, when the sort is by a field rather than by the displayed value
 
@@ -75,7 +74,7 @@ that a reader of the dashboard sees.
 ## Reading aggregation, and why it is a finding
 
 A worksheet does not refer to a raw field. It refers to an instance of the field
-    70|that names the base field plus the aggregation applied to it, which is why the
+that names the base field plus the aggregation applied to it, which is why the
 same measure can be summed on one sheet and averaged on another with nothing in
 the field's own definition recording either.
 
@@ -86,7 +85,7 @@ finding worth reporting: whatever a change to it does, it will not do the same
 thing everywhere.
 
 Level-of-detail expressions and table calculations are the place to be most
-    80|careful. Their result depends on the shelves and the filters around them, so the
+careful. Their result depends on the shelves and the filters around them, so the
 formula alone does not determine what the field computes. Read it, say what you
 read, and mark the reading as provisional.
 
@@ -97,7 +96,7 @@ read, and mark the reading as provisional.
   identical to something kept deliberately.
 - **Any claim about runtime.** No timings, no row counts, no query text as
   executed. Structure is a hypothesis about cost.
-    90|- **Any claim about the rendered view.** Zones carry coordinates and nothing about
+- **Any claim about the rendered view.** Zones carry coordinates and nothing about
   what renders in them.
 - **Any claim about correctness.** Formulas without the business rule they were
   written against cannot be judged, and the rule is not in the file.

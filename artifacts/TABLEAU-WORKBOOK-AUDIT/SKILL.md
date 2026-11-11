@@ -7,7 +7,7 @@ description: Assessing an inherited Tableau workbook from its file - the invento
 
 The question behind this work is never "is this workbook good". It is one of
 three: can I safely change it, what will it cost to maintain, or what did we just
-    10|inherit. The audit is worth doing because a workbook hides its own complexity —
+inherit. The audit is worth doing because a workbook hides its own complexity —
 drag-and-drop authoring leaves no diff, no module boundaries and no import graph,
 so the only way to find out what is in one is to read the file.
 
@@ -17,7 +17,7 @@ relationships between items that each look fine alone. A report listing eighty
 calculated fields is not an audit. An audit says which four of them a change would
 propagate through, and why.
 
-    20|The file mechanics — what the elements are, where each fact lives, what the file
+The file mechanics — what the elements are, where each fact lives, what the file
 does not record — are in
 [references/workbook-xml.md](references/workbook-xml.md).
 
@@ -27,7 +27,7 @@ Its neighbours in this catalog:
   documentation for the people who read the dashboard. This is an engineering
   assessment for the people who maintain it, and the two want opposite things from
   the same file: the FAQ discards everything the dashboard does not use, while
-    30|here the leftovers are the point.
+here the leftovers are the point.
 - [tableau-workbook-diff](../TABLEAU-WORKBOOK-DIFF/SKILL.md) reviews a change to a
   workbook by comparing two versions of it. This assesses one workbook in its
   current state, with no change on the table yet.
@@ -40,7 +40,7 @@ Its neighbours in this catalog:
 
 Six lists, in a form you can cross-reference rather than read:
 
-    40|| List | Why it is needed later |
+| List | Why it is needed later |
 |---|---|
 | Data sources, their connectors, extract or live, custom SQL | The boundary to the warehouse, and the thing most likely to break outside the workbook |
 | Worksheets, and which dashboard each appears on | Tells you what is reachable; a worksheet on no dashboard is reachable only as a tab |
@@ -50,7 +50,7 @@ Six lists, in a form you can cross-reference rather than read:
 | Filters, with their scope | The difference between "this sheet" and "every sheet on the source" |
 
 The lists exist so you can answer questions across them. "Which worksheets use
-    50|this calculation" is the question that makes the rest useful, and it needs the
+this calculation" is the question that makes the rest useful, and it needs the
 field list and the worksheet list joined, not either one printed.
 
 Count things as you go and say what the counts are, because a reader's first
@@ -62,7 +62,7 @@ workbook, and thirty fields in a workbook nobody can safely edit is a problem.
 
 This is where an audit most often overstates what it knows. Before writing that
 anything is unused, be specific about which of these you mean, because they carry
-    60|different confidence and different recommended actions:
+different confidence and different recommended actions:
 
 - **Not referenced anywhere in the file.** Defensible from the file alone: no
   worksheet, no other calculation, no filter, no parameter action, no tooltip and
@@ -72,7 +72,7 @@ anything is unused, be specific about which of these you mean, because they carr
 - **Referenced only by other unused things.** A chain of calculations ending in
   nothing. Resolve the chain before reporting any link in it, or the report
   understates by a lot.
-    70|- **Not used by anyone.** Not a claim the file can support at all. A worksheet on
+- **Not used by anyone.** Not a claim the file can support at all. A worksheet on
   no dashboard may still be the one view a finance team opens every month; a
   hidden field may be a scaffold for an in-progress change. Usage lives in the
   server's view statistics, and in asking.
@@ -83,7 +83,6 @@ confirming against view statistics before anyone removes them". Recommending a
 deletion the file cannot justify is how an audit loses the reader.
 
 ## The dependencies that make a change risky
-    80|
 A change-risk finding needs a reason, not a count of dependents. Four shapes are
 worth looking for specifically:
 
@@ -94,7 +93,7 @@ long chain is where the author's intent gets hard to recover.
 
 **A field whose aggregation is decided somewhere else.** A row-level expression
 can be aggregated differently on each shelf that uses it, so the same field means
-    90|different things on different sheets, and a change that is correct on one is wrong
+different things on different sheets, and a change that is correct on one is wrong
 on another. Any field used at more than one grain is a finding on its own.
 
 **Custom SQL.** It couples the workbook to table and column names in the
@@ -105,7 +104,7 @@ break without anyone touching the workbook.
 
 **A parameter with no constraint.** Parameters change results, are user-settable,
 and do not have to be validated against anything. One that drives a calculation
-   100|and accepts any value is a way for a reader to produce a wrong number without
+and accepts any value is a way for a reader to produce a wrong number without
 doing anything wrong.
 
 ## When a connection choice is a finding
@@ -117,7 +116,7 @@ and the finding is a mismatch between the choice and what the dashboard is for:
 | What you see | What it means |
 |---|---|
 | Live connection, dashboard used for reviewing yesterday's numbers | Every view costs the warehouse a query for freshness nobody needs |
-   110|| Extract, and the dashboard is described as real-time | The data is as old as the last refresh, whatever the dashboard claims |
+| Extract, and the dashboard is described as real-time | The data is as old as the last refresh, whatever the dashboard claims |
 | Extract whose row count is far beyond what the views aggregate to | The filtering should be happening before the extract, not after |
 | Live connection onto custom SQL | The custom SQL runs on every interaction, and it is not a table the warehouse can optimise for |
 | Several data sources that connect to the same table | Each one is a separate query path and a separate place to fix a change |
@@ -129,7 +128,7 @@ be assessed. If nobody has told you, that is a question, not an assumption.
 
 Not style. The things that cost the next person real time:
 
-   120|- **Duplicate logic.** Several calculations computing the same thing under
+- **Duplicate logic.** Several calculations computing the same thing under
   different names, usually because the author could not find the existing one.
   The cost is that a rule changes in three places and gets changed in one.
 - **Logic that belongs upstream.** A calculation reimplementing a join, a
@@ -139,7 +138,7 @@ Not style. The things that cost the next person real time:
 - **Names that do not survive their author.** Fields captioned for a context that
   is gone, or distinguished only by a suffix. A reader cannot tell which to use,
   so they make a fourth.
-   130|- **A dashboard assembled from sheets that nothing else uses, nested several
+- **A dashboard assembled from sheets that nothing else uses, nested several
   containers deep.** Rearranging it is then far more expensive than it looks, and
   that matters for an estimate.
 
@@ -150,7 +149,7 @@ otherwise. An audit that states its own blind spots is trusted on the rest.
 
 - **Whether a number is right.** The file contains formulas, not results. A
   calculation can be read, found plausible, and still be wrong against the
-   140|business rule, and the file holds no business rule to check it against.
+business rule, and the file holds no business rule to check it against.
 - **Whether anything is actually slow.** Structure suggests where cost would come
   from. It does not measure it, and the usual suspects are frequently not the
   cause.
@@ -160,7 +159,7 @@ otherwise. An audit that states its own blind spots is trusted on the rest.
 
 A formula is also the place to be least confident. Tableau's calculation language
 is a small one, and reading someone else's level-of-detail expression or table
-   150|calculation correctly is harder than it looks — the same formula means different
+calculation correctly is harder than it looks — the same formula means different
 things depending on the shelves around it. When a finding depends on what a
 formula does, say what you read and treat the reading as provisional until someone
 who knows the workbook confirms it. A confidently wrong summary of a calculation

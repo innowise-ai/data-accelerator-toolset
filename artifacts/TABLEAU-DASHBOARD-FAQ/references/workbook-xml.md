@@ -8,7 +8,7 @@ file.
 ## Getting at the XML
 
 A `.twb` is already XML. A `.twbx` is a zip archive around one: the `.twb`, plus
-    10|whatever the workbook packaged with it — extracts, file-based data, images. Unzip
+whatever the workbook packaged with it — extracts, file-based data, images. Unzip
 it and work on the `.twb` inside.
 
 ```bash
@@ -18,7 +18,7 @@ unzip -o <workbook>.twbx -d <tmp>
 The extracts in the archive are compiled data, not a readable source of
 definitions; there is nothing in them this task needs. Work on the XML.
 
-    20|Searching the XML line by line finds captions but loses their context: a match
+Searching the XML line by line finds captions but loses their context: a match
 tells you the string exists, not which field, worksheet or data source owns it,
 and ownership is the fact that matters. Use something that can follow the nesting
 — an XML parser, or an editor that folds the tree — and read the element you
@@ -28,7 +28,7 @@ Workbooks are large and repetitive. Pull out the parts you need rather than
 reading end to end, and expect several hundred elements of scaffolding for every
 one that carries a fact.
 
-    30|## Where each fact lives
+## Where each fact lives
 
 | Looking for | Where it is |
 |---|---|
@@ -39,7 +39,7 @@ one that carries a fact.
 | Calculated fields | A column with a calculation child holding the formula as a string |
 | Parameters | Columns on the workbook's parameters data source, marked with a parameter domain type and carrying their current value and allowed values |
 | Filters | Inside the worksheet that carries them; filters applied across a data source sit on the data source instead |
-    40|| Which worksheets make up a dashboard | The dashboard's zone tree, where a zone naming a worksheet is that worksheet's place on the dashboard |
+| Which worksheets make up a dashboard | The dashboard's zone tree, where a zone naming a worksheet is that worksheet's place on the dashboard |
 
 Two details that decide what reaches the FAQ:
 
@@ -50,7 +50,7 @@ Two details that decide what reaches the FAQ:
 - **Hidden fields.** A column can be marked hidden; it exists in the model and not
   in the view. Hidden fields do not belong in user-facing documentation.
 
-    50|## The definitions field
+## The definitions field
 
 The definitions this task is after are a calculated field, which means they are a
 formula string on a column like any other. What distinguishes it is shape rather
@@ -60,7 +60,7 @@ the text is written for a reader rather than for an engineer.
 
 Captions seen in practice are `Hover Definitions`, `Tooltip`, `Tool Tip` and
 `Metric Definitions`. Treat those as where to look first and not as the set of
-    60|possibilities — the convention is a team's, not Tableau's, and a project with its
+possibilities — the convention is a team's, not Tableau's, and a project with its
 own name for the field is common. If none of them match, two things are worth
 doing before reporting the workbook has no definitions: look for a calculated
 field of that shape under any caption, since the shape is the real signal; and
@@ -71,7 +71,7 @@ output with other field values at render time, so a screenshot of one tooltip
 gives you one metric's definition, while the formula gives you the set the author
 wrote.
 
-    70|## What the file does not contain
+## What the file does not contain
 
 Each of these is a question a FAQ reader asks, and none of them has an answer in
 the workbook.
@@ -81,7 +81,7 @@ the workbook.
   site that runs it. A live connection has no schedule of its own at all — it is
   as current as the table behind it, which is the upstream pipeline's business.
 - **What the dashboard looks like.** Zones carry coordinates in an abstract grid,
-    80|  so the geometry is technically present, and it is still not an answer: the tree
+  so the geometry is technically present, and it is still not an answer: the tree
   says a container holds a container holds a worksheet, with nothing about what
   renders, what is legible, what is visible without scrolling, or which view opens
   first. This is why the screenshot is an input and not a nicety.

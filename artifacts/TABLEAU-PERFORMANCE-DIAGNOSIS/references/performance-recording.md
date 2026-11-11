@@ -8,7 +8,7 @@ available, and how far that goes.
 ## Getting one
 
 Recording is a setting rather than a tool: it is switched on in Tableau Desktop
-    10|before the slow interaction and switched off after, and on a published dashboard
+before the slow interaction and switched off after, and on a published dashboard
 it is requested on the view's URL. Either way the output is a workbook, not a log
 file — the recording ships as a Tableau workbook whose summary views are the
 intended way to read it.
@@ -18,7 +18,7 @@ Three things decide whether the recording is worth reading at all:
 - **Record where the complaint is.** A recording made in Desktop measures Desktop:
   its connection, its caches, its machine. If users are slow on the published
   dashboard and Desktop is fine, Desktop's recording explains nothing, and the
-    20|  difference between them is itself the finding.
+  difference between them is itself the finding.
 - **Record the interaction that is slow**, not opening the workbook. Start the
   recording, do the one thing, stop. A recording of a whole session is a pile of
   events nobody will attribute.
@@ -28,7 +28,7 @@ Three things decide whether the recording is worth reading at all:
   the comparison is often the answer by itself.
 
 Recording adds overhead, so read the proportions between events rather than their
-    30|absolute durations. "This one query is 80% of the time" survives the overhead;
+absolute durations. "This one query is 80% of the time" survives the overhead;
 "the query takes 4.2 seconds" does not.
 
 ## What the recording contains
@@ -40,7 +40,7 @@ own compute, and building the view:
 | Category | What it is telling you |
 |---|---|
 | Executing Query | Time in the warehouse or the extract engine. The recording carries the query text, which is the handover point to query diagnosis |
-    40|| Compiling Query | Tableau turning the view into SQL. Large when the view is complicated, rarely the cause on its own |
+| Compiling Query | Tableau turning the view into SQL. Large when the view is complicated, rarely the cause on its own |
 | Connecting to Data Source | Connection establishment. Significant here usually means an authentication or network problem, not a workbook one |
 | Generating Extract | Extract refresh, which is a different complaint from a slow dashboard |
 | Blending Data | Blending, executed locally after separate queries return. Expensive, and often confined to one sheet |
@@ -51,7 +51,7 @@ own compute, and building the view:
 | Computing Layout | Building the view. Tracks mark count and formatting, and is the one category a faster warehouse cannot improve |
 
 Read it in this order: sort events by duration, take the longest, note which
-    50|category and which sheet it belongs to, and only then look at the workbook. That
+category and which sheet it belongs to, and only then look at the workbook. That
 order matters because opening the workbook first supplies a theory, and a theory
 will find evidence for itself in a list of events.
 
@@ -62,7 +62,7 @@ Two readings that are commonly got wrong:
   needs, not in any one query.
 - **One sheet accounting for almost everything.** The best possible outcome,
   because the investigation shrinks to one view. Check whether that sheet blends,
-    60|  or carries a table calculation, before reading its query.
+  or carries a table calculation, before reading its query.
 
 When Executing Query dominates, the query text in the recording is the thing to
 carry forward. It is generated SQL, and reading it as if a person wrote it is
@@ -73,7 +73,6 @@ for, and which filters made it into the query rather than being applied after.
 
 No recording is a weaker position, not a hopeless one. These are visible in the
 workbook file and each is a candidate worth testing:
-    70|
 - how many worksheets a dashboard contains, which sets the floor on how many
   queries a load issues
 - how many data sources it touches, and whether several connect to the same table
@@ -83,7 +82,7 @@ workbook file and each is a candidate worth testing:
   filters applied across a data source
 - blending, as opposed to joins or relationships, since blending is local work
 - the physical join tree, where a large-to-large join defined in the workbook
-    80|  inflates every query over it
+  inflates every query over it
 - level-of-detail expressions, which add aggregation to the query, and table
   calculations, which add local compute and transfer
 - filters on calculated fields rather than stored columns
@@ -94,7 +93,7 @@ And these are not in the file, which bounds what a structural reading can claim:
   one dimension renders as many marks as that dimension has members, and the file
   does not know how many that is.
 - **Rows returned.** Same reason, and this is what local compute scales with.
-    90|- **Any duration at all.** No timings, no row counts, no cache state.
+- **Any duration at all.** No timings, no row counts, no cache state.
 - **What the warehouse did.** Live connections spend their time in a system the
   workbook cannot see into.
 

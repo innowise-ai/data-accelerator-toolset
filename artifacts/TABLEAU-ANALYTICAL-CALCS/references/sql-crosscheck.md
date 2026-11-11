@@ -8,7 +8,7 @@ Two rules about using them:
 
 **Write the query from the metric definition, not from the Tableau calculation.**
 A query transcribed from the calculation carries the same misunderstanding into
-    10|both implementations, matches perfectly, and proves nothing. The entire value is
+both implementations, matches perfectly, and proves nothing. The entire value is
 that the two paths are independent.
 
 **Match the filter and parameter state.** A view at its defaults is a different
@@ -19,7 +19,6 @@ The queries are skeletons in plain SQL. Adapt the date functions to the engine;
 the shape is the part that matters.
 
 ## Cohort retention
-    20|
 The anchor is computed per entity over the whole history, which is the point — it
 must not depend on the reporting window.
 
@@ -30,7 +29,7 @@ with anchor as (
     from events
     where <the population the definition names>
     group by entity_id
-    30|),
+),
 activity as (
     select a.entity_id,
            date_trunc('month', a.cohort_date)                               as cohort_month,
@@ -41,7 +40,7 @@ activity as (
     where <the population the definition names>
 )
 select cohort_month,
-    40|       period_index,
+       period_index,
        count(distinct entity_id) as retained
 from activity
 group by 1, 2
@@ -52,7 +51,7 @@ What to compare: the cohort sizes at `period_index = 0` first. If those disagree
 nothing else is worth comparing — the anchor differs, which usually means the
 Tableau implementation let a filter re-anchor the cohort.
 
-    50|## Funnel
+## Funnel
 
 Entities, not events, and the furthest stage each one reached.
 
@@ -63,7 +62,7 @@ with reached as (
     from events
     where <the population>
     group by entity_id
-    60|)
+)
 select s.stage_rank,
        s.stage_name,
        count(r.entity_id) as entities
@@ -74,7 +73,7 @@ order by 1;
 ```
 
 What to compare: the count at the first stage against a plain distinct count of
-    70|entities in the population. They must be equal, and when they are not the
+entities in the population. They must be equal, and when they are not the
 implementation is counting events.
 
 ## Period over period
@@ -85,7 +84,7 @@ is absent rather than zero, and that is the defect this check exists to catch.
 ```sql
 with spine as (
     select distinct date_trunc('month', calendar_date) as period
-    80|from calendar
+from calendar
     where calendar_date between <range>
 ),
 actuals as (
@@ -96,7 +95,7 @@ actuals as (
     group by 1
 )
 select sp.period,
-    90|       a.value,
+       a.value,
        lag(a.value) over (order by sp.period) as prior_period_value
 from spine sp
 left join actuals a on a.period = sp.period
@@ -107,7 +106,7 @@ What to compare: a period that has no rows in `actuals`. The query returns it wi
 a null value and still aligns the following period's comparison correctly. A
 positional offset in Tableau does not, and the difference appears only here.
 
-   100|## Rolling average
+## Rolling average
 
 ```sql
 select period,
@@ -119,7 +118,7 @@ from <the spine-joined series above>
 order by period;
 ```
 
-   110|`points_in_window` is the part worth keeping. It makes the partial windows at the
+`points_in_window` is the part worth keeping. It makes the partial windows at the
 start explicit, so the comparison shows whether Tableau is suppressing them,
 averaging fewer points, or quietly doing something else.
 
@@ -130,7 +129,7 @@ select entity_id,
        sum(<measure>)                                  as value,
        rank() over (order by sum(<measure>) desc)      as position
 from facts
-   120|where <the population, as the definition states it>
+where <the population, as the definition states it>
 group by entity_id
 order by position;
 ```
@@ -141,7 +140,6 @@ Tableau view tells you whether the filter is being applied before the ranking or
 after it. That is the question the implementation has to answer deliberately.
 
 ## Pareto and share of total
-   130|
 ```sql
 with totals as (
     select entity_id, sum(<measure>) as value
@@ -151,7 +149,7 @@ with totals as (
 )
 select entity_id,
        value,
-   140|       sum(value) over (order by value desc rows unbounded preceding)
+       sum(value) over (order by value desc rows unbounded preceding)
          / sum(value) over ()                                            as cumulative_share
 from totals
 order by value desc;
@@ -161,7 +159,7 @@ What to compare: the denominator. `sum(value) over ()` is the total of everythin
 the query returned, which is also what Tableau's share-of-total gives by default.
 If the definition says the share is of the whole population rather than of the
 filtered view, both implementations need changing, and this is where that gets
-   150|noticed.
+noticed.
 
 ## What to compare, for every shape
 
@@ -172,6 +170,6 @@ filtered view, both implementations need changing, and this is where that gets
 - the first period, the last period, and one period with no data
 - the same view filtered and unfiltered
 
-   160|Keep whichever query ends up agreeing. It is the regression test for that
+Keep whichever query ends up agreeing. It is the regression test for that
 calculation, and it is the fastest answer available the next time the number is
 questioned.

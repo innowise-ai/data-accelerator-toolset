@@ -7,7 +7,7 @@ This is deliberately not a vendor comparison matrix. Those go stale, they vary b
 engine version and by connector, and a wrong cell in one is worse than no table at
 all, because it is quoted. What follows is the set of behaviours that differ
 between engines, each written as something to establish against the actual target
-    10|before the swap — usually with one query.
+before the swap — usually with one query.
 
 ## Identifiers
 
@@ -18,7 +18,7 @@ folds to upper; the Postgres family folds to lower.
 This matters more than it sounds, because Tableau rebinds fields by matching
 names. If the same logical column arrives upper-cased where it used to be
 lower-cased, the match fails across the board, and what looks like a catastrophic
-    20|migration is a casing rule.
+migration is a casing rule.
 
 Establish it first: list the columns of two or three target tables as the engine
 reports them, and compare against the names in the workbook's field inventory.
@@ -30,7 +30,7 @@ changing a single number's type:
 
 - **String comparison.** Some engines compare case-sensitively by default and some
   do not, which decides whether a filter on `Active` also matches `active`.
-    30|- **Padding and trimming.** Fixed-length character types pad; comparison
+- **Padding and trimming.** Fixed-length character types pad; comparison
   semantics for the padding differ. A value with trailing spaces is a different
   value to an alias definition.
 - **Empty string against null.** At least one major engine treats the empty string
@@ -41,7 +41,7 @@ All three produce the same symptom: friendly labels disappearing and values
 dropping out of groups, which reads as a formatting problem and is a data
 comparison problem.
 
-    40|## Types
+## Types
 
 | What changed | What it does in the workbook |
 |---|---|
@@ -52,7 +52,7 @@ comparison problem.
 | Zone-aware timestamp rendered per session | The same query returns different day boundaries depending on the session's time zone, so two people can read two different numbers |
 | Wider or narrower integer types | Rarely a problem, occasionally an overflow in a calculation that aggregates before dividing |
 
-    50|The timestamp rows are the ones to spend time on. A time zone change is invisible
+The timestamp rows are the ones to spend time on. A time zone change is invisible
 in the schema, invisible in the workbook, and visible only as a total that is
 slightly wrong at the start and end of every period.
 
@@ -63,7 +63,7 @@ and fiscal-year definitions all vary. Two of them are not even warehouse
 properties: the fiscal year start and the week start day are Tableau data source
 settings, and they do not travel with the fields when a connection is replaced.
 Check them explicitly after the swap, because a reset fiscal calendar reshuffles
-    60|every year-to-date figure on the dashboard.
+every year-to-date figure on the dashboard.
 
 ## Things attached to the connection rather than the data
 
@@ -74,7 +74,7 @@ Easy to miss because they are not fields and not formulas:
   nature, and silently absent after a swap.
 - **Custom SQL.** Named tables and columns in the old dialect, plus functions that
   may not exist in the new one. A filter in the workbook is applied around the
-    70|  custom SQL rather than inside it, so the subquery runs as written on every
+  custom SQL rather than inside it, so the subquery runs as written on every
   query. Each custom SQL relation is a hand-migration.
 - **Pass-through SQL in calculations.** Raw SQL embedded in a Tableau calculation,
   in the old dialect by definition.
@@ -84,7 +84,7 @@ Easy to miss because they are not fields and not formulas:
   rather than assuming the behaviour carried over.
 - **Row-level security.** A user filter either embeds names or joins to a table
   that maps users to data. The table has to exist in the new warehouse, with the
-    80|  same usernames, or the filter silently stops restricting.
+  same usernames, or the filter silently stops restricting.
 
 ## Published data sources change the blast radius
 
@@ -95,7 +95,7 @@ change at the same moment, including ones whose owners are not in the
 conversation.
 
 Before repointing a published data source, find out what consumes it. The server
-    90|knows; the workbook in front of you does not.
+knows; the workbook in front of you does not.
 
 ## The checks worth running against the target first
 
@@ -106,7 +106,7 @@ Each of these is cheap and settles one of the above before anything is repointed
 - select one row of each type-sensitive column and look at how the value arrives:
   a timestamp's zone, a decimal's precision, a boolean's representation
 - count nulls and empty strings in the columns the dashboard filters on
-   100|- run one of the custom SQL statements unchanged, and record which functions it
+- run one of the custom SQL statements unchanged, and record which functions it
   complains about
 - compare the distinct values of a field that carries aliases or groups against
   the alias definitions in the workbook
