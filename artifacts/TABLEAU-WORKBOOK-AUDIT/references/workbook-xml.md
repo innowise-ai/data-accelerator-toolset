@@ -26,7 +26,7 @@ when anyone last opened this file deliberately.
 | List | Where it comes from |
 |---|---|
 | Data sources | Data source elements, each with a caption and a connection whose class names the connector |
-| Extract or live | An extract element inside the data source; its absence means live |
+| Extract or live | An extract element inside the data source, read by its `enabled` attribute: the element can be present with `enabled='false'`, as after a data source is switched back to live. No extract element, or `enabled='false'`, means live |
 | Custom SQL | A relation marked as text, carrying the query as its body, rather than one naming a table |
 | Joins defined in the workbook | The relation tree on the data source, where join relations carry their clauses |
 | Fields | Column elements: internal name, user-facing caption, datatype, dimension or measure role, and whether hidden |

@@ -34,7 +34,7 @@ one that carries a fact.
 |---|---|
 | Data sources and what they connect to | Each data source element carries a caption and a connection whose class names the connector |
 | Custom SQL | A relation whose type marks it as text, with the query as its body — as opposed to a relation naming a table directly |
-| Extract or live | An extract element inside the data source, pointing at the packaged extract file. Its absence means the connection is live |
+| Extract or live | An extract element inside the data source, pointing at the packaged extract file. Read its `enabled` attribute: the element can be present with `enabled='false'`, as after a data source is switched back to live, so its presence alone does not mean extract. No extract element, or `enabled='false'`, means live |
 | Fields | Column elements, each with an internal name, a user-facing caption, a datatype, and a role marking it a dimension or a measure |
 | Calculated fields | A column with a calculation child holding the formula as a string |
 | Parameters | Columns on the workbook's parameters data source, marked with a parameter domain type and carrying their current value and allowed values |
