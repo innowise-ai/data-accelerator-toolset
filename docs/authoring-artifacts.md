@@ -12,8 +12,11 @@ For a shipped artifact to copy from, read [`artifacts/ETL-DECOMPOSITION`](../art
 vocabulary holds today. The vocabulary describes what exists; a value it lacks
 is part of the work of adding an artifact (see [The current
 vocabulary](#the-current-vocabulary)), not a reason to turn the artifact down.
-Power BI is out of scope, which is why `power-bi` is deliberately absent from
-`frameworks`.
+Power BI and Tableau are in scope on the same terms. A skill that is wrong
+without one of them declares `power-bi` or `tableau`, and it has to be
+knowledge about the semantic model or the workbook. A click-path through
+Desktop, or a wrapper around a REST API, XMLA, or an authoring MCP server,
+does not fit.
 
 **The catalog assumes open-source tooling, dbt Core in particular.**
 `DBT-COLUMN-LINEAGE` is the single artifact that needs dbt Cloud and an MCP
@@ -270,7 +273,7 @@ Taken from `index.json` at the time of writing. **`index.json` is the source of 
 | Dimension | Values |
 |---|---|
 | `languages` | `typescript`, `javascript`, `python`, `csharp`, `go`, `sql` |
-| `frameworks` | `nestjs`, `react`, `django`, `aspnet`, `airflow`, `dbt`, `duckdb`, `spark`, `trino`, `snowflake`, `databricks`, `docker`, `terraform`, `terragrunt`, `dataform`, `bigquery`, `tableau` |
+| `frameworks` | `nestjs`, `react`, `django`, `aspnet`, `airflow`, `dbt`, `duckdb`, `spark`, `trino`, `snowflake`, `databricks`, `docker`, `terraform`, `terragrunt`, `dataform`, `bigquery`, `power-bi`, `tableau` |
 | `layout` | `monorepo`, `single` |
 | `agents` | `claude-code`, `codex`, `cursor` |
 | `topics` | `code-review`, `testing`, `documentation`, `refactoring`, `orchestration`, `data-modeling`, `data-quality`, `ingestion`, `performance`, `debugging`, `writing`, `development-process`, `security`, `containerization`, `infrastructure`, `database-administration`, `research`, `analytics` |

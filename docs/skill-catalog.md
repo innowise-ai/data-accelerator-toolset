@@ -5,9 +5,9 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-59 artifacts today: 36 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
-Tableau, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality
-and lakehouse layering), 2 for BI and analytics,
+67 artifacts today: 42 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
+Power BI, Tableau, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality
+and lakehouse layering), 4 for BI and analytics,
 4 for containers and local environments, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
 `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
@@ -23,7 +23,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (36)
+## Data engineering (42)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -48,6 +48,12 @@ one project gets.
 | **Generate SQL from natural language, validated before it runs** (`NL2SQL-QUERY-VALIDATION`) | sql | data-quality | Generates SQL from natural language without letting an unvalidated query reach the database. |
 | **Pick the cheapest checks a pipeline change needs** (`PIPELINE-CHECK-SELECTION`) | any | testing, data-quality | Selects the cheapest checks that would actually catch the regression a change can cause. |
 | **Review the data a pipeline run actually produced** (`PIPELINE-OUTPUT-REVIEW`) | any | code-review, data-quality | Reviews the data a pipeline run actually produced, not just whether tests passed. |
+| **See what a connection swap breaks, and prove the numbers** (`POWER-BI-DATASOURCE-MIGRATION`) | power-bi | refactoring | Works out what in a Power BI model will not survive a warehouse connection swap, and proves the report still returns the same numbers afterwards. |
+| **Judge a DAX function by the measures that call it** (`POWER-BI-FUNCTION-IMPACT`) | power-bi | refactoring | Judges a user-defined function before it is introduced or changed, by proving each caller still matches the calculation it replaced. |
+| **Assess an inherited semantic model before changing it** (`POWER-BI-MODEL-AUDIT`) | power-bi | debugging | Assesses a semantic model and the report on it from the project folder: what is in it, which dependencies make a change risky, and what this folder cannot call unused. |
+| **Review what changed between two Power BI project versions** (`POWER-BI-MODEL-DIFF`) | power-bi | code-review | Compares two versions of a Power BI Project by what changed in the model and the report, and separates changes that can move a number from format strings, descriptions, and cosmetic edits. |
+| **Find out why a Power BI report is slow before rewriting it** (`POWER-BI-PERFORMANCE-DIAGNOSIS`) | power-bi | performance | Establishes which of three problems is slow — refresh, an interaction's query, or rendering — and requires a measurement before anything is rewritten. |
+| **Write a report FAQ from the model, not from memory** (`POWER-BI-REPORT-FAQ`) | power-bi | documentation | Writes a report FAQ from the Power BI Project and a screenshot of the landing page, taking each metric definition from the measure description rather than from the formula. |
 | **Test pipeline code with pytest, mocking I/O** (`PYTEST-DATA-PIPELINES`) | python | testing | Tests data pipeline code with pytest, mocking at the I/O boundary. |
 | **Implement SCD Type 2 with correct validity intervals** (`SCD2-IMPLEMENTATION`) | sql | data-modeling | Implements Slowly Changing Dimension Type 2 in SQL with correct validity intervals. |
 | **Decide what personal data a model may carry** (`SENSITIVE-DATA-HANDLING`) | any | security | Decides what personal data a model may carry, and keeps deletion possible later. |
@@ -64,12 +70,14 @@ one project gets.
 | **Assess an inherited Tableau workbook before changing it** (`TABLEAU-WORKBOOK-AUDIT`) | tableau | debugging | Assesses a workbook nobody on the team built: what is in it, which dependencies make a change risky, and what the file cannot tell you. |
 | **Review what changed between two Tableau workbook versions** (`TABLEAU-WORKBOOK-DIFF`) | tableau | code-review | Compares two versions of a workbook by inventory rather than by text, and separates the differences that can move a number from the ones that cannot. |
 
-## BI and analytics (2)
+## BI and analytics (4)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
 | **Translate a metric between SQL and a level-of-detail expression without changing the number** (`TABLEAU-MEASURE-TRANSLATION`) | tableau | data-modeling, analytics | Rewrites an existing metric in either direction between SQL and a FIXED, INCLUDE or EXCLUDE expression, stating the grains and filter positions the number depends on. |
 | **Define Pulse metrics so the insight matches the warehouse number** (`TABLEAU-PULSE-READINESS`) | tableau | data-modeling, analytics | Defines a Pulse metric from a published data source so the generated insight is about the intended number, and checks an existing insight by recomputing the comparison. |
+| **Prepare a semantic model so Copilot answers from the measures you defined** (`POWER-BI-COPILOT-READINESS`) | power-bi | data-modeling, analytics | Decides what Power BI Copilot can bind a question to, and checks that an answer or a drafted measure used the measure that was meant. |
+| **Translate a metric between SQL and DAX without changing the number** (`POWER-BI-MEASURE-TRANSLATION`) | power-bi | data-modeling, analytics | Rewrites an existing metric from SQL into DAX or from DAX into SQL, and treats the result as unchecked until the same grain and filters return the same number. |
 
 ## Containers and local environment (4)
 

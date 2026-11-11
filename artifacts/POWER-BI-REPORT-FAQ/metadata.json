@@ -1,0 +1,22 @@
+{
+  "id": "POWER-BI-REPORT-FAQ",
+  "version": "0.1.0",
+  "source_path": "artifacts/POWER-BI-REPORT-FAQ",
+  "applies_to": {
+    "frameworks": ["power-bi"]
+  },
+  "strength": "on-demand",
+  "topics": ["documentation"],
+  "scope": "project",
+  "presentation": {
+    "name": "Write a report FAQ from the model, not from memory",
+    "summary": "Writes a report FAQ from the Power BI Project and a screenshot of the landing page, taking each metric definition from the measure description rather than from the formula.",
+    "benefits": [
+      "Takes metric definitions from measure descriptions, and stops when one is missing rather than translating the formula into business English",
+      "Requires a screenshot of the landing page, including the visible slicers and anything that appears only through a bookmark or a tooltip page",
+      "Asks for the refresh schedule instead of guessing one from the model",
+      "Treats a description an agent wrote as a draft until a person accepts it",
+      "Documents the metrics a reader sees, without treating a column that is absent from the page as unused"
+    ]
+  }
+}

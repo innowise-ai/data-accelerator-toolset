@@ -71,6 +71,38 @@
   "Data engineering",
   "Airflow"
  ],
+ "POWER-BI-COPILOT-READINESS": [
+  "BI and analytics",
+  "Power BI"
+ ],
+ "POWER-BI-DATASOURCE-MIGRATION": [
+  "Data engineering",
+  "Power BI"
+ ],
+ "POWER-BI-FUNCTION-IMPACT": [
+  "Data engineering",
+  "Power BI"
+ ],
+ "POWER-BI-MEASURE-TRANSLATION": [
+  "BI and analytics",
+  "Power BI"
+ ],
+ "POWER-BI-MODEL-AUDIT": [
+  "Data engineering",
+  "Power BI"
+ ],
+ "POWER-BI-MODEL-DIFF": [
+  "Data engineering",
+  "Power BI"
+ ],
+ "POWER-BI-PERFORMANCE-DIAGNOSIS": [
+  "Data engineering",
+  "Power BI"
+ ],
+ "POWER-BI-REPORT-FAQ": [
+  "Data engineering",
+  "Power BI"
+ ],
  "TABLEAU-ANALYTICAL-CALCS": [
   "Data engineering",
   "Tableau"
