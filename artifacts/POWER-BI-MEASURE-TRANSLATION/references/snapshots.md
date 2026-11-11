@@ -12,12 +12,18 @@ is still a currency or a count, and it is a different metric. Averaging the
 daily snapshots is a third metric. Write the one the SQL wrote.
 
 ```dax
--- SQL kept one row per grain at period end
-CALCULATE([Balance], LASTDATE('Date'[Date]))
+-- SQL kept the last row per grain that has a snapshot
+CALCULATE([Balance], LASTNONBLANK('Date'[Date], [Balance]))
 SUM(Snapshot[Balance])    -- not this: adds Monday to Tuesday
 ```
 
-`LASTDATE` still sums if several rows share that date. It picked a date,
+`LASTDATE('Date'[Date])` is the last date of the period in the calendar,
+not the last date with a snapshot. For a month still in progress, or a
+period whose final day has no load, it lands on a date with no rows and the
+balance is BLANK. Use it only when the SQL also took the calendar period
+end. `LASTNONBLANK` picks the last date where the balance exists.
+
+`LASTNONBLANK` still sums if several rows share that date. It picked a date,
 not a row. If more than one snapshot lands on that last date, the measure
 adds them. Keep one snapshot at the grain the SQL kept, and say how.
 
