@@ -5,9 +5,9 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-50 artifacts today: 29 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
-Python pipeline code, sensitive data handling, stack-agnostic pipeline quality
-and lakehouse layering),
+59 artifacts today: 36 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
+Tableau, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality
+and lakehouse layering), 2 for BI and analytics,
 4 for containers and local environments, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
 `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
@@ -23,7 +23,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (29)
+## Data engineering (36)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -42,6 +42,7 @@ one project gets.
 | **Refactor a dbt model and prove output is unchanged** (`DBT-MODEL-REFACTORING`) | dbt | refactoring | Restructures a dbt model while proving its output did not change. |
 | **Pick dbt schema tests for each column role** (`DBT-MODEL-TESTING`) | dbt | testing, data-quality | Picks dbt schema tests that catch real defects for each column role. |
 | **Split a monolithic ETL function into testable units** (`ETL-DECOMPOSITION`) | python | refactoring, orchestration | Splits a monolithic extract-transform-load function into testable units with I/O at the edges. |
+| **Turn a requested metric into a definition that can be implemented twice** (`KPI-DEFINITION-BUILDING`) | any | data-modeling | Turns a metric requested in words into a specification precise enough that two independent implementations produce the same number. |
 | **Define what belongs in each medallion layer, on any platform** (`MEDALLION-LAYER-BOUNDARIES`) | any | data-modeling, ingestion | Sets what bronze, silver and gold each hold and must not hold, how data moves between them safely, and where quality checks sit, for Fabric, Databricks, plain Spark or dbt. |
 | **Reconcile migrated data with the legacy warehouse, column by column** (`MIGRATION-DATA-RECONCILIATION`) | any | data-quality | Compares data moved from a legacy warehouse (SAP BW, Teradata, Oracle) with its lakehouse copy, separates format differences from real ones, and reports only the real ones. |
 | **Generate SQL from natural language, validated before it runs** (`NL2SQL-QUERY-VALIDATION`) | sql | data-quality | Generates SQL from natural language without letting an unvalidated query reach the database. |
@@ -56,6 +57,19 @@ one project gets.
 | **Rewrite Snowflake SQL without changing results** (`SNOWFLAKE-QUERY-REWRITE`) | snowflake | performance, refactoring | Rewrites a Snowflake query for performance without changing its results. |
 | **Repair Snowflake semantic view drift** (`SNOWFLAKE-SEMANTIC-VIEW-DRIFT`) | snowflake | data-modeling, data-quality | Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions. |
 | **Tune a slow Spark job from its Spark UI evidence** (`SPARK-JOB-TUNING`) | spark, databricks | performance, debugging | Finds the stage and the cause that dominate a slow or memory-failing Spark job, fixes that cause and measures the result. |
+| **Build cohort, trend and ranking calculations that survive filters** (`TABLEAU-ANALYTICAL-CALCS`) | tableau | data-modeling | Implements known metric shapes in Tableau by choosing between a row-level expression, a level-of-detail expression and a table calculation, and knowing which filters change the answer. |
+| **Write a dashboard FAQ from the workbook, not from memory** (`TABLEAU-DASHBOARD-FAQ`) | tableau | documentation | Documents an existing Tableau dashboard from its workbook file and a screenshot of the landing view, taking each metric definition from the workbook rather than inferring one. |
+| **Repoint a Tableau workbook at a new warehouse safely** (`TABLEAU-DATASOURCE-MIGRATION`) | tableau | refactoring | Works out what in a workbook will not survive a connection swap, and proves the dashboard still produces the same numbers afterwards. |
+| **Find out why a Tableau dashboard is slow before rewriting it** (`TABLEAU-PERFORMANCE-DIAGNOSIS`) | tableau | performance | Establishes which interaction is slow and where the time actually goes — the queries, Tableau's own compute, or rendering — before anything is rewritten. |
+| **Assess an inherited Tableau workbook before changing it** (`TABLEAU-WORKBOOK-AUDIT`) | tableau | debugging | Assesses a workbook nobody on the team built: what is in it, which dependencies make a change risky, and what the file cannot tell you. |
+| **Review what changed between two Tableau workbook versions** (`TABLEAU-WORKBOOK-DIFF`) | tableau | code-review | Compares two versions of a workbook by inventory rather than by text, and separates the differences that can move a number from the ones that cannot. |
+
+## BI and analytics (2)
+
+| Skill | Applies to | Topic(s) | What it does |
+|---|---|---|---|
+| **Translate a metric between SQL and a level-of-detail expression without changing the number** (`TABLEAU-MEASURE-TRANSLATION`) | tableau | data-modeling, analytics | Rewrites an existing metric in either direction between SQL and a FIXED, INCLUDE or EXCLUDE expression, stating the grains and filter positions the number depends on. |
+| **Define Pulse metrics so the insight matches the warehouse number** (`TABLEAU-PULSE-READINESS`) | tableau | data-modeling, analytics | Defines a Pulse metric from a published data source so the generated insight is about the intended number, and checks an existing insight by recomputing the comparison. |
 
 ## Containers and local environment (4)
 
