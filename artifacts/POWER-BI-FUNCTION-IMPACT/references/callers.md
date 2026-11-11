@@ -40,8 +40,11 @@ and they are not updated by a change to the body.
 If the declaration states when an argument is evaluated — before the body,
 or later in the caller's filter context — that statement is part of what you
 quote, because it decides which filters the argument sees. If it states
-nothing, do not add a mode. The absence is the stop condition for any claim
-about when the argument is computed.
+nothing, the type decides: a parameter with no type, or typed `anyVal`,
+`scalar` or `table`, is `val`, computed before the body runs; a reference
+type (`anyRef`, `columnRef`, `measureRef`, `tableRef`, `calendarRef`) is
+always `expr`. Say that the mode is the default rather than writing it into
+the quote.
 
 ## The comparison
 

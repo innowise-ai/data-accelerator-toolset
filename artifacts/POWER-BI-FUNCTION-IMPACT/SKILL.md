@@ -94,8 +94,11 @@ it leaves alone. The ones it leaves alone are the caller's, and they are
 part of the result. If the declaration in the file says an argument is
 computed before the body runs, or that it is evaluated later in the caller's
 context, use that: the two see different filters, and mixing them up is how
-an isolated example passes and the visual fails. If the file does not say,
-do not invent the mode. Describe the call you can see and stop.
+an isolated example passes and the visual fails. If the file declares no
+mode, the type decides it: a parameter with no type, or typed `anyVal`,
+`scalar` or `table`, is `val`, computed once before the body runs; a
+reference type (`anyRef`, `columnRef`, `measureRef`, `tableRef`,
+`calendarRef`) is always `expr`.
 
 ## Verify against SQL at the caller's grain
 
