@@ -12,8 +12,9 @@ For a shipped artifact to copy from, read [`artifacts/ETL-DECOMPOSITION`](../art
 vocabulary holds today. The vocabulary describes what exists; a value it lacks
 is part of the work of adding an artifact (see [The current
 vocabulary](#the-current-vocabulary)), not a reason to turn the artifact down.
-Power BI is in scope on the same terms as Tableau. A skill that is wrong
-without it declares `power-bi`, and it has to be knowledge about the model. A
+Power BI is in scope as a BI tool whose semantic model can be read from
+files. A skill that is wrong without it declares `power-bi`, and it has to be
+knowledge about the model. A
 click-path through Desktop, or a wrapper around the REST API, XMLA, or the
 authoring MCP server, does not fit.
 
@@ -272,7 +273,7 @@ Taken from `index.json` at the time of writing. **`index.json` is the source of 
 | Dimension | Values |
 |---|---|
 | `languages` | `typescript`, `javascript`, `python`, `csharp`, `go`, `sql` |
-| `frameworks` | `nestjs`, `react`, `django`, `aspnet`, `airflow`, `dbt`, `duckdb`, `spark`, `trino`, `snowflake`, `databricks`, `docker`, `terraform`, `terragrunt`, `dataform`, `bigquery` |
+| `frameworks` | `nestjs`, `react`, `django`, `aspnet`, `airflow`, `dbt`, `duckdb`, `spark`, `trino`, `snowflake`, `databricks`, `docker`, `terraform`, `terragrunt`, `dataform`, `bigquery`, `power-bi` |
 | `layout` | `monorepo`, `single` |
 | `agents` | `claude-code`, `codex`, `cursor` |
 | `topics` | `code-review`, `testing`, `documentation`, `refactoring`, `orchestration`, `data-modeling`, `data-quality`, `ingestion`, `performance`, `debugging`, `writing`, `development-process`, `security`, `containerization`, `infrastructure`, `database-administration`, `research`, `analytics` |
