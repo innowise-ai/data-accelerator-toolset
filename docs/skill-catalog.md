@@ -5,9 +5,9 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-67 artifacts today: 30 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
+69 artifacts today: 32 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
 Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
-layering and metric definitions), 8 for Power BI, 8 for Tableau,
+layering, job orchestration, streaming queries and metric definitions), 8 for Power BI, 8 for Tableau,
 4 for containers and local environments, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
 `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
@@ -23,7 +23,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (30)
+## Data engineering (32)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -31,6 +31,7 @@ one project gets.
 | **Trace wrong data when the pipeline succeeded** (`DATA-INCIDENT-TRACING`) | any | debugging, data-quality | Traces wrong data back to the code that produced it when the pipeline reported success. |
 | **Build data quality controls: quarantine, release diff, scorecards** (`DATA-QUALITY-CONTROLS`) | any | data-quality, ingestion | Builds the controls that keep invalid records out of published data, show what each publish changes, and score data quality per source and stage. |
 | **Design Databricks declarative pipelines: table types, expectations, CDC** (`DATABRICKS-DECLARATIVE-PIPELINE-DESIGN`) | databricks | ingestion, data-modeling, data-quality | Designs Lakeflow pipelines (formerly DLT): a streaming table or materialized view per dataset, expectations, AUTO CDC and Auto Loader ingestion, without a full refresh losing history. |
+| **Design Databricks jobs that retry and repair without duplicating data** (`DATABRICKS-JOB-DESIGN`) | databricks | orchestration | Designs Lakeflow Jobs so that retries, repairs, queued runs and triggers never write the same data twice, with the right compute for each task. |
 | **Change Unity Catalog access without over-granting** (`DATABRICKS-UNITY-CATALOG-ACCESS-CHANGE`) | databricks | security, database-administration | Grants, revokes and restricts access in Databricks Unity Catalog with the smallest change that does the job, after tracing every path through which access is inherited. |
 | **Diagnose a failing dbt build from compiled SQL** (`DBT-BUILD-FAILURE-DIAGNOSIS`) | dbt | debugging | Diagnoses a failing dbt build from the compiled SQL rather than the error text. |
 | **Trace a dbt column upstream and downstream** (`DBT-COLUMN-LINEAGE`) | dbt | data-modeling | Traces where a dbt model's column came from and what depends on it, without reading SQL by hand across the model chain. Requires dbt Cloud + MCP server. |
@@ -57,6 +58,7 @@ one project gets.
 | **Rewrite Snowflake SQL without changing results** (`SNOWFLAKE-QUERY-REWRITE`) | snowflake | performance, refactoring | Rewrites a Snowflake query for performance without changing its results. |
 | **Repair Snowflake semantic view drift** (`SNOWFLAKE-SEMANTIC-VIEW-DRIFT`) | snowflake | data-modeling, data-quality | Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions. |
 | **Tune a slow Spark job from its Spark UI evidence** (`SPARK-JOB-TUNING`) | spark, databricks | performance, debugging | Finds the stage and the cause that dominate a slow or memory-failing Spark job, fixes that cause and measures the result. |
+| **Design Spark streaming queries that restart without loss or duplicates** (`SPARK-STREAMING-QUERY-DESIGN`) | spark, databricks | ingestion | Designs Structured Streaming queries outside declarative pipelines so that restarts, code changes and failures neither skip nor repeat data, and state stays bounded. |
 
 ## Power BI (8)
 
