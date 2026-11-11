@@ -46,8 +46,10 @@ Its neighbours in this catalog:
 **The aggregation has to be the SQL's aggregation.** Summing a rate, a
 percentage, or a value that was already aggregated upstream produces a smooth,
 confident insight about a quantity nobody defined. A ratio is a numerator and a
-denominator, carried as two measures and divided, not an average of per-row
-ratios — unless the SQL metric genuinely is that average, in which case say so,
+denominator divided after each is aggregated, not an average of per-row ratios.
+Because a metric takes one measure, that means one aggregate calculated field,
+such as `SUM([Numerator]) / SUM([Denominator])`, defined in the published data
+source or in the metric's advanced definition — unless the SQL metric genuinely is that average, in which case say so,
 because the two are told apart by the definition and by nothing else.
 
 **The time dimension is part of the definition, not a display setting.** Order
