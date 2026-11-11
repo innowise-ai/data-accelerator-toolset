@@ -80,6 +80,12 @@ search means ask, not conclude.** "I did not find a definitions field under the
 usual names — what is it called here?" is one question, and the alternative is
 declaring a maintained workbook undocumented.
 
+Tableau also has a native place for a definition: the field comment (Default
+Properties > Comment), stored in the file as a `desc` element on the field's
+column. Check those before concluding anything. A workbook documented through
+field comments has no definitions calculation and is still documented, and its
+comments are a source in the same way the calculated field is.
+
 **When there is genuinely no definitions field, stop and say so.** Do not fall back
 on listing every visible field caption. A caption list is names without meanings,
 and it fails in the worst available way: it looks like a finished FAQ, it makes a
