@@ -1,9 +1,9 @@
 {
   "schema_version": "2",
-  "toolset_ref": "refs/tags/v1.4.1",
+  "toolset_ref": "refs/tags/v1.5.0",
   "vocabulary": {
     "languages": ["typescript", "javascript", "python", "csharp", "go", "sql"],
-    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "terraform", "terragrunt", "dataform", "bigquery"],
+    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "terraform", "terragrunt", "dataform", "bigquery", "power-bi", "tableau"],
     "layout": ["monorepo", "single"],
     "agents": ["claude-code", "codex", "cursor"],
     "topics": [
@@ -23,7 +23,8 @@
       "containerization",
       "infrastructure",
       "database-administration",
-      "research"
+      "research",
+      "analytics"
     ]
   },
   "artifacts": [
@@ -600,6 +601,27 @@
       }
     },
     {
+      "id": "KPI-DEFINITION-BUILDING",
+      "version": "0.1.0",
+      "source_path": "artifacts/KPI-DEFINITION-BUILDING",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["data-modeling"],
+      "scope": "project",
+      "presentation": {
+        "name": "Turn a requested metric into a definition that can be implemented twice",
+        "summary": "Turns a metric requested in words into a specification precise enough that two independent implementations produce the same number.",
+        "benefits": [
+          "Surfaces the decisions a one-sentence request hides: population and exclusions, grain, which date, units, thresholds",
+          "Settles how the metric rolls up, so a date filter cannot turn a rate into an average of rates",
+          "Decides up front whether late data restates a published figure",
+          "Asks for business rules instead of supplying a plausible one that becomes the definition of record",
+          "Carries worked edge cases, so an implementation can be tested rather than reviewed",
+          "Requires the report and an independent query to agree, and treats a disagreement as a missing clause"
+        ]
+      }
+    },
+    {
       "id": "MEDALLION-LAYER-BOUNDARIES",
       "version": "0.1.0",
       "source_path": "artifacts/MEDALLION-LAYER-BOUNDARIES",
@@ -715,6 +737,184 @@
           "Gives a rule for when to adapt the plan and when to stop and ask",
           "Prevents unrequested scope from being added mid-execution",
           "Keeps the plan and the actual state of the work in agreement"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-COPILOT-READINESS",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-COPILOT-READINESS",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-modeling", "analytics"],
+      "scope": "project",
+      "presentation": {
+        "name": "Prepare a semantic model so Copilot answers from the measures you defined",
+        "summary": "Decides what Power BI Copilot can bind a question to, and checks that an answer or a drafted measure used the measure that was meant.",
+        "benefits": [
+          "Reads hidden flags, summarizeBy, descriptions, synonyms, roles, and the date-table mark from the TMDL, and stops when those files are not there",
+          "Hides a column when a measure is the metric, or sets summarizeBy to none if it must stay visible, so the answer is not the sum of a key, a rate, or a pre-aggregated total",
+          "Uses the measure description as the only definition, including grain, filters, unit, and what the metric is not",
+          "Treats a bidirectional relationship and a second date as different numbers, not as style",
+          "Names the role a check was run as, because a role that sees everything is a different population",
+          "Sends a drafted measure to the SQL-and-DAX equivalence check instead of accepting prose that sounds right"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-DATASOURCE-MIGRATION",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-DATASOURCE-MIGRATION",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["refactoring"],
+      "scope": "project",
+      "presentation": {
+        "name": "See what a connection swap breaks, and prove the numbers",
+        "summary": "Works out what in a Power BI model will not survive a warehouse connection swap, and proves the report still returns the same numbers afterwards.",
+        "benefits": [
+          "Takes the baseline and the inventory while the old connection still answers",
+          "Names the rebind that does not announce itself: a column matches by name and the number moves",
+          "Treats DAX as stable across warehouses, and M, types, date tables, and folded SQL as the parts that are not",
+          "Checks whether a step still folds by the SQL the connector sends, rather than by assuming the new warehouse folds the same M",
+          "Requires the proof below the headline total, where two errors stop cancelling",
+          "Stops at the model, and leaves warehouse redesign as separate work"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-FUNCTION-IMPACT",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-FUNCTION-IMPACT",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["refactoring"],
+      "scope": "project",
+      "presentation": {
+        "name": "Judge a DAX function by the measures that call it",
+        "summary": "Judges a user-defined function before it is introduced or changed, by proving each caller still matches the calculation it replaced.",
+        "benefits": [
+          "Reads the function from the project and stops rather than inventing a signature the file does not contain",
+          "Treats the blast radius as the work: the function is written once, and every caller moves when it moves",
+          "Requires each caller to match the inlined calculation it replaced, and does not stop at a function that compiles",
+          "Leaves the business definition on the measure description, and the grain with the caller",
+          "Names the callers this folder cannot see when other reports share the model"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-MEASURE-TRANSLATION",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-MEASURE-TRANSLATION",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-modeling", "analytics"],
+      "scope": "project",
+      "presentation": {
+        "name": "Translate a metric between SQL and DAX without changing the number",
+        "summary": "Rewrites an existing metric from SQL into DAX or from DAX into SQL, and treats the result as unchecked until the same grain and filters return the same number.",
+        "benefits": [
+          "Binds each SQL table, column, and date to a TMDL object before writing DAX, and copies those identifiers as they are written",
+          "Refuses a guessed formula when the grain, the filters, the date, or the bindings are not known",
+          "Writes the assumptions down and marks each binding as stated or assumed",
+          "Keeps a ratio, a snapshot, a time comparison, a join fan-out, a running total, and a conditional sum as different numbers from a plain sum",
+          "Keeps a visual's filter with KEEPFILTERS, and treats CASE without ELSE as a blank rather than a zero",
+          "Labels a translation unchecked when it cannot be run at the same grain, filters, and population"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-MODEL-AUDIT",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-MODEL-AUDIT",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["debugging"],
+      "scope": "project",
+      "presentation": {
+        "name": "Assess an inherited semantic model before changing it",
+        "summary": "Assesses a semantic model and the report on it from the project folder: what is in it, which dependencies make a change risky, and what this folder cannot call unused.",
+        "benefits": [
+          "Builds the inventory that answers what a change would propagate through, including the callers of a user-defined function",
+          "Refuses to call a column unused in this report unused, and asks whether other reports share the model",
+          "Treats import, DirectQuery, and composite as findings only when the consequence is named",
+          "Records performance risks and leaves them for a measurement",
+          "Keeps a display-folder rename, a format string, and a description apart, because each means something different"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-MODEL-DIFF",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-MODEL-DIFF",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["code-review"],
+      "scope": "project",
+      "presentation": {
+        "name": "Review what changed between two Power BI project versions",
+        "summary": "Compares two versions of a Power BI Project by what changed in the model and the report, and separates changes that can move a number from format strings, descriptions, and cosmetic edits.",
+        "benefits": [
+          "Refuses a text diff of a packaged file, and treats a line diff of the project as noise rather than the review",
+          "Reports formula, relationship, filter, Power Query, role, and calculation-item changes apart from everything else",
+          "Gives format strings and descriptions their own classes, because one changes what the reader sees and the other can make the FAQ lie",
+          "Treats a display-folder rename as cosmetic only when nothing selects by that folder",
+          "Stops on a function-body change when the caller set is not known, including callers on reports outside this folder"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-PERFORMANCE-DIAGNOSIS",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-PERFORMANCE-DIAGNOSIS",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["performance"],
+      "scope": "project",
+      "presentation": {
+        "name": "Find out why a Power BI report is slow before rewriting it",
+        "summary": "Establishes which of three problems is slow — refresh, an interaction's query, or rendering — and requires a measurement before anything is rewritten.",
+        "benefits": [
+          "Separates refresh, an interaction's query, and rendering, which rarely share a cause",
+          "Treats iterator measures, bidirectional relationships, visual count, and DirectQuery as hypotheses until a timing says where the time went",
+          "Names the artifact: a Performance Analyzer JSON times one interaction, a server trace splits formula engine from storage engine and warehouse, and a .vpax is size rather than a timing",
+          "Hands a DirectQuery warehouse query to the warehouse's own diagnosis, and does not rewrite a measure here"
+        ]
+      }
+    },
+    {
+      "id": "POWER-BI-REPORT-FAQ",
+      "version": "0.1.0",
+      "source_path": "artifacts/POWER-BI-REPORT-FAQ",
+      "applies_to": {
+        "frameworks": ["power-bi"]
+      },
+      "strength": "on-demand",
+      "topics": ["documentation"],
+      "scope": "project",
+      "presentation": {
+        "name": "Write a report FAQ from the model, not from memory",
+        "summary": "Writes a report FAQ from the Power BI Project and a screenshot of the landing page, taking each metric definition from the measure description rather than from the formula.",
+        "benefits": [
+          "Takes metric definitions from measure descriptions, and stops when one is missing rather than translating the formula into business English",
+          "Requires a screenshot of the landing page, including the visible slicers and anything that appears only through a bookmark or a tooltip page",
+          "Asks for the refresh schedule instead of guessing one from the model",
+          "Treats a description an agent wrote as a draft until a person accepts it",
+          "Documents the metrics a reader sees, without treating a column that is absent from the page as unused"
         ]
       }
     },
@@ -1071,6 +1271,188 @@
           "Chooses available-now, processing-time or real-time triggers, within what serverless supports",
           "Bounds state with watermarks for aggregations, deduplication and stream-stream joins",
           "Sets Kafka and Delta source options so expired or changed data fails loudly instead of disappearing"
+        ]
+      }
+    },
+    {
+      "id": "TABLEAU-ANALYTICAL-CALCS",
+      "version": "0.1.0",
+      "source_path": "artifacts/TABLEAU-ANALYTICAL-CALCS",
+      "applies_to": {
+        "frameworks": ["tableau"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-modeling"],
+      "scope": "project",
+      "presentation": {
+        "name": "Build cohort, trend and ranking calculations that survive filters",
+        "summary": "Implements known metric shapes in Tableau by choosing between a row-level expression, a level-of-detail expression and a table calculation, and knowing which filters change the answer.",
+        "benefits": [
+          "Chooses the construct by what the metric has to see, rather than by what is easiest to write",
+          "Catches the period-over-period defect where an offset shifts by position and a quiet month breaks every comparison after it",
+          "Keeps a cohort anchor from being redefined by the user's date filter",
+          "Separates filtering, late filtering and hiding, which give three different totals",
+          "Pairs every shape with the query that has to agree with it, including the slices where it fails",
+          "Treats a plausible-looking calculation as unverified, because Tableau formulas are where confident answers are most often wrong"
+        ]
+      }
+    },
+    {
+      "id": "TABLEAU-DASHBOARD-FAQ",
+      "version": "0.1.0",
+      "source_path": "artifacts/TABLEAU-DASHBOARD-FAQ",
+      "applies_to": {
+        "frameworks": ["tableau"]
+      },
+      "strength": "on-demand",
+      "topics": ["documentation"],
+      "scope": "project",
+      "presentation": {
+        "name": "Write a dashboard FAQ from the workbook, not from memory",
+        "summary": "Documents an existing Tableau dashboard from its workbook file and a screenshot of the landing view, taking each metric definition from the workbook rather than inferring one.",
+        "benefits": [
+          "Takes metric definitions from the workbook's own definitions field, and stops rather than passing a list of field captions off as documentation",
+          "Requires a screenshot of the landing view, because the file does not record what a reader of the FAQ sees",
+          "Asks for the refresh schedule instead of inferring one from the extract",
+          "Describes only the fields the dashboard actually uses, under the captions readers recognise",
+          "Hands back the result as a draft with each definition's source, so the owner reviews the gaps rather than the whole document"
+        ]
+      }
+    },
+    {
+      "id": "TABLEAU-DATASOURCE-MIGRATION",
+      "version": "0.1.0",
+      "source_path": "artifacts/TABLEAU-DATASOURCE-MIGRATION",
+      "applies_to": {
+        "frameworks": ["tableau"]
+      },
+      "strength": "on-demand",
+      "topics": ["refactoring"],
+      "scope": "project",
+      "presentation": {
+        "name": "Repoint a Tableau workbook at a new warehouse safely",
+        "summary": "Works out what in a workbook will not survive a connection swap, and proves the dashboard still produces the same numbers afterwards.",
+        "benefits": [
+          "Takes the baseline and the inventory while they can still be captured, before the connection changes",
+          "Names the rebind outcome that does not announce itself: a field that matches by name and holds something slightly different",
+          "Finds the calculations that are actually dialect-bound, instead of treating every calculation as a risk",
+          "Catches the silent breakages: identifier casing, time zones, aliases and groups over changed values, row-level security",
+          "Requires reconciliation below the headline total, where two offsetting errors stop cancelling",
+          "Stops at what the workbook needs, leaving warehouse redesign as separate work"
+        ]
+      }
+    },
+    {
+      "id": "TABLEAU-MEASURE-TRANSLATION",
+      "version": "0.1.0",
+      "source_path": "artifacts/TABLEAU-MEASURE-TRANSLATION",
+      "applies_to": {
+        "frameworks": ["tableau"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-modeling", "analytics"],
+      "scope": "project",
+      "presentation": {
+        "name": "Translate a metric between SQL and a level-of-detail expression without changing the number",
+        "summary": "Rewrites an existing metric in either direction between SQL and a FIXED, INCLUDE or EXCLUDE expression, stating the grains and filter positions the number depends on.",
+        "benefits": [
+          "States both grains — the view's and the expression's — and what happens when the view aggregates the result a second time",
+          "Refuses to disguise a rank, a running total or a previous-row lookup as a FIXED expression, because those are table calculations and no grain reproduces them",
+          "Names each filter's position, since a dimension filter does not reduce a FIXED expression and a WHERE clause is not automatically a context filter",
+          "Returns the missing view instead of guessing one, because INCLUDE and EXCLUDE have no meaning until the sheet's grain is known",
+          "Writes the join keys into the SQL direction, where a missing key is a fan-out that leaves every row looking plausible",
+          "Hands back the result labelled unchecked until the two expressions have been compared as numbers"
+        ]
+      }
+    },
+    {
+      "id": "TABLEAU-PERFORMANCE-DIAGNOSIS",
+      "version": "0.1.0",
+      "source_path": "artifacts/TABLEAU-PERFORMANCE-DIAGNOSIS",
+      "applies_to": {
+        "frameworks": ["tableau"]
+      },
+      "strength": "on-demand",
+      "topics": ["performance"],
+      "scope": "project",
+      "presentation": {
+        "name": "Find out why a Tableau dashboard is slow before rewriting it",
+        "summary": "Establishes which interaction is slow and where the time actually goes - the queries, Tableau's own compute, or rendering - before anything is rewritten.",
+        "benefits": [
+          "Separates first load, filter changes and tab switches, which rarely share a cause",
+          "Splits query time from local compute from rendering, so the fix is attempted in the right place",
+          "Checks filter configuration early, where the cost is settings rather than design",
+          "Distinguishes a measured cause from a structural hypothesis instead of presenting one as the other",
+          "Requires a rewritten calculation to be checked against the original numbers, since Tableau formulas are where confident answers are most often wrong",
+          "Names the causes that live outside the workbook and survive any rewrite"
+        ]
+      }
+    },
+    {
+      "id": "TABLEAU-PULSE-READINESS",
+      "version": "0.1.0",
+      "source_path": "artifacts/TABLEAU-PULSE-READINESS",
+      "applies_to": {
+        "frameworks": ["tableau"]
+      },
+      "strength": "on-demand",
+      "topics": ["data-modeling", "analytics"],
+      "scope": "project",
+      "presentation": {
+        "name": "Define Pulse metrics so the insight matches the warehouse number",
+        "summary": "Defines a Pulse metric from a published data source so the generated insight is about the intended number, and checks an existing insight by recomputing the comparison.",
+        "benefits": [
+          "Binds the metric to a named measure, time column and filter set, instead of to a word that a caption, a calculation and a warehouse column can share",
+          "Keeps a ratio as a numerator and a denominator, and refuses to sum a rate, a percentage or a pre-aggregated row",
+          "Treats the time column as part of the definition, so order date and ship date are different metrics",
+          "Names every filter in force, because data source, extract and metric filters stack and the insight is about whatever survived them",
+          "Hands a FIXED field to the SQL-and-LOD translation before accepting it as a measure, because the grain has already collapsed",
+          "Records extract versus live, so an insight is not compared with a warehouse that has since moved",
+          "Labels an insight unchecked when the comparison cannot be recomputed, instead of treating a well-worded sentence as a check"
+        ]
+      }
+    },
+    {
+      "id": "TABLEAU-WORKBOOK-AUDIT",
+      "version": "0.1.0",
+      "source_path": "artifacts/TABLEAU-WORKBOOK-AUDIT",
+      "applies_to": {
+        "frameworks": ["tableau"]
+      },
+      "strength": "on-demand",
+      "topics": ["debugging"],
+      "scope": "project",
+      "presentation": {
+        "name": "Assess an inherited Tableau workbook before changing it",
+        "summary": "Assesses a workbook nobody on the team built: what is in it, which dependencies make a change risky, and what the file cannot tell you.",
+        "benefits": [
+          "Builds the field-to-worksheet index that answers what a change would propagate through",
+          "Separates unreferenced in the file from unused by anyone, instead of recommending deletions the file cannot justify",
+          "Finds the dependencies that break from outside, including custom SQL coupled to warehouse object names",
+          "Judges live against extract by what the dashboard is for, rather than calling one of them wrong",
+          "States what an audit of the file cannot conclude: correctness, runtime, layout and who uses it"
+        ]
+      }
+    },
+    {
+      "id": "TABLEAU-WORKBOOK-DIFF",
+      "version": "0.1.0",
+      "source_path": "artifacts/TABLEAU-WORKBOOK-DIFF",
+      "applies_to": {
+        "frameworks": ["tableau"]
+      },
+      "strength": "on-demand",
+      "topics": ["code-review"],
+      "scope": "project",
+      "presentation": {
+        "name": "Review what changed between two Tableau workbook versions",
+        "summary": "Compares two versions of a workbook by inventory rather than by text, and separates the differences that can move a number from the ones that cannot.",
+        "benefits": [
+          "Discards the save noise that makes a line diff of a workbook unreadable",
+          "Reports result-altering changes separately from cosmetic ones, so review attention goes where it counts",
+          "Catches the quiet ones: a context filter, a sort under a table calculation, a parameter default",
+          "Keeps a renamed field from being reported as one deletion and one addition",
+          "States that a difference is a candidate, and names the comparison that would settle it"
         ]
       }
     },

@@ -79,6 +79,70 @@
   "Data engineering",
   "Airflow"
  ],
+ "POWER-BI-COPILOT-READINESS": [
+  "Power BI",
+  "Metrics"
+ ],
+ "POWER-BI-DATASOURCE-MIGRATION": [
+  "Power BI",
+  "Model and report"
+ ],
+ "POWER-BI-FUNCTION-IMPACT": [
+  "Power BI",
+  "Model and report"
+ ],
+ "POWER-BI-MEASURE-TRANSLATION": [
+  "Power BI",
+  "Metrics"
+ ],
+ "POWER-BI-MODEL-AUDIT": [
+  "Power BI",
+  "Model and report"
+ ],
+ "POWER-BI-MODEL-DIFF": [
+  "Power BI",
+  "Model and report"
+ ],
+ "POWER-BI-PERFORMANCE-DIAGNOSIS": [
+  "Power BI",
+  "Model and report"
+ ],
+ "POWER-BI-REPORT-FAQ": [
+  "Power BI",
+  "Model and report"
+ ],
+ "TABLEAU-ANALYTICAL-CALCS": [
+  "Tableau",
+  "Metrics"
+ ],
+ "TABLEAU-DASHBOARD-FAQ": [
+  "Tableau",
+  "Workbooks"
+ ],
+ "TABLEAU-WORKBOOK-AUDIT": [
+  "Tableau",
+  "Workbooks"
+ ],
+ "TABLEAU-PERFORMANCE-DIAGNOSIS": [
+  "Tableau",
+  "Workbooks"
+ ],
+ "TABLEAU-WORKBOOK-DIFF": [
+  "Tableau",
+  "Workbooks"
+ ],
+ "TABLEAU-DATASOURCE-MIGRATION": [
+  "Tableau",
+  "Workbooks"
+ ],
+ "TABLEAU-MEASURE-TRANSLATION": [
+  "Tableau",
+  "Metrics"
+ ],
+ "TABLEAU-PULSE-READINESS": [
+  "Tableau",
+  "Metrics"
+ ],
  "ETL-DECOMPOSITION": [
   "Data engineering",
   "Pipelines, SQL and data safety"
@@ -90,6 +154,11 @@
  "SCD2-IMPLEMENTATION": [
   "Data engineering",
   "Pipelines, SQL and data safety"
+ ],
+ "KPI-DEFINITION-BUILDING": [
+  ["Data engineering", "Pipelines, SQL and data safety"],
+  ["Power BI", "Metrics"],
+  ["Tableau", "Metrics"]
  ],
  "MEDALLION-LAYER-BOUNDARIES": [
   "Data engineering",

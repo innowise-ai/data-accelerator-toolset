@@ -1,0 +1,23 @@
+{
+  "id": "TABLEAU-MEASURE-TRANSLATION",
+  "version": "0.1.0",
+  "source_path": "artifacts/TABLEAU-MEASURE-TRANSLATION",
+  "applies_to": {
+    "frameworks": ["tableau"]
+  },
+  "strength": "on-demand",
+  "topics": ["data-modeling", "analytics"],
+  "scope": "project",
+  "presentation": {
+    "name": "Translate a metric between SQL and a level-of-detail expression without changing the number",
+    "summary": "Rewrites an existing metric in either direction between SQL and a FIXED, INCLUDE or EXCLUDE expression, stating the grains and filter positions the number depends on.",
+    "benefits": [
+      "States both grains — the view's and the expression's — and what happens when the view aggregates the result a second time",
+      "Refuses to disguise a rank, a running total or a previous-row lookup as a FIXED expression, because those are table calculations and no grain reproduces them",
+      "Names each filter's position, since a dimension filter does not reduce a FIXED expression and a WHERE clause is not automatically a context filter",
+      "Returns the missing view instead of guessing one, because INCLUDE and EXCLUDE have no meaning until the sheet's grain is known",
+      "Writes the join keys into the SQL direction, where a missing key is a fan-out that leaves every row looking plausible",
+      "Hands back the result labelled unchecked until the two expressions have been compared as numbers"
+    ]
+  }
+}

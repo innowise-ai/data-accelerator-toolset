@@ -1,0 +1,21 @@
+{
+  "id": "POWER-BI-PERFORMANCE-DIAGNOSIS",
+  "version": "0.1.0",
+  "source_path": "artifacts/POWER-BI-PERFORMANCE-DIAGNOSIS",
+  "applies_to": {
+    "frameworks": ["power-bi"]
+  },
+  "strength": "on-demand",
+  "topics": ["performance"],
+  "scope": "project",
+  "presentation": {
+    "name": "Find out why a Power BI report is slow before rewriting it",
+    "summary": "Establishes which of three problems is slow — refresh, an interaction's query, or rendering — and requires a measurement before anything is rewritten.",
+    "benefits": [
+      "Separates refresh, an interaction's query, and rendering, which rarely share a cause",
+      "Treats iterator measures, bidirectional relationships, visual count, and DirectQuery as hypotheses until a timing says where the time went",
+      "Names the artifact: a Performance Analyzer JSON times one interaction, a server trace splits formula engine from storage engine and warehouse, and a .vpax is size rather than a timing",
+      "Hands a DirectQuery warehouse query to the warehouse's own diagnosis, and does not rewrite a measure here"
+    ]
+  }
+}
