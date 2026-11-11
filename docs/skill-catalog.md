@@ -5,9 +5,9 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-67 artifacts today: 30 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
+69 artifacts today: 32 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
 Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
-layering and metric definitions), 8 for Power BI, 8 for Tableau,
+layering, job orchestration, streaming queries and metric definitions), 8 for Power BI, 8 for Tableau,
 4 for containers and local environments, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
 `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
@@ -23,7 +23,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (31)
+## Data engineering (32)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|

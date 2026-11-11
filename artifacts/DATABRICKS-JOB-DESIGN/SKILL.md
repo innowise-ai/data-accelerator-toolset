@@ -73,12 +73,24 @@ relying on it.
 
 **Repair** re-runs "only the subset of unsuccessful tasks and any dependent
 tasks", each "from the beginning", and it uses "the current job and task
-settings". Two consequences follow. A task that wrote half its output before
-failing writes it again, so repair is only as safe as the task. And a repair run
-after a deployment mixes code versions inside one run: the tasks that succeeded
-ran the old code, the repaired ones run the new. Parameters entered when
-repairing override the run's values. Repair applies to jobs with two or more
-tasks; a single-task job is simply run again.
+settings". Two consequences follow:
+
+- **Repair is only as safe as the task.** A task that wrote half its output
+  before failing writes it again.
+- **A repair uses the job's settings as they are now.** If the job changed
+  between the failure and the repair, for example a notebook path, a cluster or
+  a task definition, the repaired tasks run with the new settings while the
+  tasks that succeeded ran with the old.
+
+Which version of the code the repaired tasks run is not documented. A run with a
+Git source takes a snapshot of the branch or commit "when a job run begins", so
+that all its tasks use the same code. The documentation does not say whether a
+repair reuses that snapshot, or whether a task that runs workspace files reads
+them again. So do not deploy between a failure and its repair. If you have to,
+treat the repaired run as mixed and check what each task actually ran.
+
+Parameters entered when repairing override the run's values. Repair applies to
+jobs with two or more tasks; a single-task job is simply run again.
 
 ## The task graph and run-if conditions
 
@@ -215,8 +227,11 @@ what the project needs, usually `dbt deps` and `dbt build` with a selector.
 `dbt run` skips tests, and `dbt seed` on every run reloads seed tables.
 
 For production, point the Git source at a tag or commit rather than a branch.
-A branch makes a repair, which uses the current settings, run code that was
-merged after the original run.
+Each new run takes a snapshot of the branch when it begins, so with a branch,
+what a run executes depends on when it started. Re-running last week's window
+then runs this week's code, not the code that produced the original result. A
+tag or commit makes every run, retry and backfill of a release run the same
+code.
 
 ## What this skill changes
 
