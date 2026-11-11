@@ -72,68 +72,68 @@
   "Airflow"
  ],
  "POWER-BI-COPILOT-READINESS": [
-  "BI and analytics",
-  "Power BI"
+  "Power BI",
+  "Metrics"
  ],
  "POWER-BI-DATASOURCE-MIGRATION": [
-  "Data engineering",
-  "Power BI"
+  "Power BI",
+  "Model and report"
  ],
  "POWER-BI-FUNCTION-IMPACT": [
-  "Data engineering",
-  "Power BI"
+  "Power BI",
+  "Model and report"
  ],
  "POWER-BI-MEASURE-TRANSLATION": [
-  "BI and analytics",
-  "Power BI"
+  "Power BI",
+  "Metrics"
  ],
  "POWER-BI-MODEL-AUDIT": [
-  "Data engineering",
-  "Power BI"
+  "Power BI",
+  "Model and report"
  ],
  "POWER-BI-MODEL-DIFF": [
-  "Data engineering",
-  "Power BI"
+  "Power BI",
+  "Model and report"
  ],
  "POWER-BI-PERFORMANCE-DIAGNOSIS": [
-  "Data engineering",
-  "Power BI"
+  "Power BI",
+  "Model and report"
  ],
  "POWER-BI-REPORT-FAQ": [
-  "Data engineering",
-  "Power BI"
+  "Power BI",
+  "Model and report"
  ],
  "TABLEAU-ANALYTICAL-CALCS": [
-  "Data engineering",
-  "Tableau"
+  "Tableau",
+  "Metrics"
  ],
  "TABLEAU-DASHBOARD-FAQ": [
-  "Data engineering",
-  "Tableau"
+  "Tableau",
+  "Workbooks"
  ],
  "TABLEAU-WORKBOOK-AUDIT": [
-  "Data engineering",
-  "Tableau"
+  "Tableau",
+  "Workbooks"
  ],
  "TABLEAU-PERFORMANCE-DIAGNOSIS": [
-  "Data engineering",
-  "Tableau"
+  "Tableau",
+  "Workbooks"
  ],
  "TABLEAU-WORKBOOK-DIFF": [
-  "Data engineering",
-  "Tableau"
+  "Tableau",
+  "Workbooks"
  ],
  "TABLEAU-DATASOURCE-MIGRATION": [
-  "Data engineering",
-  "Tableau"
+  "Tableau",
+  "Workbooks"
  ],
  "TABLEAU-MEASURE-TRANSLATION": [
-  "BI and analytics",
-  "Tableau"
+  "Tableau",
+  "Metrics"
  ],
  "TABLEAU-PULSE-READINESS": [
-  "BI and analytics",
-  "Tableau"
+  "Tableau",
+  "Metrics"
  ],
  "ETL-DECOMPOSITION": [
   "Data engineering",
@@ -148,8 +148,9 @@
   "Pipelines, SQL and data safety"
  ],
  "KPI-DEFINITION-BUILDING": [
-  "Data engineering",
-  "Pipelines, SQL and data safety"
+  ["Data engineering", "Pipelines, SQL and data safety"],
+  ["Power BI", "Metrics"],
+  ["Tableau", "Metrics"]
  ],
  "MEDALLION-LAYER-BOUNDARIES": [
   "Data engineering",

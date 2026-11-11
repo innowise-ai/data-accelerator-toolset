@@ -6,7 +6,8 @@
   --bg:#f3f5f7; --surface:#ffffff; --fg:#17202b; --muted:#5b6776; --line:#d9dfe6;
   --accent:#1f5fd6; --accent-soft:#e3ecfc;
   --g-de:#1f5fd6; --g-de-soft:#e3ecfc;
-  --g-bi:#b44a2a; --g-bi-soft:#fce9e2;
+  --g-pb:#9a2f6a; --g-pb-soft:#f8e4ef;
+  --g-tb:#b44a2a; --g-tb-soft:#fce9e2;
   --g-db:#0b7480; --g-db-soft:#dcf0f2;
   --g-ct:#a35a00; --g-ct-soft:#fbeed8;
   --g-ic:#7a3db8; --g-ic-soft:#efe4fa;
@@ -20,7 +21,8 @@
   --bg:#0f151c; --surface:#171f29; --fg:#e6ebf1; --muted:#98a4b3; --line:#2a3542;
   --accent:#6b9cff; --accent-soft:#1b2a47;
   --g-de:#6b9cff; --g-de-soft:#1b2a47;
-  --g-bi:#e8896a; --g-bi-soft:#3a1e16;
+  --g-pb:#e58ab8; --g-pb-soft:#3a1828;
+  --g-tb:#e8896a; --g-tb-soft:#3a1e16;
   --g-db:#4cc6d2; --g-db-soft:#12323a;
   --g-ct:#e8a045; --g-ct-soft:#3a2a12;
   --g-ic:#b98af0; --g-ic-soft:#2c1d42;
@@ -30,7 +32,8 @@
   --bg:#0f151c; --surface:#171f29; --fg:#e6ebf1; --muted:#98a4b3; --line:#2a3542;
   --accent:#6b9cff; --accent-soft:#1b2a47;
   --g-de:#6b9cff; --g-de-soft:#1b2a47;
-  --g-bi:#e8896a; --g-bi-soft:#3a1e16;
+  --g-pb:#e58ab8; --g-pb-soft:#3a1828;
+  --g-tb:#e8896a; --g-tb-soft:#3a1e16;
   --g-db:#4cc6d2; --g-db-soft:#12323a;
   --g-ct:#e8a045; --g-ct-soft:#3a2a12;
   --g-ic:#b98af0; --g-ic-soft:#2c1d42;
@@ -194,7 +197,7 @@ const T = {
       of:'of', none:'Nothing found. Reset the filters.', any:'any project', what:'What it does', benefits:'What you get', where:'Path in repo', ver:'Version',
       colSkill:'skill', colAp:'applies to',
       needs:'What it needs', tools:'Install', access:'Access', nothing:'Nothing beyond the agent', setup:'needs setup', nw:'new', nwTip:'Added in this catalog version',
-      s1:'skills', s2:'data engineering', s7:'BI and analytics', s6:'database administration', s3:'containers', s5:'infrastructure as code', s4:'general, any stack', lang:'lang '},
+      s1:'skills', s2:'data engineering', s7:'Power BI', s8:'Tableau', s6:'database administration', s3:'containers', s5:'infrastructure as code', s4:'general, any stack', lang:'lang '},
   ru:{title:'Карта каталога скиллов', forVersion:'Собрано для версии каталога', repo:'Toolset на GitHub', sub:'38 скиллов из Data Accelerator toolset по областям. Фильтруйте по теме, фреймворку или языку, на которые рассчитан скилл, и открывайте любой скилл, чтобы увидеть, что он делает. Чтобы поставить скиллы вручную, добавьте их и скачайте одним ZIP.',
       add:'+ Добавить', added:'Добавлен', addShown:'Добавить все показанные ({n})', selected:'Выбрано: {n}', bShow:'Показать список', bHide:'Скрыть список', remove:'Убрать',
       bNote:'Из них {k} требуют настройки: см. README.txt в ZIP', bTip:'Распакуйте в папку скиллов вашего агента: см. README.txt в ZIP', bClear:'Очистить', bDl:'Скачать ZIP',
@@ -202,17 +205,18 @@ const T = {
       of:'из', none:'Ничего не найдено. Сбросьте фильтры.', any:'любой проект', what:'Что делает', benefits:'Что даёт', where:'Путь в репо', ver:'Версия',
       colSkill:'скилл', colAp:'применимость',
       needs:'Что нужно', tools:'Установить', access:'Доступы', nothing:'Ничего, кроме агента', setup:'нужна настройка', nw:'новое', nwTip:'Добавлен в этой версии каталога',
-      s1:'скиллов', s2:'data engineering', s7:'BI и аналитика', s6:'администрирование БД', s3:'контейнеры', s5:'инфраструктура как код', s4:'общие, любой стек', lang:'язык '}
+      s1:'скиллов', s2:'data engineering', s7:'Power BI', s8:'Tableau', s6:'администрирование БД', s3:'контейнеры', s5:'инфраструктура как код', s4:'общие, любой стек', lang:'язык '}
 };
 const GROUPS = [
   {k:'Data engineering', t:{en:'Data engineering', ru:'Data engineering'}, c:'--g-de', s:'--g-de-soft'},
-  {k:'BI and analytics', t:{en:'BI and analytics', ru:'BI и аналитика'}, c:'--g-bi', s:'--g-bi-soft'},
+  {k:'Power BI', t:{en:'Power BI', ru:'Power BI'}, c:'--g-pb', s:'--g-pb-soft'},
+  {k:'Tableau', t:{en:'Tableau', ru:'Tableau'}, c:'--g-tb', s:'--g-tb-soft'},
   {k:'Database administration', t:{en:'Database administration', ru:'Администрирование БД'}, c:'--g-db', s:'--g-db-soft'},
   {k:'Containers', t:{en:'Containers', ru:'Контейнеры'}, c:'--g-ct', s:'--g-ct-soft'},
   {k:'Infrastructure as code', t:{en:'Infrastructure as code', ru:'Инфраструктура как код'}, c:'--g-ic', s:'--g-ic-soft'},
   {k:'General', t:{en:'General, any stack', ru:'Общие, любой стек'}, c:'--g-gn', s:'--g-gn-soft'}
 ];
-const SUB_RU = {'Pipelines, SQL and data safety':'Pipelines, SQL и безопасность данных','Review and testing':'Review и тесты','Development process':'Процесс разработки','Docs and writing':'Документы и текст','Research':'Исследования'};
+const SUB_RU = {'Pipelines, SQL and data safety':'Pipelines, SQL и безопасность данных','Review and testing':'Review и тесты','Development process':'Процесс разработки','Docs and writing':'Документы и текст','Research':'Исследования','Model and report':'Модель и отчёт','Metrics':'Метрики'};
 const st = {q:'', topics:new Set(), ap:new Set(), nw:new Set(), view:'tree', lang:'en', open:new Set(), basket:new Set(), shown:[]};
 try { if (localStorage.getItem('skillmap-view') === 'matrix') st.view = 'matrix';
       if (localStorage.getItem('skillmap-lang') === 'ru') st.lang = 'ru';
@@ -389,7 +393,7 @@ function renderMatrix(list){
 }
 function stats(){
   const n = f => DATA.filter(f).length;
-  $('stats').innerHTML = [[DATA.length,'s1'],[n(a=>inGroup(a,'Data engineering')),'s2'],[n(a=>inGroup(a,'BI and analytics')),'s7'],[n(a=>inGroup(a,'Database administration')),'s6'],[n(a=>inGroup(a,'Containers')),'s3'],[n(a=>inGroup(a,'Infrastructure as code')),'s5'],[n(a=>inGroup(a,'General')),'s4']]
+  $('stats').innerHTML = [[DATA.length,'s1'],[n(a=>inGroup(a,'Data engineering')),'s2'],[n(a=>inGroup(a,'Power BI')),'s7'],[n(a=>inGroup(a,'Tableau')),'s8'],[n(a=>inGroup(a,'Database administration')),'s6'],[n(a=>inGroup(a,'Containers')),'s3'],[n(a=>inGroup(a,'Infrastructure as code')),'s5'],[n(a=>inGroup(a,'General')),'s4']]
     .map(([v,l])=>`<div class="panel stat"><b>${v}</b><span>${tr(l)}</span></div>`).join('');
 }
 function i18n(){
