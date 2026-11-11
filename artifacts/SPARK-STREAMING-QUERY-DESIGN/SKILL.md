@@ -25,6 +25,9 @@ This skill covers queries you run yourself, as a job task, a notebook or a
   is [databricks-job-design](../DATABRICKS-JOB-DESIGN/SKILL.md).
 - Spark work that is slow inside each batch is
   [spark-job-tuning](../SPARK-JOB-TUNING/SKILL.md).
+- Which layer a stream reads from and writes to (bronze, silver or gold), and
+  the write mode that keeps each layer safe to replay, is
+  [medallion-layer-boundaries](../MEDALLION-LAYER-BOUNDARIES/SKILL.md).
 
 ## First: read the query as it is
 

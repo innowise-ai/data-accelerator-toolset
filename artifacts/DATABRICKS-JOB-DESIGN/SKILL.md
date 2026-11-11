@@ -52,7 +52,13 @@ A task is safe to re-run when running it twice with the same parameters leaves
 the same result as running it once. The common ways to get there:
 
 - **Overwrite what the task owns.** Replace the partition or date window the run
-  is responsible for, rather than appending to it.
+  is responsible for, rather than appending to it. Check that the overwrite is
+  really that narrow. With Spark's default
+  `spark.sql.sources.partitionOverwriteMode=static`, `mode("overwrite")`
+  replaces the whole table, not the window. Use dynamic partition overwrite or,
+  on Delta, `replaceWhere` with the exact window. Which write mode fits each
+  layer is in
+  [medallion-layer-boundaries](../MEDALLION-LAYER-BOUNDARIES/SKILL.md#idempotent-transitions).
 - **Merge on a key** where rows can arrive more than once.
 - **Record completed work** (a batch id or the window processed) and skip it
   when it is already there, for side effects that cannot be overwritten, such as
