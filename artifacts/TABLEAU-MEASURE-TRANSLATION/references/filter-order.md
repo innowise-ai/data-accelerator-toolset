@@ -14,7 +14,7 @@ expression reduces what it sees; everything below it does not.
 | 1 | Extract filters | yes | yes |
 | 2 | Data source filters | yes | yes |
 | 3 | Context filters | yes | yes |
-| 4 | **`FIXED` expressions** | — | — |
+| 4 | **`FIXED` expressions**, and at the same stage sets, conditional filters and Top N filters | — | — |
 | 5 | Dimension filters | no | yes |
 | 6 | **`INCLUDE` and `EXCLUDE` expressions** | — | — |
 | 7 | Measure filters | no | no |
@@ -24,6 +24,12 @@ The gap between rows 4 and 5 is the one that produces wrong numbers in practice.
 A dimension filter is the ordinary kind — the thing a user gets when they drag a
 field onto the filter shelf, and the thing a dashboard's quick filters are — so
 the default position for a filter is *after* `FIXED` and invisible to it.
+
+The same gap catches Top N. A Top N or conditional filter is evaluated before the
+ordinary dimension filters, so "top ten customers" with a region filter beside it
+ranks across every region and then hides the ones outside the selection, often
+leaving fewer than ten. A `WHERE region = …` followed by `LIMIT 10` is only
+reproduced once the region filter is promoted to context.
 
 ## Translating in from SQL
 
