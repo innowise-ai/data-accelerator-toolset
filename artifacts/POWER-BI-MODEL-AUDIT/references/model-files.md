@@ -43,7 +43,9 @@ it. Hidden is not the only fact.
 The date-table mark is `dataCategory: Time` on the table, and a calendar
 object when present. A table named Date is not that mark.
 
-A partition's `mode` is `import`, `directQuery`, or `dual`. Composite is not
+A partition's `mode` is `import`, `directQuery`, `dual`, or `directLake`. A
+Direct Lake partition loads data into memory from the lake, and falls back
+to querying it as DirectQuery when fallback is enabled. Composite is not
 a mode on one partition. It is a model that mixes those modes, or that
 reaches another model and holds imported tables beside it. Read the modes and
 say which tables sit on which side of a relationship.
