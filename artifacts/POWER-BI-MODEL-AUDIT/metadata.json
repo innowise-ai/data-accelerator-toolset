@@ -1,6 +1,6 @@
 {
   "id": "POWER-BI-MODEL-AUDIT",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "source_path": "artifacts/POWER-BI-MODEL-AUDIT",
   "applies_to": {
     "frameworks": ["power-bi"]

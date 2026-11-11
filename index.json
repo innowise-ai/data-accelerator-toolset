@@ -696,7 +696,7 @@
     },
     {
       "id": "POWER-BI-COPILOT-READINESS",
-      "version": "0.2.0",
+      "version": "0.1.0",
       "source_path": "artifacts/POWER-BI-COPILOT-READINESS",
       "applies_to": {
         "frameworks": ["power-bi"]
@@ -719,7 +719,7 @@
     },
     {
       "id": "POWER-BI-DATASOURCE-MIGRATION",
-      "version": "0.2.0",
+      "version": "0.1.0",
       "source_path": "artifacts/POWER-BI-DATASOURCE-MIGRATION",
       "applies_to": {
         "frameworks": ["power-bi"]
@@ -742,7 +742,7 @@
     },
     {
       "id": "POWER-BI-FUNCTION-IMPACT",
-      "version": "0.2.0",
+      "version": "0.1.0",
       "source_path": "artifacts/POWER-BI-FUNCTION-IMPACT",
       "applies_to": {
         "frameworks": ["power-bi"]
@@ -764,7 +764,7 @@
     },
     {
       "id": "POWER-BI-MEASURE-TRANSLATION",
-      "version": "0.2.0",
+      "version": "0.1.0",
       "source_path": "artifacts/POWER-BI-MEASURE-TRANSLATION",
       "applies_to": {
         "frameworks": ["power-bi"]
@@ -787,7 +787,7 @@
     },
     {
       "id": "POWER-BI-MODEL-AUDIT",
-      "version": "0.2.0",
+      "version": "0.1.0",
       "source_path": "artifacts/POWER-BI-MODEL-AUDIT",
       "applies_to": {
         "frameworks": ["power-bi"]
@@ -809,7 +809,7 @@
     },
     {
       "id": "POWER-BI-MODEL-DIFF",
-      "version": "0.2.0",
+      "version": "0.1.0",
       "source_path": "artifacts/POWER-BI-MODEL-DIFF",
       "applies_to": {
         "frameworks": ["power-bi"]
@@ -831,7 +831,7 @@
     },
     {
       "id": "POWER-BI-PERFORMANCE-DIAGNOSIS",
-      "version": "0.2.0",
+      "version": "0.1.0",
       "source_path": "artifacts/POWER-BI-PERFORMANCE-DIAGNOSIS",
       "applies_to": {
         "frameworks": ["power-bi"]
@@ -852,7 +852,7 @@
     },
     {
       "id": "POWER-BI-REPORT-FAQ",
-      "version": "0.2.0",
+      "version": "0.1.0",
       "source_path": "artifacts/POWER-BI-REPORT-FAQ",
       "applies_to": {
         "frameworks": ["power-bi"]

@@ -1,6 +1,6 @@
 {
   "id": "POWER-BI-MEASURE-TRANSLATION",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "source_path": "artifacts/POWER-BI-MEASURE-TRANSLATION",
   "applies_to": {
     "frameworks": ["power-bi"]
