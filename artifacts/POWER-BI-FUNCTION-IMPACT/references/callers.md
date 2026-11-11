@@ -8,8 +8,10 @@ this model has no user-defined function to judge. Say so and stop. Do not
 write a signature so the rest of the task has something to hold.
 
 A `.pbix` does not contain this file in a form you can trust. If that is the
-only input, stop. Do not invent an export. If the model is only
-`model.bim`, stop; do not convert it.
+only input, stop. Do not invent an export. If the model is a single
+`model.bim` (a project saved as TMSL), it holds the same definitions as
+JSON; read the functions and the measure, column and table expressions from
+it in place. Do not convert it.
 
 ## What a caller is
 

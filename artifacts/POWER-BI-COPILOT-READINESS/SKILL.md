@@ -101,10 +101,12 @@ answer is a number you computed at that grain under those filters. Do not
 invent a verified answer you did not compute. A question without a number
 next to it is a candidate, not a verified question.
 
-If `definition/` is missing, stop. The hidden flags, the descriptions, the
-synonyms, the relationships, the roles, and the date-table mark cannot be
-seen. A `.pbix` is a package. `model.bim` is not TMDL. Do not convert
-either. A report screenshot does not carry those facts. Do not invent them
+A project saved as TMSL holds the same model in `model.bim` instead of
+`definition/`. Read it as JSON in place: the same properties sit on the
+objects under `model.tables` and `model.relationships`. If neither is
+present, stop. The hidden flags, the descriptions, the synonyms, the
+relationships, the roles, and the date-table mark cannot be seen. A `.pbix`
+is a package. Do not convert any of them. A report screenshot does not carry those facts. Do not invent them
 from the page.
 
 ## Checking an answer or a drafted measure
@@ -141,8 +143,9 @@ measure you intended.
 - Inventing hidden columns, descriptions, synonyms, relationships, or the
   date table from a screenshot. Those facts live in the TMDL; a page cannot
   supply them.
-- Starting from a `.pbix` or from `model.bim`. Neither is the `definition/`
-  folder, and converting them is not this task.
+- Starting from a `.pbix`. It is a package, not the model text, and
+  converting it is not this task. `model.bim` is the model text in TMSL and
+  is read as it is.
 - Leaving a column visible with `summarizeBy: sum` when a measure replaces
   it. Hidden is not the only fact; Copilot will still sum the column.
 - Inventing a synonym, or writing a second description for "the AI". Copilot

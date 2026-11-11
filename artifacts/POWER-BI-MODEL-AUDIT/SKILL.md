@@ -180,7 +180,8 @@ Whether the numbers are correct. Why the report is slow. What a reader sees
 first. Who uses it. Whether a description is still true of its formula: they
 are separate pieces of text. A `.pbix` does not substitute for the folder. If
 that is the only input, say what cannot be seen and stop. `model.bim` is
-not TMDL; do not convert it.
+the same model saved as TMSL; read it as JSON in place and do not convert
+it.
 
 ## Anti-patterns
 
@@ -196,5 +197,5 @@ not TMDL; do not convert it.
   a measurement.
 - Reconstructing a function that is not in `functions.tmdl`. Inventing a
   signature is how a review approves a function the model does not contain.
-- Taking a `.pbix` or `model.bim` as the model. Neither is the
-  `definition/` folder, and converting them is not this task.
+- Taking a `.pbix` as the model. It is a package, not the model text, and
+  converting it is not this task.

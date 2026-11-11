@@ -4,9 +4,10 @@ Written for the review in [`../SKILL.md`](../SKILL.md). Both sides are
 Power BI Project folders. If either side is only a `.pbix`, stop. The
 package does not yield the lists below, and converting it is not this task.
 
-Read the model as TMDL under the semantic-model `definition/` directory. If
-that directory is missing, say the text is not there and stop. Do not
-convert `model.bim`. Ignore the `.pbi` cache.
+Read the model as TMDL under the semantic-model `definition/` directory, or
+as TMSL JSON in `model.bim` when the project was saved that way; both hold
+the same objects. If neither is there, say the text is not there and stop.
+Do not convert either format into the other. Ignore the `.pbi` cache.
 
 ## Build the same inventory twice
 

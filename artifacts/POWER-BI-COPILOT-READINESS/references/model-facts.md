@@ -1,10 +1,14 @@
 # Where Copilot’s facts live
 
 Written for the readiness check in [`../SKILL.md`](../SKILL.md). A screenshot
-cannot supply these. If `definition/` is missing, the hidden flags, the
-descriptions, the synonyms, the relationships, the roles, and the date-table
-mark cannot be seen. Say what cannot be seen and stop. A `.pbix` is a
-package. `model.bim` is not TMDL. Do not convert either.
+cannot supply these. A project saved as TMSL keeps the same model in a
+single `model.bim` instead of `definition/`; read it as JSON where it is.
+Tables, columns and measures sit under `model.tables`, with `isHidden`,
+`summarizeBy`, `dataCategory` and `description` on each object, and
+relationships under `model.relationships`. If neither is present, the hidden
+flags, the descriptions, the synonyms, the relationships, the roles, and the
+date-table mark cannot be seen. Say what cannot be seen and stop. A `.pbix`
+is a package. Do not convert either format into the other.
 
 Preparing the model is editing the properties below in these files. Do not
 invent a synonym. Do not write a second description for "the AI".

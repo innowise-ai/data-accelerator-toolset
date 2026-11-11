@@ -27,9 +27,10 @@ the model folder is not here, ask for the project that contains it. Visual
 titles are not a substitute.
 
 Inside the semantic-model folder, the model text is the `definition/`
-directory of TMDL files. If that directory is absent and the model is a
-single `model.bim`, the text this skill reads is not there. Say so and stop.
-Do not convert the file.
+directory of TMDL files. A project saved as TMSL holds the same model in a
+single `model.bim` instead; read it as JSON in place (measures, columns and
+their `description` under `model.tables`, relationships under
+`model.relationships`). Do not convert the file.
 
 The `.pbi` directory beside the definition (a local cache, editor settings)
 is not the model. Ignore it.

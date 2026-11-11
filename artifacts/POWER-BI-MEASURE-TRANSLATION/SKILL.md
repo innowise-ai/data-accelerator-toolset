@@ -65,8 +65,11 @@ A translation that names objects the model does not have is that guessed
 formula. Assess the model by reading TMDL in the Power BI Project. The
 project folder is the model. If `definition/` is absent, the tables, the
 measures, the relationships, and the date-table mark cannot be seen. Say
-what cannot be seen and stop. If the model is only `model.bim`, stop; do
-not convert it. If the only input is a `.pbix`, stop. A package is not
+what cannot be seen and stop. A project saved as TMSL keeps the same model
+in a single `model.bim`; read it as JSON in place (measures under
+`model.tables[].measures` with their `expression`, relationships under
+`model.relationships`), and do not convert it. If the only input is a
+`.pbix`, stop. A package is not
 the measures.
 
 SQL to DAX, in this order, because each step is a claim the next one
@@ -108,7 +111,8 @@ the SQL you write will query objects the warehouse does not have.
 | Measure expression | after `=` in `definition/tables/*.tmdl` |
 | Cardinality and filter direction | `definition/relationships.tmdl` |
 | Valid SQL source | pasted query, `.sql` file, or native SQL in partition M |
-| Not a source | query description, screenshot, `.pbix`, `model.bim` |
+| Same facts in TMSL | `model.bim`: `model.tables[].measures`, `model.relationships` |
+| Not a source | query description, screenshot, `.pbix` |
 
 ## What the two languages do not share
 
@@ -217,9 +221,9 @@ Every translation, in either direction, contains the same six parts.
 - Copying teaching-pair names (`Fact[Amount]`) into a real handback. Those
   names are the pattern only; a translation that does not copy the bound
   TMDL and SQL identifiers is inventing objects.
-- Reading a paraphrase, a screenshot, a `.pbix`, or `model.bim` as the
-  source. None of those is the query or the measure text, and converting
-  `model.bim` is not this task.
+- Reading a paraphrase, a screenshot, or a `.pbix` as the source. None of
+  those is the query or the measure text. `model.bim` is the measure text in
+  TMSL; read it, but converting it is not this task.
 - `AVERAGEX` of a rate when the SQL divided two aggregates. Averaging a
   precomputed rate weights every row as one equal event, which is a
   different metric from a ratio of sums.

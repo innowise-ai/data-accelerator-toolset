@@ -11,8 +11,10 @@ sources". Power Query is the partition `source` and
 `definition/expressions.tmdl`. A native query is an M expression that embeds
 a SQL string. Types are on the columns. Which measures and functions depend
 on a column is the call graph from the audit's inventory. If the only input
-is a `.pbix`, say what cannot be seen and stop. If the model is only
-`model.bim`, stop; do not convert it.
+is a `.pbix`, say what cannot be seen and stop. If the model is a single
+`model.bim` (a project saved as TMSL), read the same facts from its JSON:
+partitions and columns under `model.tables`, shared expressions under
+`model.expressions`. Do not convert it.
 
 ## Folding
 

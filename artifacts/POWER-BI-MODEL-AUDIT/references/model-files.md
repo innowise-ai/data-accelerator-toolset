@@ -8,9 +8,11 @@ part. A `.pbix` is a package. Measures, relationships, Power Query, and roles
 are not honestly readable from it. Say so and stop. Do not invent an export
 into model text.
 
-The model text is `definition/` under the semantic-model folder, as TMDL. If
-that directory is absent and the model is a single `model.bim`, the text this
-skill reads is not there. Say so and stop. Do not convert the file. Ignore the
+The model text is `definition/` under the semantic-model folder, as TMDL. A
+project saved as TMSL holds the same model in a single `model.bim` instead.
+Read it as JSON in place: tables, columns and measures under
+`model.tables`, with `isHidden`, `summarizeBy` and `dataCategory` on each
+object, relationships under `model.relationships`. Do not convert the file. Ignore the
 `.pbi` cache next to the definition.
 
 If `definition.pbir` points at the model with `byConnection` and the
