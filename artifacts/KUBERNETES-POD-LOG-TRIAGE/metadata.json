@@ -1,0 +1,26 @@
+{
+  "id": "KUBERNETES-POD-LOG-TRIAGE",
+  "version": "0.1.0",
+  "source_path": "artifacts/KUBERNETES-POD-LOG-TRIAGE",
+  "applies_to": {
+    "frameworks": ["kubernetes"]
+  },
+  "strength": "on-demand",
+  "topics": ["debugging"],
+  "scope": "project",
+  "requires": {
+    "tools": ["kubectl"],
+    "access": ["A kubeconfig context for the cluster with RBAC get and list on pods, pods/log and events in the namespace"]
+  },
+  "presentation": {
+    "name": "Summarise Kubernetes pod logs as distinct errors, read-only",
+    "summary": "Reads the logs of Kubernetes pods with read-only kubectl and reports each distinct error once, with its count, time span, pods and root cause.",
+    "benefits": [
+      "Groups thousands of repeated lines into distinct errors with counts, first and last time and the pods affected",
+      "Finds the root cause in Java Caused by chains, Python tracebacks and PySpark errors that mix both",
+      "Reads crashed containers and pod status, so an out-of-memory kill is not reported as a clean log",
+      "Locates Airflow scheduler, worker and task pods and Spark drivers and executors by their labels",
+      "Never changes the cluster or the active kubeconfig context, and redacts secrets from the summary"
+    ]
+  }
+}

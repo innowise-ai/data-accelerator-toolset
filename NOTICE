@@ -337,6 +337,36 @@ Artifacts derived from this source:
 
 
 -------------------------------------------------------------------------------
+innowise-ai/java-ai-marketplace
+-------------------------------------------------------------------------------
+
+Upstream:  https://github.com/innowise-ai/java-ai-marketplace (commit 064d9ce), a
+           private repository of the Innowise Java department
+Licence:   none published; the Java department approved reuse under this
+           catalog's MIT licence on 2026-11-05 (issue #92)
+
+One skill was adapted into an artifact in this catalog.
+
+Adaptation was not a verbatim copy. The upstream skill was written for Java and
+Spring Boot services. Its procedure - read-only kubectl, explicit context and
+namespace on every command, bounded fetches and never following a log, the
+previous container after a restart, filtering and counting distinct root causes,
+and a per-error summary with counts, timestamps, pods and a trace id - was
+rewritten as prose that explains why each step matters. Python traceback and
+PySpark patterns were added next to the Java "Caused by:" ones, and the Spring
+actuator filter was dropped. Content was added that upstream does not contain:
+reading pod status, describe and events before the logs (OOM kills, evictions,
+the event retention window), log rotation limits, normalising messages before
+counting, and where Airflow and Spark pods are found and what is left of them
+after they finish. Upstream's trigger conditions in the SKILL.md frontmatter were
+re-expressed as catalog metadata (`applies_to`, `strength`, `topics`).
+
+Artifacts derived from this source:
+
+  KUBERNETES-POD-LOG-TRIAGE <- plugins/k8s-ops/skills/read-pod-logs
+
+
+-------------------------------------------------------------------------------
 mvanhorn/last30days-skill
 -------------------------------------------------------------------------------
 

@@ -5,10 +5,10 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-69 artifacts today: 32 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
+70 artifacts today: 32 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
 Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
 layering, job orchestration, streaming queries and metric definitions), 8 for Power BI, 8 for Tableau,
-4 for containers and local environments, 2 for infrastructure as code, and 15
+5 for containers, local environments and Kubernetes, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
 `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
 project that uses Docker, because losing a data volume is not something a team
@@ -93,7 +93,7 @@ Read a workbook's XML (`.twb`, or the one inside a `.twbx`) and its data sources
 The metric definition both platforms implement is a separate, stack-agnostic artifact,
 `KPI-DEFINITION-BUILDING`, listed under Data engineering.
 
-## Containers and local environment (4)
+## Containers and local environment (5)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -101,6 +101,7 @@ The metric definition both platforms implement is a separate, stack-agnostic art
 | **Confirm data loss before Docker cleanup commands run** (`DOCKER-DATA-LOSS-CONFIRMATION`) | docker | — (`always`) | Stops Docker cleanup commands from deleting data until the loss has been stated and confirmed. |
 | **Build Python data images that cache well and keep secrets out** (`DOCKER-IMAGE-BUILD`) | docker | containerization | Builds Python data images that keep credentials out of layers, cache well and run as non-root. |
 | **Add a first Docker setup to a Python data project** (`DOCKER-PROJECT-SETUP`) | python | containerization | Adds a first working Docker setup to a Python data project, with its dependencies as Compose services. |
+| **Summarise Kubernetes pod logs as distinct errors, read-only** (`KUBERNETES-POD-LOG-TRIAGE`) | kubernetes | debugging | Reads the logs of Kubernetes pods with read-only kubectl and reports each distinct error once, with its count, time span, pods and root cause. |
 
 ## Infrastructure as code (2)
 
