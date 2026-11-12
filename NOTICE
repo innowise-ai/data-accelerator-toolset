@@ -337,6 +337,43 @@ Artifacts derived from this source:
 
 
 -------------------------------------------------------------------------------
+innowise-ai/java-ai-marketplace
+-------------------------------------------------------------------------------
+
+Upstream:  https://github.com/innowise-ai/java-ai-marketplace (commit 064d9ce), private
+Author:    the Innowise Java department
+Licence:   none published; reuse under this catalog's MIT licence approved by the
+           Java department on 2026-11-05 (issue #94)
+
+Adaptation was not a verbatim copy. Upstream's skills are checklists written for
+Java services on Spring, JPA and HikariCP.
+
+POSTGRES-SOURCE-EXTRACTION: from upstream's sql-postgres skill, the EXPLAIN
+reading, the index guidance, keyset pagination, long transactions and their
+timeouts, pg_stat_activity, the connection budget and the anti-patterns were
+kept and rewritten as prose that explains why each rule holds, re-aimed at a
+job that extracts from a database another application owns. Keyset pagination
+became incremental extraction by (updated_at, id). The HikariCP, JPA and Spring
+Data material, query design for application code, write patterns and isolation
+levels for writers were not carried over. From upstream's db-migrations skill,
+only the locking advice for creating an index on a large table and for DDL
+lock_timeout was used. Content was added that upstream does not contain,
+including the late-commit and replica-lag bounds on the watermark, the
+updated_at trigger check, deletes, read-only defaults and the role to recommend,
+the psycopg and SQLAlchemy idle-in-transaction trap, standby query conflicts,
+BRIN and covering-index limits, generic plans for prepared statements, and the
+Spark JDBC connection and fetch-size cases. Upstream's trigger conditions in the
+SKILL.md frontmatter were re-expressed as catalog metadata (`applies_to`,
+`strength`, `topics`).
+
+Artifacts derived from this source:
+
+  POSTGRES-SOURCE-EXTRACTION <- plugins/sql-data/skills/sql-postgres
+                                (and the "Large tables (PostgreSQL)" section of
+                                plugins/spring/skills/db-migrations)
+
+
+-------------------------------------------------------------------------------
 mvanhorn/last30days-skill
 -------------------------------------------------------------------------------
 

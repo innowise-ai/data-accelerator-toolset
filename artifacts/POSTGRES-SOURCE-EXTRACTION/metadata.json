@@ -1,0 +1,25 @@
+{
+  "id": "POSTGRES-SOURCE-EXTRACTION",
+  "version": "0.1.0",
+  "source_path": "artifacts/POSTGRES-SOURCE-EXTRACTION",
+  "applies_to": {
+    "frameworks": ["postgres"]
+  },
+  "strength": "on-demand",
+  "topics": ["ingestion", "performance"],
+  "scope": "project",
+  "requires": {
+    "access": ["A read-only connection to the PostgreSQL source, preferably a replica, with SELECT on the extracted tables and pg_read_all_stats to see other sessions in pg_stat_activity"]
+  },
+  "presentation": {
+    "name": "Extract from PostgreSQL incrementally without loading the production database",
+    "summary": "Reads a PostgreSQL source in batches by (updated_at, id) that neither skip nor repeat rows, keeps each batch on an index, and keeps the job's transactions, timeouts and connections from hurting the application that owns the database.",
+    "benefits": [
+      "Resumes from an (updated_at, id) keyset with an upper bound that late-committing transactions cannot slip behind",
+      "Reads EXPLAIN to confirm each batch uses an index and costs the same at the end of the table as at the start",
+      "Proposes only the index the extraction needs, with what it costs the source and how to build it without blocking writes",
+      "Finds the long or idle-in-transaction sessions that stall vacuum, and proposes statement and idle timeouts for the job's role",
+      "Counts the job's connections, including Spark JDBC partitions, against the source's max_connections"
+    ]
+  }
+}
