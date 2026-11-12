@@ -10,7 +10,7 @@
   "scope": "project",
   "requires": {
     "tools": ["kubectl"],
-    "access": ["A kubeconfig context for the cluster with RBAC get and list on pods, pods/log and events in the namespace"]
+    "access": ["A kubeconfig context for the cluster with RBAC get and list on pods, pods/log, events and deployments in the namespace"]
   },
   "presentation": {
     "name": "Summarise Kubernetes pod logs as distinct errors, read-only",

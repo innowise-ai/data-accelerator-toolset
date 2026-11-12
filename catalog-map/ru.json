@@ -277,7 +277,7 @@
     "v": "0.1.0",
     "req": {
       "tools": ["kubectl"],
-      "access": ["Контекст kubeconfig для кластера с правами RBAC get и list на pods, pods/log и events в нужном namespace"]
+      "access": ["Контекст kubeconfig для кластера с правами RBAC get и list на pods, pods/log, events и deployments в нужном namespace"]
     },
     "n": "Сводка логов подов Kubernetes по отдельным ошибкам, только чтение",
     "sum": "Читает логи подов Kubernetes через kubectl без изменений в кластере и показывает каждую отдельную ошибку один раз: сколько раз, когда, в каких подах и в чём первопричина.",

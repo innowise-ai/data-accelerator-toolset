@@ -176,10 +176,13 @@ cause, which sits in a different place per language:
 
 Then count by shape, not by text. Two lines that differ only in an id, a
 number or a host are the same error, and counting them apart turns one
-problem into fifty:
+problem into fifty. The pod prefix and timestamp that `--prefix` and
+`--timestamps` added come off first for the same reason: left on, the same
+error from three replicas counts as three errors.
 
 ```bash
-... | grep -E 'Caused by:|^[A-Za-z_][A-Za-z0-9_.]*(Error|Exception): ' \
+... | sed -E 's/^\[[^]]*\] //; s/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[^ ]* //' \
+    | grep -E 'Caused by:|(^|[[:space:]])[A-Za-z_][A-Za-z0-9_.]*(Error|Exception): ' \
     | sed -E 's/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/<uuid>/g; s/[0-9]+/<n>/g' \
     | sort | uniq -c | sort -rn | head -20
 ```
