@@ -5,8 +5,8 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-70 artifacts today: 32 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
-Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
+71 artifacts today: 33 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
+PostgreSQL extraction, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
 layering, job orchestration, streaming queries and metric definitions), 8 for Power BI, 8 for Tableau,
 5 for containers, local environments and Kubernetes, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
@@ -23,7 +23,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (32)
+## Data engineering (33)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -49,6 +49,7 @@ one project gets.
 | **Generate SQL from natural language, validated before it runs** (`NL2SQL-QUERY-VALIDATION`) | sql | data-quality | Generates SQL from natural language without letting an unvalidated query reach the database. |
 | **Pick the cheapest checks a pipeline change needs** (`PIPELINE-CHECK-SELECTION`) | any | testing, data-quality | Selects the cheapest checks that would actually catch the regression a change can cause. |
 | **Review the data a pipeline run actually produced** (`PIPELINE-OUTPUT-REVIEW`) | any | code-review, data-quality | Reviews the data a pipeline run actually produced, not just whether tests passed. |
+| **Extract from PostgreSQL incrementally without straining the production database** (`POSTGRES-SOURCE-EXTRACTION`) | postgres | ingestion, performance | Reads a PostgreSQL source in batches by (updated_at, id) that neither skip nor repeat rows, keeps each batch on an index, and keeps the job's transactions, timeouts and connections from hurting the application that owns the database. |
 | **Test pipeline code with pytest, mocking I/O** (`PYTEST-DATA-PIPELINES`) | python | testing | Tests data pipeline code with pytest, mocking at the I/O boundary. |
 | **Implement SCD Type 2 with correct validity intervals** (`SCD2-IMPLEMENTATION`) | sql | data-modeling | Implements Slowly Changing Dimension Type 2 in SQL with correct validity intervals. |
 | **Decide what personal data a model may carry** (`SENSITIVE-DATA-HANDLING`) | any | security | Decides what personal data a model may carry, and keeps deletion possible later. |
