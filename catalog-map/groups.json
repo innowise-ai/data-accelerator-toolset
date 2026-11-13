@@ -212,6 +212,10 @@
   "Containers",
   "Docker"
  ],
+ "KUBERNETES-POD-LOG-TRIAGE": [
+  "Containers",
+  "Kubernetes"
+ ],
  "CODE-CHANGE-REVIEW": [
   "General",
   "Review and testing"
