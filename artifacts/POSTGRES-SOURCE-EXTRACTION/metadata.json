@@ -9,10 +9,10 @@
   "topics": ["ingestion", "performance"],
   "scope": "project",
   "requires": {
-    "access": ["A read-only connection to the PostgreSQL source, preferably a replica, with SELECT on the extracted tables and pg_read_all_stats to see other sessions in pg_stat_activity"]
+    "access": ["A read-only connection to the PostgreSQL source, preferably a replica, with SELECT on the extracted tables; optionally pg_read_all_stats to see other sessions in pg_stat_activity"]
   },
   "presentation": {
-    "name": "Extract from PostgreSQL incrementally without loading the production database",
+    "name": "Extract from PostgreSQL incrementally without straining the production database",
     "summary": "Reads a PostgreSQL source in batches by (updated_at, id) that neither skip nor repeat rows, keeps each batch on an index, and keeps the job's transactions, timeouts and connections from hurting the application that owns the database.",
     "benefits": [
       "Resumes from an (updated_at, id) keyset with an upper bound that late-committing transactions cannot slip behind",

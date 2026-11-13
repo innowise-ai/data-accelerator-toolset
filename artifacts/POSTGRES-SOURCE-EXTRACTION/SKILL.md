@@ -105,13 +105,15 @@ visible 40 seconds after their timestamp. A run at 10:00:20 that reads up to
 the current time moves the watermark past 10:00:00 before those rows exist,
 and no later run will look behind it.
 
-So never read up to the current moment. Take the upper bound as the current
-time minus a lag longer than the longest write transaction on the source, and
-store the watermark at that bound, not at the clock time of the run. The
-longest transaction is visible in `pg_stat_activity` (see the query below), and
-the application's owners usually know it. Where that cannot be bounded, re-read
-an overlap window on every run and let the downstream merge, keyed on `id`,
-absorb the repeats. An overlap is only safe when the merge is idempotent.
+So never read up to the current moment. Each run reads only rows below an
+upper bound: the current time minus a lag longer than the longest write
+transaction on the source. The bound only caps the window. What the job stores
+is still the `(updated_at, id)` pair from the last row it read, never the bound
+and never the clock time of the run, so the next run resumes exactly after
+that row. The longest transaction is visible in `pg_stat_activity` (see the
+query below), and the application's owners usually know it. Where that cannot
+be bounded, re-read an overlap window on every run and let the downstream
+merge, keyed on `id`, absorb the repeats. An overlap is only safe when the merge is idempotent.
 
 ### Writes that do not touch `updated_at`
 
@@ -197,9 +199,9 @@ Predicates the index cannot use look harmless in SQL:
 - **A function on the indexed column.** `WHERE date(updated_at) = :day` cannot
   use an index on `updated_at`; `WHERE updated_at >= :day AND updated_at <
   :day + interval '1 day'` can.
-- **A type mismatch.** A `bigint` column compared with a `numeric` or `text`
-  parameter is cast on every row, and the index is skipped. Bind parameters
-  with the column's type.
+- **A type mismatch.** A `bigint` column compared with a `numeric` parameter
+  is cast on every row, and the index is skipped. Bind parameters with the
+  column's type.
 - **`NOT IN (subquery)`** returns no rows at all when the subquery yields a
   `NULL`, which is a wrong result before it is a slow one. Use `NOT EXISTS`.
 
@@ -215,9 +217,12 @@ and say what it costs.
 
 **Column order decides what an index serves.** Equality columns go first, then
 the range or sort column, then the tie-breaker. `(tenant_id, updated_at, id)`
-serves an extraction per tenant, and serves `tenant_id = ?` alone, but does
-nothing for `updated_at` without a tenant. An index can also deliver `ORDER BY`
-only when the columns and directions match it, or are all exactly reversed.
+serves an extraction per tenant, and serves `tenant_id = ?` alone, but is of
+little use for `updated_at` without a tenant. Before PostgreSQL 18 the planner
+can only read the whole index for that condition; from 18, a B-tree skip scan
+can use it, and pays off only when `tenant_id` has few distinct values. An index can also deliver
+`ORDER BY` only when the columns and directions match it, or are all exactly
+reversed.
 
 Before proposing a new index, look for one that already fits:
 
@@ -227,8 +232,10 @@ FROM pg_stat_user_indexes JOIN pg_index USING (indexrelid)
 WHERE relid = 'public.orders'::regclass;
 ```
 
-`idx_scan` also shows the owner which indexes nobody uses, measured over a
-period that includes month-end and other rare workloads.
+`idx_scan` also shows the owner which indexes nobody uses, but it counts only
+since the statistics were last reset (`stats_reset` in `pg_stat_database`).
+An index with `idx_scan = 0` is unused only if that period includes month-end
+and other rare workloads.
 
 Kinds worth knowing for extraction:
 
