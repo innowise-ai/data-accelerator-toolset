@@ -5,10 +5,10 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-71 artifacts today: 33 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
+72 artifacts today: 33 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
 PostgreSQL extraction, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
 layering, job orchestration, streaming queries and metric definitions), 8 for Power BI, 8 for Tableau,
-5 for containers, local environments and Kubernetes, 2 for infrastructure as code, and 15
+5 for containers, local environments and Kubernetes, 2 for infrastructure as code, and 16
 general skills that apply to any stack. All are `on-demand` except
 `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
 project that uses Docker, because losing a data volume is not something a team
@@ -111,7 +111,7 @@ The metric definition both platforms implement is a separate, stack-agnostic art
 | **Review a Terraform plan in plain language before apply** (`TERRAFORM-PLAN-REVIEW`) | terraform | code-review, security, infrastructure | Reads a Terraform plan before it is applied and restates each change in plain language, so a reviewer without deep Terraform knowledge can approve or stop it. |
 | **Replicate Terragrunt units across tenants without drift** (`TERRAGRUNT-UNIT-REPLICATION`) | terragrunt | infrastructure, refactoring | Adds or moves Terragrunt units in bulk and verifies every tenant and environment got the intended copy. |
 
-## General skills (15)
+## General skills (16)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -121,6 +121,7 @@ The metric definition both platforms implement is a separate, stack-agnostic art
 | **Write a daily standup update from your actual activity** (`DAILY-STANDUP-UPDATE`) | any | writing, development-process | Drafts a daily standup or status update from commits, pull requests and reviews since the last working day. Scope: `user`. |
 | **Prove the cause of a code failure before fixing it** (`ERROR-DIAGNOSIS`) | any | debugging | Finds the cause of a failure by narrowing it down and proving it before changing code. |
 | **Turn agreed requirements into a step-by-step plan** (`IMPLEMENTATION-PLANNING`) | any | development-process | Turns agreed requirements into an ordered plan with verifiable steps. |
+| **Prepare an onboarding guide from what the project actually contains** (`ONBOARDING-GUIDE-PREPARATION`) | any | documentation, development-process | Builds a newcomer's guide to one project: how it is built, the shared code to reuse, the commands that run it, where the tracker and documentation live, which skills fit which task, and a first-week checklist. |
 | **Execute a plan step by step and handle divergence** (`PLAN-EXECUTION`) | any | development-process | Works through an agreed plan one step at a time and handles it when reality diverges. |
 | **Adapt installed skills to this repository** (`PROJECT-ADAPTATION`) | any | development-process, documentation | Adapts installed toolset skills by adding repository paths, commands, conventions and examples inside each installed SKILL.md. |
 | **Document decisions and boundaries code can't show** (`PROJECT-DOCUMENTATION`) | any | documentation | Documents architecture decisions, component boundaries and constraints a reader cannot infer from the code. |
