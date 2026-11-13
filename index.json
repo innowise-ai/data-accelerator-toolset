@@ -3,7 +3,7 @@
   "toolset_ref": "refs/tags/v1.6.0",
   "vocabulary": {
     "languages": ["typescript", "javascript", "python", "csharp", "go", "sql"],
-    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "kubernetes", "terraform", "terragrunt", "dataform", "bigquery", "power-bi", "tableau", "postgres"],
+    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "kubernetes", "terraform", "terragrunt", "dataform", "bigquery", "power-bi", "tableau", "postgres", "xfuze"],
     "layout": ["monorepo", "single"],
     "agents": ["claude-code", "codex", "cursor"],
     "topics": [
@@ -1592,6 +1592,211 @@
           "Identifies tests that pass regardless of whether the code is correct",
           "Covers failure paths, not only the successful one",
           "Distinguishes untested code from code that cannot be tested as written"
+        ]
+      }
+    },
+    {
+      "id": "JIRA-TICKET-STATUS-UPDATE",
+      "version": "0.1.0",
+      "source_path": "artifacts/JIRA-TICKET-STATUS-UPDATE",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["writing", "development-process"],
+      "scope": "user",
+      "requires": {
+        "tools": ["git", "GitHub CLI (gh), signed in, for pull request state; without it the update is built from git and what the engineer says"],
+        "access": ["Jira access for the agent, through an MCP server or an API token, with permission to browse the project, add comments and transition issues; without it the update is handed over as text to paste"]
+      },
+      "presentation": {
+        "name": "Update a Jira ticket from the real state of the work",
+        "summary": "Moves a Jira ticket to the status that commits, pull requests and deployments support, and writes the comment that says what changed, where it is and what is left.",
+        "benefits": [
+          "Finds the ticket from the branch, commits and pull request instead of searching by title",
+          "Chooses from the transitions the ticket's workflow actually offers, including the fields they require",
+          "Keeps merged, released and deployed apart, so a ticket is not closed ahead of the work",
+          "Writes the comment for the reporter and tester: the outcome, where it is, how to check it and what is left",
+          "Shows the transition and the comment first and writes to Jira only after confirmation"
+        ]
+      }
+    },
+    {
+      "id": "DEVOPS-TICKET-DRAFTING",
+      "version": "0.1.0",
+      "source_path": "artifacts/DEVOPS-TICKET-DRAFTING",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["writing", "development-process"],
+      "scope": "project",
+      "presentation": {
+        "name": "Write a DevOps ticket that can be acted on without a call",
+        "summary": "Drafts a change, access or fault ticket for the DevOps team with the exact workload, environment and target, the evidence, the ask and how the result is verified.",
+        "benefits": [
+          "Spots the parts of a change that need DevOps: new hosts, secrets, permissions, resource limits and deployables",
+          "Names the environment, workload, target and time exactly, so the right thing gets tested",
+          "States a change with its current and new values, risk, rollback and verification",
+          "Separates observation, what was ruled out, hypothesis and ask in a fault report, with a reproduction that matches the failure",
+          "Keeps credentials and personal data out of the ticket and its attachments"
+        ]
+      }
+    },
+    {
+      "id": "RELEASE-NOTES-PREPARATION",
+      "version": "0.1.0",
+      "source_path": "artifacts/RELEASE-NOTES-PREPARATION",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["writing", "documentation"],
+      "scope": "project",
+      "requires": {
+        "tools": ["git", "GitHub CLI (gh), signed in, for merged pull requests and their descriptions; without it the notes are built from the commit log alone"]
+      },
+      "presentation": {
+        "name": "Prepare release notes from what actually shipped",
+        "summary": "Builds release notes from the commits, pull requests and tickets in the release range, rewritten for the people who use the product.",
+        "benefits": [
+          "Takes the version and the range from the repository, scoped to the component being released",
+          "Drops reverted, already announced and switched-off changes before they reach the notes",
+          "Puts required actions first and rewrites each change as what the user gets",
+          "Matches the heading to the released version and keeps the entry within the announcement channel's length limit",
+          "Lists what was left out and why, so omissions can be reviewed"
+        ]
+      }
+    },
+    {
+      "id": "XFUZE-INTEGRATION-DESIGN",
+      "version": "0.1.0",
+      "source_path": "artifacts/XFUZE-INTEGRATION-DESIGN",
+      "applies_to": {
+        "frameworks": ["xfuze"]
+      },
+      "strength": "on-demand",
+      "topics": ["ingestion", "orchestration"],
+      "scope": "project",
+      "presentation": {
+        "name": "Design an xFuze integration before configuring it",
+        "summary": "Designs an integration on the xFuze platform: which connector stage, workflow step, egress or task does what, and how it fails, replays, scales and rolls out.",
+        "benefits": [
+          "Places each responsibility in a reader, mapper, validator, workflow step, egress or task, reusing existing plugins first",
+          "Sets what one event is, so failure and replay work per business record and stay within plugin memory limits",
+          "Decides what belongs on a connection and what in plugin configuration",
+          "Lists every failure with where it becomes visible, whether it alerts and whether replay is safe",
+          "Plans rollout and rollback as version selections per environment, with network access requested up front"
+        ]
+      }
+    },
+    {
+      "id": "CONNECTOR-CONNECTION-HARDENING",
+      "version": "0.1.0",
+      "source_path": "artifacts/CONNECTOR-CONNECTION-HARDENING",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["ingestion", "code-review"],
+      "scope": "project",
+      "presentation": {
+        "name": "Harden a scheduled connector against silently dropped connections",
+        "summary": "Makes a connector that runs on a schedule survive connections that die while it is idle, and fail fast instead of hanging when they do.",
+        "benefits": [
+          "Gives every long-lived connection a recovery path, so one idle drop does not break the connector until a restart",
+          "Sets connect timeouts that cover the TLS or SSH handshake, not only the TCP connect",
+          "Traces cancellation from the entry point to every network call and names where it is dropped",
+          "Sizes operation deadlines to the payload instead of one fixed value",
+          "Adds protocol keepalive only where the protocol needs it, with Go and Python specifics"
+        ]
+      }
+    },
+    {
+      "id": "CONFIG-FORM-SCHEMA-ALIGNMENT",
+      "version": "0.1.0",
+      "source_path": "artifacts/CONFIG-FORM-SCHEMA-ALIGNMENT",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["code-review"],
+      "scope": "project",
+      "presentation": {
+        "name": "Keep a configuration form in step with the code that reads it",
+        "summary": "Checks that a component's config type, its JSON Schema and its UI schema describe the same fields, so a setting saved in the form is the setting that runs.",
+        "benefits": [
+          "Finds fields the form offers but the code ignores, and settings the form never exposes",
+          "Compares required flags, enums, defaults and bounds across all three sources",
+          "Moves silent clamps in code into schema bounds the user can see",
+          "Catches conditional fields that always show, never validate or break the form when revealed",
+          "Reports one inventory row per field, so every finding has its evidence beside it"
+        ]
+      }
+    },
+    {
+      "id": "GO-MODULE-RELEASE-GATES",
+      "version": "0.1.0",
+      "source_path": "artifacts/GO-MODULE-RELEASE-GATES",
+      "applies_to": {
+        "languages": ["go"]
+      },
+      "strength": "on-demand",
+      "topics": ["testing", "development-process"],
+      "scope": "project",
+      "requires": {
+        "tools": ["Go toolchain, with cgo and a C compiler for the race detector", "golangci-lint, at the version CI uses", "Python 3.9+ (standard library only) for the new-code coverage script"]
+      },
+      "presentation": {
+        "name": "Gate one Go module for release in a multi-module repository",
+        "summary": "Runs the release gates for one Go module that versions and ships on its own: race-enabled tests, overall and new-code coverage, lint scoped to the change, and a version bump that matches the changelog.",
+        "benefits": [
+          "Runs every gate from inside the module, where root-level commands silently skip nested modules",
+          "Measures coverage of the changed lines, which overall coverage can hide",
+          "Scopes formatting and lint to the change, so pre-existing debt does not bury new findings",
+          "Catches a missing version bump that would make a green pull request ship nothing",
+          "Fails new code and only warns on legacy gaps, with one line per gate"
+        ]
+      }
+    },
+    {
+      "id": "GO-BENCHMARK-REGRESSION-CHECK",
+      "version": "0.1.0",
+      "source_path": "artifacts/GO-BENCHMARK-REGRESSION-CHECK",
+      "applies_to": {
+        "languages": ["go"]
+      },
+      "strength": "on-demand",
+      "topics": ["performance"],
+      "scope": "project",
+      "requires": {
+        "tools": ["Go toolchain", "benchstat (go install golang.org/x/perf/cmd/benchstat@latest)"]
+      },
+      "presentation": {
+        "name": "Catch Go hot-path regressions with benchmarks and benchstat",
+        "summary": "Benchmarks the code a component runs once per record on a realistic input, and compares before and after a change so slowdowns and extra allocations are caught.",
+        "benefits": [
+          "Benchmarks the per-record entry point as configured in production, not a helper",
+          "Uses realistic payloads, where toy inputs hide the costs that grow with data",
+          "Compares base and branch with benchstat instead of a single noisy run",
+          "Treats allocations per operation as the stable signal and time as the noisy one",
+          "Records figures with date and CPU so the next comparison means something"
+        ]
+      }
+    },
+    {
+      "id": "GO-VULNERABILITY-REMEDIATION",
+      "version": "0.1.0",
+      "source_path": "artifacts/GO-VULNERABILITY-REMEDIATION",
+      "applies_to": {
+        "languages": ["go"]
+      },
+      "strength": "on-demand",
+      "topics": ["security"],
+      "scope": "project",
+      "requires": {
+        "tools": ["Go toolchain", "govulncheck (go install golang.org/x/vuln/cmd/govulncheck@latest)"],
+        "access": ["Network access to the Go module proxy and vuln.go.dev, or their internal mirrors"]
+      },
+      "presentation": {
+        "name": "Fix Go vulnerabilities with the smallest upgrade that resolves them",
+        "summary": "Finds known vulnerabilities in a Go module with govulncheck, fixes them with the smallest dependency or toolchain upgrade, verifies, and releases the fix as a patch.",
+        "benefits": [
+          "Separates reachable vulnerabilities from merely imported ones, and fixes both",
+          "Upgrades to the fixed version rather than latest, so a security patch stays a patch",
+          "Upgrades golang.org/x modules in an order that does not downgrade them",
+          "Fixes standard-library findings in the toolchain that builds the release, including CI images",
+          "Ships the fix as a patch release with a plain-language Security changelog entry"
         ]
       }
     }

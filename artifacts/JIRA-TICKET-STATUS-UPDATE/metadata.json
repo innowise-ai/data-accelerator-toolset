@@ -1,0 +1,24 @@
+{
+  "id": "JIRA-TICKET-STATUS-UPDATE",
+  "version": "0.1.0",
+  "source_path": "artifacts/JIRA-TICKET-STATUS-UPDATE",
+  "applies_to": {},
+  "strength": "on-demand",
+  "topics": ["writing", "development-process"],
+  "scope": "user",
+  "requires": {
+    "tools": ["git", "GitHub CLI (gh), signed in, for pull request state; without it the update is built from git and what the engineer says"],
+    "access": ["Jira access for the agent, through an MCP server or an API token, with permission to browse the project, add comments and transition issues; without it the update is handed over as text to paste"]
+  },
+  "presentation": {
+    "name": "Update a Jira ticket from the real state of the work",
+    "summary": "Moves a Jira ticket to the status that commits, pull requests and deployments support, and writes the comment that says what changed, where it is and what is left.",
+    "benefits": [
+      "Finds the ticket from the branch, commits and pull request instead of searching by title",
+      "Chooses from the transitions the ticket's workflow actually offers, including the fields they require",
+      "Keeps merged, released and deployed apart, so a ticket is not closed ahead of the work",
+      "Writes the comment for the reporter and tester: the outcome, where it is, how to check it and what is left",
+      "Shows the transition and the comment first and writes to Jira only after confirmation"
+    ]
+  }
+}

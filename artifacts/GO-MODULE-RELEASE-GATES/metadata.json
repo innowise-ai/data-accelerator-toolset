@@ -1,0 +1,25 @@
+{
+  "id": "GO-MODULE-RELEASE-GATES",
+  "version": "0.1.0",
+  "source_path": "artifacts/GO-MODULE-RELEASE-GATES",
+  "applies_to": {
+    "languages": ["go"]
+  },
+  "strength": "on-demand",
+  "topics": ["testing", "development-process"],
+  "scope": "project",
+  "requires": {
+    "tools": ["Go toolchain, with cgo and a C compiler for the race detector", "golangci-lint, at the version CI uses", "Python 3.9+ (standard library only) for the new-code coverage script"]
+  },
+  "presentation": {
+    "name": "Gate one Go module for release in a multi-module repository",
+    "summary": "Runs the release gates for one Go module that versions and ships on its own: race-enabled tests, overall and new-code coverage, lint scoped to the change, and a version bump that matches the changelog.",
+    "benefits": [
+      "Runs every gate from inside the module, where root-level commands silently skip nested modules",
+      "Measures coverage of the changed lines, which overall coverage can hide",
+      "Scopes formatting and lint to the change, so pre-existing debt does not bury new findings",
+      "Catches a missing version bump that would make a green pull request ship nothing",
+      "Fails new code and only warns on legacy gaps, with one line per gate"
+    ]
+  }
+}

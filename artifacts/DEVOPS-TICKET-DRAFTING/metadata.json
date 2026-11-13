@@ -1,0 +1,20 @@
+{
+  "id": "DEVOPS-TICKET-DRAFTING",
+  "version": "0.1.0",
+  "source_path": "artifacts/DEVOPS-TICKET-DRAFTING",
+  "applies_to": {},
+  "strength": "on-demand",
+  "topics": ["writing", "development-process"],
+  "scope": "project",
+  "presentation": {
+    "name": "Write a DevOps ticket that can be acted on without a call",
+    "summary": "Drafts a change, access or fault ticket for the DevOps team with the exact workload, environment and target, the evidence, the ask and how the result is verified.",
+    "benefits": [
+      "Spots the parts of a change that need DevOps: new hosts, secrets, permissions, resource limits and deployables",
+      "Names the environment, workload, target and time exactly, so the right thing gets tested",
+      "States a change with its current and new values, risk, rollback and verification",
+      "Separates observation, what was ruled out, hypothesis and ask in a fault report, with a reproduction that matches the failure",
+      "Keeps credentials and personal data out of the ticket and its attachments"
+    ]
+  }
+}
