@@ -153,12 +153,29 @@ older lines. `--previous` reaches one container back, no further.
 The commands below assume a POSIX shell (Git Bash or WSL on Windows). In
 PowerShell, `Select-String -Pattern` and `Group-Object` do the same job.
 
-Start with the lines that matter, keeping a few lines of context so a stack
-trace stays attached to its message:
+Save the fetched log to a file once, so every step below reads the same
+lines and the cluster is asked once. Keep it outside the repository and
+delete it when done: it holds whatever secrets the log holds.
 
 ```bash
-... | grep -E -A3 ' (ERROR|FATAL|CRITICAL) |Traceback \(most recent call last\)|Exception|Caused by:|OOM|Killed|Timeout' | head -400
+LOG="${TMPDIR:-/tmp}/pod-triage.log"
+kubectl --context "$CTX" -n "$NS" logs ... > "$LOG"
 ```
+
+Take a first look at what the errors are like, with a few lines of context so
+a Java message keeps its first frames:
+
+```bash
+EXC='[A-Za-z_][A-Za-z0-9_.]*(Error|Exception|Timeout): '
+grep -E -A3 " (ERROR|FATAL|CRITICAL) |Traceback \(most recent call last\)|Caused by:|$EXC|OOM|Killed" "$LOG" | head -200
+```
+
+This view shows shapes, not frequencies. On a noisy log its first lines are
+all the common error and the rare one is past the cut, so do not conclude
+anything from what is missing here; the count below reads the whole file and
+is what finds the rare error. A Python traceback's root cause is its last
+line, often many lines after `Traceback`, which is why the exception pattern
+is in the filter on its own rather than relying on `-A3` to reach it.
 
 A stack trace is many lines and one error. What identifies it is the root
 cause, which sits in a different place per language:
@@ -181,11 +198,19 @@ problem into fifty. The pod prefix and timestamp that `--prefix` and
 error from three replicas counts as three errors.
 
 ```bash
-... | sed -E 's/^\[[^]]*\] //; s/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[^ ]* //' \
-    | grep -E 'Caused by:|(^|[[:space:]])[A-Za-z_][A-Za-z0-9_.]*(Error|Exception): ' \
+sed -E 's/^\[[^]]*\] //; s/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[^ ]* //' "$LOG" \
+    | grep -E "Caused by:|(^|[[:space:]])$EXC" \
     | sed -E 's/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/<uuid>/g; s/[0-9]+/<n>/g' \
     | sort | uniq -c | sort -rn | head -20
 ```
+
+The exception pattern is a starting point. It catches class names ending in
+`Error`, `Exception` or `Timeout` (`AirflowTaskTimeout` is the one that
+matters most here); a class named otherwise is not counted, so add any the
+first look showed. The normalised line is for grouping only: it also rewrites
+digits inside names (`psycopg<n>.OperationalError`, `Py<n>JJavaError`), so
+quote each error in the report from an original line, found with
+`grep -F -m1`.
 
 For a known shape, `grep -F` the message, take the first and last timestamp,
 and note which pods it came from (the `--prefix` column). For one request
