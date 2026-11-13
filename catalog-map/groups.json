@@ -79,6 +79,10 @@
   "Data engineering",
   "Airflow"
  ],
+ "POSTGRES-SOURCE-EXTRACTION": [
+  "Data engineering",
+  "PostgreSQL"
+ ],
  "POWER-BI-COPILOT-READINESS": [
   "Power BI",
   "Metrics"
