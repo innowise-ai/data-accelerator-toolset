@@ -1,0 +1,25 @@
+{
+  "id": "ONBOARDING-GUIDE-PREPARATION",
+  "version": "0.1.0",
+  "source_path": "artifacts/ONBOARDING-GUIDE-PREPARATION",
+  "applies_to": {},
+  "strength": "on-demand",
+  "topics": ["documentation", "development-process"],
+  "scope": "project",
+  "requires": {
+    "tools": ["git"],
+    "access": ["Optional: read access for the agent to the project's tracker and wiki (Jira, Confluence or similar) through an MCP server or connector; without it the guide is built from the repository and lists those sources with what to ask for"]
+  },
+  "presentation": {
+    "name": "Prepare an onboarding guide from what the project actually contains",
+    "summary": "Builds a newcomer's guide to one project: how it is built, the shared code to reuse, the commands that run it, where the tracker and documentation live, which skills fit which task, and a first-week checklist.",
+    "benefits": [
+      "Traces one real path through the system with file references instead of touring every directory",
+      "Finds the helpers, macros and fixtures the rest of the code goes through, each with a call site to copy",
+      "Takes setup, run and test commands from CI and says which were run and which only read",
+      "Finds the tracker, wiki and dashboards from references in the repository and proposes read-only connections for the ones the agent cannot reach",
+      "Matches installed, catalog and personal skills to the project's recurring tasks",
+      "Ends with a checklist of actions that each have a visible result, and the open questions to take to the lead"
+    ]
+  }
+}
