@@ -1,0 +1,20 @@
+{
+  "id": "CONNECTOR-CONNECTION-HARDENING",
+  "version": "0.1.0",
+  "source_path": "artifacts/CONNECTOR-CONNECTION-HARDENING",
+  "applies_to": {},
+  "strength": "on-demand",
+  "topics": ["ingestion", "code-review"],
+  "scope": "project",
+  "presentation": {
+    "name": "Harden a scheduled connector against silently dropped connections",
+    "summary": "Makes a connector that runs on a schedule survive connections that die while it is idle, and fail fast instead of hanging when they do.",
+    "benefits": [
+      "Gives every long-lived connection a recovery path, so one idle drop does not break the connector until a restart",
+      "Sets connect timeouts that cover the TLS or SSH handshake, not only the TCP connect",
+      "Traces cancellation from the entry point to every network call and names where it is dropped",
+      "Sizes operation deadlines to the payload instead of one fixed value",
+      "Adds protocol keepalive only where the protocol needs it, with Go and Python specifics"
+    ]
+  }
+}

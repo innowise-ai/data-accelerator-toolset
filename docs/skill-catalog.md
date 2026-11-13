@@ -5,11 +5,11 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-71 artifacts today: 33 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
+80 artifacts today: 36 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow, xFuze, connectors that feed pipelines,
 PostgreSQL extraction, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
 layering, job orchestration, streaming queries and metric definitions), 8 for Power BI, 8 for Tableau,
-5 for containers, local environments and Kubernetes, 2 for infrastructure as code, and 15
-general skills that apply to any stack. All are `on-demand` except
+5 for containers, local environments and Kubernetes, 2 for infrastructure as code, and 21
+general skills, three of them for Go modules and the rest for any stack. All are `on-demand` except
 `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every
 project that uses Docker, because losing a data volume is not something a team
 should have to remember to ask protection against.
@@ -23,11 +23,13 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (33)
+## Data engineering (36)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
 | **Structure Airflow DAGs for safe, cheap imports** (`AIRFLOW-DAG-STRUCTURE`) | airflow | orchestration | Structures Airflow DAGs so nothing expensive or fragile runs at import time. |
+| **Keep a configuration form in step with the code that reads it** (`CONFIG-FORM-SCHEMA-ALIGNMENT`) | any | code-review | Checks that a component's config type, its JSON Schema and its UI schema describe the same fields, so a setting saved in the form is the setting that runs. |
+| **Harden a scheduled connector against silently dropped connections** (`CONNECTOR-CONNECTION-HARDENING`) | any | ingestion, code-review | Makes a connector that runs on a schedule survive connections that die while it is idle, and fail fast instead of hanging when they do. |
 | **Trace wrong data when the pipeline succeeded** (`DATA-INCIDENT-TRACING`) | any | debugging, data-quality | Traces wrong data back to the code that produced it when the pipeline reported success. |
 | **Build data quality controls: quarantine, release diff, scorecards** (`DATA-QUALITY-CONTROLS`) | any | data-quality, ingestion | Builds the controls that keep invalid records out of published data, show what each publish changes, and score data quality per source and stage. |
 | **Design Databricks declarative pipelines: table types, expectations, CDC** (`DATABRICKS-DECLARATIVE-PIPELINE-DESIGN`) | databricks | ingestion, data-modeling, data-quality | Designs Lakeflow pipelines (formerly DLT): a streaming table or materialized view per dataset, expectations, AUTO CDC and Auto Loader ingestion, without a full refresh losing history. |
@@ -60,6 +62,7 @@ one project gets.
 | **Repair Snowflake semantic view drift** (`SNOWFLAKE-SEMANTIC-VIEW-DRIFT`) | snowflake | data-modeling, data-quality | Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions. |
 | **Tune a slow Spark job from its Spark UI evidence** (`SPARK-JOB-TUNING`) | spark, databricks | performance, debugging | Finds the stage and the cause that dominate a slow or memory-failing Spark job, fixes that cause and measures the result. |
 | **Design Spark streaming queries that restart without loss or duplicates** (`SPARK-STREAMING-QUERY-DESIGN`) | spark, databricks | ingestion | Designs Structured Streaming queries outside declarative pipelines so that restarts, code changes and failures neither skip nor repeat data, and state stays bounded. |
+| **Design an xFuze integration before configuring it** (`XFUZE-INTEGRATION-DESIGN`) | xfuze | ingestion, orchestration | Designs an integration on the xFuze platform: which connector stage, workflow step, egress or task does what, and how it fails, replays, scales and rolls out. |
 
 ## Power BI (8)
 
@@ -111,7 +114,7 @@ The metric definition both platforms implement is a separate, stack-agnostic art
 | **Review a Terraform plan in plain language before apply** (`TERRAFORM-PLAN-REVIEW`) | terraform | code-review, security, infrastructure | Reads a Terraform plan before it is applied and restates each change in plain language, so a reviewer without deep Terraform knowledge can approve or stop it. |
 | **Replicate Terragrunt units across tenants without drift** (`TERRAGRUNT-UNIT-REPLICATION`) | terragrunt | infrastructure, refactoring | Adds or moves Terragrunt units in bulk and verifies every tenant and environment got the intended copy. |
 
-## General skills (15)
+## General skills (21)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -119,13 +122,19 @@ The metric definition both platforms implement is a separate, stack-agnostic art
 | **Write code comments in the right place and keep them true** (`CODE-COMMENT-WRITING`) | any | documentation | Decides what a code comment says and where it goes, and keeps comments true as the code changes. |
 | **Check work does what was asked before reporting done** (`COMPLETION-VERIFICATION`) | any | development-process | Checks that work actually does what was asked before it is reported as finished. |
 | **Write a daily standup update from your actual activity** (`DAILY-STANDUP-UPDATE`) | any | writing, development-process | Drafts a daily standup or status update from commits, pull requests and reviews since the last working day. Scope: `user`. |
+| **Write a DevOps ticket that can be acted on without a call** (`DEVOPS-TICKET-DRAFTING`) | any | writing, development-process | Drafts a change, access or fault ticket for the DevOps team with the exact workload, environment and target, the evidence, the ask and how the result is verified. |
 | **Prove the cause of a code failure before fixing it** (`ERROR-DIAGNOSIS`) | any | debugging | Finds the cause of a failure by narrowing it down and proving it before changing code. |
+| **Catch Go hot-path regressions with benchmarks and benchstat** (`GO-BENCHMARK-REGRESSION-CHECK`) | go | performance | Benchmarks the code a component runs once per record on a realistic input, and compares before and after a change so slowdowns and extra allocations are caught. |
+| **Gate one Go module for release in a multi-module repository** (`GO-MODULE-RELEASE-GATES`) | go | testing, development-process | Runs the release gates for one Go module that versions and ships on its own: race-enabled tests, overall and new-code coverage, lint scoped to the change, and a version bump that matches the changelog. |
+| **Fix Go vulnerabilities with the smallest upgrade that resolves them** (`GO-VULNERABILITY-REMEDIATION`) | go | security | Finds known vulnerabilities in a Go module with govulncheck, fixes them with the smallest dependency or toolchain upgrade, verifies, and releases the fix as a patch. |
 | **Turn agreed requirements into a step-by-step plan** (`IMPLEMENTATION-PLANNING`) | any | development-process | Turns agreed requirements into an ordered plan with verifiable steps. |
+| **Update a Jira ticket from the real state of the work** (`JIRA-TICKET-STATUS-UPDATE`) | any | writing, development-process | Moves a Jira ticket to the status that commits, pull requests and deployments support, and writes the comment that says what changed, where it is and what is left. Scope: `user`. |
 | **Execute a plan step by step and handle divergence** (`PLAN-EXECUTION`) | any | development-process | Works through an agreed plan one step at a time and handles it when reality diverges. |
 | **Adapt installed skills to this repository** (`PROJECT-ADAPTATION`) | any | development-process, documentation | Adapts installed toolset skills by adding repository paths, commands, conventions and examples inside each installed SKILL.md. |
 | **Document decisions and boundaries code can't show** (`PROJECT-DOCUMENTATION`) | any | documentation | Documents architecture decisions, component boundaries and constraints a reader cannot infer from the code. |
 | **Plan a refactor in behaviour-preserving steps** (`REFACTOR-STEP-PLANNING`) | any | refactoring | Plans and sequences a refactor so behaviour is provably unchanged at every step. |
 | **Research what people said about a topic in the last 30 days** (`RECENT-DISCUSSION-RESEARCH`) | any | research | Collects recent posts and engagement about a topic from Reddit, X, YouTube, TikTok, Hacker News, Polymarket, GitHub and the web, and summarises them with sources. Scope: `user`. Upstream: the author's `last30days` skill, pinned to a commit. |
+| **Prepare release notes from what actually shipped** (`RELEASE-NOTES-PREPARATION`) | any | writing, documentation | Builds release notes from the commits, pull requests and tickets in the release range, rewritten for the people who use the product. |
 | **Sharpen a request before the agent starts work** (`REQUEST-REFINEMENT`) | any | development-process | On your command, rewrites a request with what the project already answers, asks only what it cannot infer, and starts once you confirm. Scope: `user`. Runs only when called as `/request-refinement`. |
 | **Work out what is needed before writing code** (`REQUIREMENTS-BRAINSTORMING`) | any | development-process | Works out what is actually needed before any code is written. |
 | **Edit technical prose without changing meaning** (`TECHNICAL-PROSE-EDITING`) | any | writing | Improves technical prose without changing its meaning or terminology. Scope: `user` (personal preference, not project-selected). |

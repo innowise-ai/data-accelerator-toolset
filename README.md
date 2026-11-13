@@ -2,13 +2,13 @@
 
 The artifact catalog. Consumers fetch selected artifacts from this repository using Git partial clone with cone-mode sparse checkout, so a client downloads only the artifacts it needs rather than the whole catalog.
 
-The catalog holds seventy-one artifacts in six groups. Thirty-three are data-engineering specific, covering dbt, Snowflake, Spark, Databricks, Airflow, Python pipeline code, incremental extraction from a PostgreSQL source without loading its production database, sensitive data handling, stack-agnostic pipeline quality practice, including data quality controls built into a pipeline, medallion (bronze, silver, gold) lakehouse layering on any platform, the reconciliation of data migrated from a legacy warehouse, Databricks jobs that are safe to retry and repair, Spark streaming queries that restart without loss or duplicates, and metric definitions precise enough to implement twice. Eight cover Power BI, read from a Power BI Project: a report FAQ, a model audit, performance diagnosis, a diff between two versions, a data source migration, the impact of changing a DAX function, translating a metric between SQL and DAX without changing the number, and preparing a semantic model so Copilot answers from the measures that were defined. Eight cover Tableau, read from the workbook file: a dashboard FAQ, a workbook audit, performance diagnosis, a diff between two versions, a data source migration, cohort, trend and ranking calculations, translating a metric between SQL and a level-of-detail expression, and defining Pulse metrics so the generated insight matches the warehouse number. Five cover containers and local environments: Dockerfile build rules, Compose stacks, a first Docker scaffold, a guardrail for destructive Docker commands, and a read-only summary of Kubernetes pod logs grouped by distinct error, including Airflow and Spark pods. Two cover infrastructure as code: reviewing a Terraform plan, with Terragrunt, Atlantis and AWS access policies, before it is applied, and adding or moving Terragrunt units in bulk across tenants and environments without drift. Fifteen are general skills that apply to any stack: change review, project documentation, code comments, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`, research into what people said about a topic in the last 30 days, a daily standup update written from the engineer's actual activity, and request refinement, which turns a rough request into a complete one before the agent starts work. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
+The catalog holds eighty artifacts in six groups. Thirty-six are data-engineering specific, covering dbt, Snowflake, Spark, Databricks, Airflow, Python pipeline code, incremental extraction from a PostgreSQL source without loading its production database, sensitive data handling, stack-agnostic pipeline quality practice, including data quality controls built into a pipeline, medallion (bronze, silver, gold) lakehouse layering on any platform, the reconciliation of data migrated from a legacy warehouse, Databricks jobs that are safe to retry and repair, Spark streaming queries that restart without loss or duplicates, the design of an integration on the xFuze platform, the connectors that feed pipelines, keeping a scheduled connector's connections alive and failing fast and keeping its configuration form in step with the code that reads it, and metric definitions precise enough to implement twice. Eight cover Power BI, read from a Power BI Project: a report FAQ, a model audit, performance diagnosis, a diff between two versions, a data source migration, the impact of changing a DAX function, translating a metric between SQL and DAX without changing the number, and preparing a semantic model so Copilot answers from the measures that were defined. Eight cover Tableau, read from the workbook file: a dashboard FAQ, a workbook audit, performance diagnosis, a diff between two versions, a data source migration, cohort, trend and ranking calculations, translating a metric between SQL and a level-of-detail expression, and defining Pulse metrics so the generated insight matches the warehouse number. Five cover containers and local environments: Dockerfile build rules, Compose stacks, a first Docker scaffold, a guardrail for destructive Docker commands, and a read-only summary of Kubernetes pod logs grouped by distinct error, including Airflow and Spark pods. Two cover infrastructure as code: reviewing a Terraform plan, with Terragrunt, Atlantis and AWS access policies, before it is applied, and adding or moving Terragrunt units in bulk across tenants and environments without drift. Twenty-one are general skills, three of them for Go modules and the rest for any stack: change review, project documentation, code comments, test design, refactoring, error diagnosis, technical writing, the four development-process artifacts covering requirements, planning, execution and verification, project adaptation, which adds repository paths, commands, conventions and examples inside each installed skill's `SKILL.md`, research into what people said about a topic in the last 30 days, a daily standup update written from the engineer's actual activity, a Jira ticket update that follows the real state of the work, a ticket for the DevOps team that can be acted on without a call, release notes prepared from what actually shipped, request refinement, which turns a rough request into a complete one before the agent starts work, and for Go modules that version and ship on their own, release gates, benchmark comparison on the per-record hot path, and vulnerability fixes by the smallest upgrade. Every entry has real content; the `AS-SPIKE-*` placeholders that proved the transport design have all been removed.
 
 `RECENT-DISCUSSION-RESEARCH` is the one [upstream artifact](docs/authoring-artifacts.md#upstream-artifacts): its directory is a third party's skill (`last30days`), unchanged and pinned to a commit of the author's repository, rather than our own text. Every other artifact is written or adapted here.
 
 Every artifact except one is `on-demand`, so a profile receives only what its declared topics select and the user explicitly chooses. The exception is `DOCKER-DATA-LOSS-CONFIRMATION`, which is `always`: it installs into every project that uses Docker, because losing a data volume is not something a team should have to remember to ask protection against. See [`docs/authoring-artifacts.md`](docs/authoring-artifacts.md) for what an `always` artifact has to justify.
 
-Sixty-seven artifacts are `project` scope. Four are `user` scope, personal tools that do not belong in a shared project plan: `TECHNICAL-PROSE-EDITING`, an editing tool, `DAILY-STANDUP-UPDATE`, which reports one engineer's own work, `RECENT-DISCUSSION-RESEARCH`, which calls third-party APIs with the user's own keys and can read their browser cookies with consent, and `REQUEST-REFINEMENT`, which runs only when a person types its command.
+Seventy-five artifacts are `project` scope. Five are `user` scope, personal tools that do not belong in a shared project plan: `TECHNICAL-PROSE-EDITING`, an editing tool, `DAILY-STANDUP-UPDATE`, which reports one engineer's own work, `JIRA-TICKET-STATUS-UPDATE`, which updates a ticket under one engineer's name, `RECENT-DISCUSSION-RESEARCH`, which calls third-party APIs with the user's own keys and can read their browser cookies with consent, and `REQUEST-REFINEMENT`, which runs only when a person types its command.
 
 ## Layout
 
@@ -21,12 +21,15 @@ artifacts/
   CODE-CHANGE-REVIEW/
   CODE-COMMENT-WRITING/
   COMPLETION-VERIFICATION/
+  CONFIG-FORM-SCHEMA-ALIGNMENT/
+  CONNECTOR-CONNECTION-HARDENING/
   DAILY-STANDUP-UPDATE/
   DATA-INCIDENT-TRACING/
   DATA-QUALITY-CONTROLS/
   DATABRICKS-DECLARATIVE-PIPELINE-DESIGN/
   DATABRICKS-JOB-DESIGN/
   DATABRICKS-UNITY-CATALOG-ACCESS-CHANGE/
+  DEVOPS-TICKET-DRAFTING/
   DBT-BUILD-FAILURE-DIAGNOSIS/
   DBT-COLUMN-LINEAGE/
   DBT-INCREMENTAL-STRATEGY/
@@ -42,7 +45,11 @@ artifacts/
   DOCKER-PROJECT-SETUP/
   ERROR-DIAGNOSIS/
   ETL-DECOMPOSITION/
+  GO-BENCHMARK-REGRESSION-CHECK/
+  GO-MODULE-RELEASE-GATES/     # ships scripts/new_code_coverage.py
+  GO-VULNERABILITY-REMEDIATION/
   IMPLEMENTATION-PLANNING/
+  JIRA-TICKET-STATUS-UPDATE/
   KPI-DEFINITION-BUILDING/
   KUBERNETES-POD-LOG-TRIAGE/
   MEDALLION-LAYER-BOUNDARIES/
@@ -69,6 +76,7 @@ artifacts/
     LICENSE
     ...
   REFACTOR-STEP-PLANNING/
+  RELEASE-NOTES-PREPARATION/
   REQUEST-REFINEMENT/           # runs only on the user's command:
     SKILL.md                    #   disable-model-invocation in the frontmatter,
     agents/openai.yaml          #   and the same policy for Codex
@@ -95,6 +103,7 @@ artifacts/
   TERRAFORM-PLAN-REVIEW/
   TERRAGRUNT-UNIT-REPLICATION/
   TEST-DESIGN-REVIEW/
+  XFUZE-INTEGRATION-DESIGN/
 ```
 
 ## `index.json`

@@ -1,0 +1,20 @@
+{
+  "id": "CONFIG-FORM-SCHEMA-ALIGNMENT",
+  "version": "0.1.0",
+  "source_path": "artifacts/CONFIG-FORM-SCHEMA-ALIGNMENT",
+  "applies_to": {},
+  "strength": "on-demand",
+  "topics": ["code-review"],
+  "scope": "project",
+  "presentation": {
+    "name": "Keep a configuration form in step with the code that reads it",
+    "summary": "Checks that a component's config type, its JSON Schema and its UI schema describe the same fields, so a setting saved in the form is the setting that runs.",
+    "benefits": [
+      "Finds fields the form offers but the code ignores, and settings the form never exposes",
+      "Compares required flags, enums, defaults and bounds across all three sources",
+      "Moves silent clamps in code into schema bounds the user can see",
+      "Catches conditional fields that always show, never validate or break the form when revealed",
+      "Reports one inventory row per field, so every finding has its evidence beside it"
+    ]
+  }
+}

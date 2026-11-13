@@ -1,0 +1,22 @@
+{
+  "id": "XFUZE-INTEGRATION-DESIGN",
+  "version": "0.1.0",
+  "source_path": "artifacts/XFUZE-INTEGRATION-DESIGN",
+  "applies_to": {
+    "frameworks": ["xfuze"]
+  },
+  "strength": "on-demand",
+  "topics": ["ingestion", "orchestration"],
+  "scope": "project",
+  "presentation": {
+    "name": "Design an xFuze integration before configuring it",
+    "summary": "Designs an integration on the xFuze platform: which connector stage, workflow step, egress or task does what, and how it fails, replays, scales and rolls out.",
+    "benefits": [
+      "Places each responsibility in a reader, mapper, validator, workflow step, egress or task, reusing existing plugins first",
+      "Sets what one event is, so failure and replay work per business record and stay within plugin memory limits",
+      "Decides what belongs on a connection and what in plugin configuration",
+      "Lists every failure with where it becomes visible, whether it alerts and whether replay is safe",
+      "Plans rollout and rollback as version selections per environment, with network access requested up front"
+    ]
+  }
+}
