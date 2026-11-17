@@ -60,7 +60,9 @@ questions, not guessed.
    open?** Name them, for example the Jira project key and the Confluence space.
    This is the boundary of what the skill reads. A system they have not been
    given access to yet becomes a checklist item to request, never something to
-   reach some other way.
+   reach some other way. Ask also where the wiki's onboarding material starts, if
+   anyone knows: the most useful pages are often linked from a glossary or a team
+   home page and from nothing in the repository.
 5. **Who will read the guide besides them?** Only them, or the next newcomer and
    the team too. This decides what may go into the shared half of the guide (see
    [Where the guide goes](#where-the-guide-goes)).
@@ -98,7 +100,14 @@ If a read is refused or comes back empty, report it and continue with the rest. 
 permission error is information for the checklist ("request access to …"), never a
 reason to try another route to the same content. If a source the person did not
 name turns up during the survey, add it to the guide as a found source and ask
-before reading it.
+before reading it. That includes a ticket in another tracker project linked from
+one in the plan. Do not open unpublished drafts, even when a link to one turns up:
+a draft is its author's work in progress, not team knowledge.
+
+A source can be reached in three ways: a connector or MCP server, the person's own
+signed-in browser if the agent can drive one, or text the person pastes. The rules
+above are the same for all three. A browser session carries the person's full
+access, so the plan is what limits it, not the browser.
 
 ## Survey the repositories
 
@@ -111,9 +120,14 @@ In each repository, read in this order. It runs from what was written for a
 reader to what has to be inferred, and each step is checked against the next.
 
 1. **Instructions and documentation already there:** agent instruction files
-   (`CLAUDE.md`, `AGENTS.md`, rules files), the README, the contributing guide,
-   `docs/`, decision records, any existing onboarding page. Note the date each was
-   last changed. These are the cheapest source and the one most likely to be
+   (`CLAUDE.md`, `AGENTS.md`, rules files), knowledge or explainer files written
+   for agents and newcomers (`knowledge.md`, `ARCHITECTURE.md`, a repository's own
+   onboarding or explain skill), the README, the contributing guide, `docs/`,
+   decision records, any existing onboarding page. A maintained knowledge file is
+   often the best single source in the repository; when one exists, the guide
+   points to it and adds what it lacks rather than restating it. Note the date each
+   was last changed, and any count or fact in it the repository no longer bears
+   out. These are the cheapest source and the one most likely to be
    stale, so nothing from them goes into the guide before the repository agrees.
 2. **What is built and run:** dependency manifests, CI workflows, Dockerfiles and
    Compose files, task runners (`Makefile`, `justfile`, `package.json` scripts,
@@ -259,6 +273,22 @@ For onboarding the useful reads are few:
 Link these in the guide and summarise each in a line. Do not copy pages in, since
 the copy starts going stale the day it is made.
 
+Record each page's last-edited date, and treat a wiki page the same way as a
+README: nothing from it goes into the guide as fact before the repository or a
+newer source agrees. Look out for three things while reading:
+
+- **Conflicts with the repository.** A company-wide rule the repository's own
+  conventions contradict, such as a review policy requiring the ticket key in every
+  commit when the repository's commit format has no place for it. Report both and
+  ask which applies; do not pick one.
+- **Dead ends.** A link that no longer resolves, a page that is only an outline, or
+  a "Coding Standards" link that opens a different page. These go to the open
+  questions, because the next newcomer will hit them too.
+- **Tools that send data outside the company.** A page that recommends pasting
+  logs, payloads or credentials into a public website. Do not repeat such advice as
+  a checklist step. Put it in the open questions and ask whether an approved
+  alternative exists.
+
 When nothing is connected, the guide is still complete as a document. This section
 lists the sources, the traces that revealed them and what to ask for.
 
@@ -292,9 +322,16 @@ Skills come from three places, and the guide says which:
   the version the profile pins, with the stack the survey found: an entry whose
   `applies_to` matches and whose card covers a recurring task is a candidate. Take
   ids and descriptions from the index as read, not from memory, since the catalog
-  changes between versions. If the index is not available, say so and point to the
-  Accelerator setup. Do not list skills that may not exist.
+  changes between versions. Recommend only entries in a released version; a skill
+  still in review is not something the reader can install. If the index is not
+  available, say so and point to the Accelerator setup. Do not list skills that may
+  not exist.
 - **Personal to the reader:** skills and plugins in their own agent setup.
+
+When a project skill and a catalog skill cover the same task, recommend the
+project's. It encodes this repository's rules and the team already relies on it; a
+general skill beside it gives the reader two sets of advice to reconcile. Recommend
+a catalog skill only for a task no project skill covers.
 
 Project and personal skills are decided by different people. Adding a
 project-scope skill changes what the whole team and CI get, so the guide records it
@@ -313,6 +350,13 @@ to someone who does not yet know the local paths.
 
 Keep it short enough to read in one sitting, roughly two pages before the
 checklist. It links to details and does not contain them.
+
+The length grows one source at a time, so hold the line each time the person adds
+one. A source read after the first draft earns a row in "Where knowledge lives", a
+checklist step if it changes what the reader does, and an open question if it
+conflicts with something. It earns a paragraph of its own only if it replaces
+something in the main sections. A guide that has doubled since the first draft has
+started copying its sources.
 
 ```markdown
 # Onboarding: <project>
@@ -450,7 +494,11 @@ mark as a defect in the guide or, more often, in the project's own documentation
 - Proposed connections are read-only, name no unverified package, and are left for
   the reader or their lead to set up.
 - Every recommended skill exists where the guide says it does and is tied to a
-  task; project-scope additions are suggestions, not actions.
+  task; project skills come before catalog skills for the same task, catalog skills
+  are from a released version, and project-scope additions are suggestions, not
+  actions.
+- Conflicts between sources, dead links and advice to send data to public tools are
+  in the open questions, not in the checklist.
 - Checklist items are actions with a visible result, in dependency order.
 - Nothing was written to the repository, the tracker or the wiki without
   confirmation, no secret appears in the guide, and the shared half holds nothing
