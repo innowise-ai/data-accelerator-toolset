@@ -153,8 +153,8 @@ WHEN NOT MATCHED THEN INSERT (order_id, customer_id, amount, status, updated_at)
 ```
 
 The deduplication is not decoration. When two input rows carry a key that is
-already in the target, BigQuery and PostgreSQL stop the `MERGE` with an error,
-and Snowflake does too under its default `ERROR_ON_NONDETERMINISTIC_MERGE`. When
+already in the target, BigQuery, PostgreSQL and Delta Lake stop the `MERGE` with
+an error, and Snowflake does too under its default `ERROR_ON_NONDETERMINISTIC_MERGE`. When
 the key is new, there is no target row to conflict over: both input rows go
 through `WHEN NOT MATCHED` and both are inserted, with no error. So the first run
 of a batch with duplicates writes them, and only a later run that touches those
