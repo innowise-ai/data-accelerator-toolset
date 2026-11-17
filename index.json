@@ -49,6 +49,31 @@
       }
     },
     {
+      "id": "AIRFLOW-RUN-FAILURE-DIAGNOSIS",
+      "version": "0.1.0",
+      "source_path": "artifacts/AIRFLOW-RUN-FAILURE-DIAGNOSIS",
+      "applies_to": {
+        "frameworks": ["airflow"]
+      },
+      "strength": "on-demand",
+      "topics": ["debugging"],
+      "scope": "project",
+      "requires": {
+        "access": ["Read access to the Airflow deployment's UI, REST API or CLI, including task logs, and to its scheduler and worker logs"]
+      },
+      "presentation": {
+        "name": "Diagnose a failed or stuck Airflow run before changing the DAG",
+        "summary": "Sorts a failed, stuck or missing Airflow run into a bug in the task or a scheduler, worker or capacity problem, from task states and logs, and says how to re-run it safely.",
+        "benefits": [
+          "Reads the task state and the log of the failed try before anyone edits the DAG",
+          "Recognises tasks killed for memory, lost heartbeats and missing logs as platform problems, not code bugs",
+          "Explains tasks stuck in scheduled, queued or deferred by pools, concurrency limits, workers and the triggerer",
+          "Finds why a run was never created: import errors, a paused DAG, the timetable, max_active_runs",
+          "Re-runs by clearing task instances in the same run, after checking the task is safe to repeat"
+        ]
+      }
+    },
+    {
       "id": "CODE-CHANGE-REVIEW",
       "version": "0.2.1",
       "source_path": "artifacts/CODE-CHANGE-REVIEW",

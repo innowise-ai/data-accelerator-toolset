@@ -389,8 +389,8 @@ Upstream:  https://github.com/Unknown-333/awesome-data-engineering-skills (commi
 Licence:   Apache License 2.0, as modified by the upstream repository (see below)
 Copyright: Copyright 2026 awesome-data-engineering-skills contributors
 
-Two skills were adapted into artifacts in this catalog, one of them with one
-section of a reference file of a third skill used as an additional source.
+Three skills were adapted into artifacts in this catalog, one of them with one
+section of a reference file of a fourth skill used as an additional source.
 
 About the licence: the repository's LICENSE file is the Apache License 2.0 with
 parts removed, which is why GitHub reports it as NOASSERTION. Section 4(d), the
@@ -401,7 +401,7 @@ intact. This catalog treats the work as licensed under Apache-2.0 and meets that
 licence's conditions; the upstream file is reproduced below exactly as published.
 
 Changes made (Apache-2.0 section 4(b)): each artifact is a modified version, not a
-copy. Upstream publishes no NOTICE file of its own. In both, upstream's trigger
+copy. Upstream publishes no NOTICE file of its own. In each, upstream's trigger
 conditions in the SKILL.md frontmatter were re-expressed as catalog metadata
 (`applies_to`, `strength`, `topics`).
 
@@ -427,8 +427,26 @@ whole-table trap of static partition overwrite, when fewer layers are enough, an
 platform notes for Microsoft Fabric, Databricks, plain Spark and dbt. Platform
 statements were checked against the Microsoft Fabric and Databricks documentation.
 
+AIRFLOW-RUN-FAILURE-DIAGNOSIS: upstream's skill is a short checklist of failure
+patterns and pitfalls. The artifact keeps its order (read the task log, check
+the state, localise, re-run by clearing) and its patterns for queued tasks,
+zombie tasks, runs that are not created and trigger rules after a branch,
+rewritten as prose that explains why each one points where it does. One
+statement was corrected rather than carried over: under the default trigger
+rule a task downstream of a skipped branch is skipped, not left with no status.
+Content was added that upstream does not contain, including a table of task
+states and where each one's cause is, the signs that a task was killed or lost
+its heartbeat rather than failing in its own code, missing logs and managed
+deployments, scheduled versus queued versus deferred waits, poke-mode sensors
+holding slots, task_queued_timeout, the Airflow 2 and 3 differences in
+timetables, logical dates and how tasks reach the metadata database, why
+clearing keeps the logical date while a new run does not, and what makes a task
+safe to clear. Defaults quoted in the artifact were checked against the Apache
+Airflow documentation.
+
 Artifacts derived from this source:
 
+  AIRFLOW-RUN-FAILURE-DIAGNOSIS <- skills/debugging-airflow-pipelines
   MEDALLION-LAYER-BOUNDARIES <- skills/designing-medallion-architecture
   SPARK-JOB-TUNING <- skills/optimizing-pyspark-jobs
                       skills/optimizing-sql-queries/references/ENGINES.md
