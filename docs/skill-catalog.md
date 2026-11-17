@@ -5,8 +5,8 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-71 artifacts today: 33 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
-PostgreSQL extraction, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
+72 artifacts today: 34 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
+PostgreSQL extraction, idempotent writes, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
 layering, job orchestration, streaming queries and metric definitions), 8 for Power BI, 8 for Tableau,
 5 for containers, local environments and Kubernetes, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
@@ -23,7 +23,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (33)
+## Data engineering (34)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -43,6 +43,7 @@ one project gets.
 | **Refactor a dbt model and prove output is unchanged** (`DBT-MODEL-REFACTORING`) | dbt | refactoring | Restructures a dbt model while proving its output did not change. |
 | **Pick dbt schema tests for each column role** (`DBT-MODEL-TESTING`) | dbt | testing, data-quality | Picks dbt schema tests that catch real defects for each column role. |
 | **Split a monolithic ETL function into testable units** (`ETL-DECOMPOSITION`) | python | refactoring, orchestration | Splits a monolithic extract-transform-load function into testable units with I/O at the edges. |
+| **Make a pipeline write safe to re-run, and prove it** (`IDEMPOTENT-WRITE-DESIGN`) | sql, python | ingestion, orchestration, data-quality | Designs loads and transformations so that a retry, repair or backfill of the same window leaves the same result, and proves it by running the window twice. |
 | **Turn a requested metric into a definition that can be implemented twice** (`KPI-DEFINITION-BUILDING`) | any | data-modeling | Turns a metric requested in words into a specification precise enough that two independent implementations produce the same number. |
 | **Define what belongs in each medallion layer, on any platform** (`MEDALLION-LAYER-BOUNDARIES`) | any | data-modeling, ingestion | Sets what bronze, silver and gold each hold and must not hold, how data moves between them safely, and where quality checks sit, for Fabric, Databricks, plain Spark or dbt. |
 | **Reconcile migrated data with the legacy warehouse, column by column** (`MIGRATION-DATA-RECONCILIATION`) | any | data-quality | Compares data moved from a legacy warehouse (SAP BW, Teradata, Oracle) with its lakehouse copy, separates format differences from real ones, and reports only the real ones. |

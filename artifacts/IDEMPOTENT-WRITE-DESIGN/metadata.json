@@ -1,0 +1,24 @@
+{
+  "id": "IDEMPOTENT-WRITE-DESIGN",
+  "version": "0.1.0",
+  "source_path": "artifacts/IDEMPOTENT-WRITE-DESIGN",
+  "applies_to": {
+    "languages": ["sql", "python"]
+  },
+  "strength": "on-demand",
+  "topics": ["ingestion", "orchestration", "data-quality"],
+  "scope": "project",
+  "requires": {
+    "access": ["A non-production target the agent may write to, with a frozen copy of the input, to run the same window twice and compare"]
+  },
+  "presentation": {
+    "name": "Make a pipeline write safe to re-run, and prove it",
+    "summary": "Designs loads and transformations so that a retry, repair or backfill of the same window leaves the same result, and proves it by running the window twice.",
+    "benefits": [
+      "Replaces blind appends with an overwrite of the run's window or a merge on a deterministic key",
+      "Keeps delete+insert atomic on each engine, so a failed run never leaves a window empty",
+      "Finds generated keys, clock-based windows and untied ROW_NUMBER() that make two runs differ",
+      "Proves the write with three run-twice tests and an overflow-free checksum per engine"
+    ]
+  }
+}
