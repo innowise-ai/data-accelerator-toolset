@@ -259,6 +259,9 @@ For onboarding the useful reads are few:
 Link these in the guide and summarise each in a line. Do not copy pages in, since
 the copy starts going stale the day it is made.
 
+When nothing is connected, the guide is still complete as a document. This section
+lists the sources, the traces that revealed them and what to ask for.
+
 ### What is happening now
 
 A newcomer joins a project in motion, and the first conversations will assume they
@@ -266,10 +269,8 @@ know what that motion is. From the tracker reads and the repositories' recent
 history, write a short account: the epics or goals in progress, what merged in the
 last two weeks and where, what is blocked and on what, and anything due soon. Date
 every line. It is the part of the guide that ages fastest, so keep it to what the
-first weeks need.
-
-When nothing is connected, the guide is still complete as a document. The section
-lists the sources, the traces that revealed them and what to ask for.
+first weeks need. With no tracker connected, write it from the repositories'
+history alone and say so.
 
 ## Match skills to the work
 
@@ -427,8 +428,9 @@ this. The guide may recommend such a change and say who would make it.
 
 An onboarding guide is the one document that gets a full test from an unbiased
 reader every time someone joins. Use that. The header records the commit of each
-repository and the date. On a later run, compare the guide with the repository as it is now and
-propose changes to the sections that drifted, leaving the rest alone. Ask each
+repository and the date. On a later run, compare the guide with the repositories
+as they are now and propose changes to the sections that drifted, leaving the rest
+alone. Ask each
 newcomer to mark the checklist items that failed or misled them, and treat every
 mark as a defect in the guide or, more often, in the project's own documentation.
 
