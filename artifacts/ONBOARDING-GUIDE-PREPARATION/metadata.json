@@ -12,14 +12,15 @@
   },
   "presentation": {
     "name": "Prepare an onboarding guide from what the project actually contains",
-    "summary": "Builds a newcomer's guide to one project: how it is built, the shared code to reuse, the commands that run it, where the tracker and documentation live, which skills fit which task, and a first-week checklist.",
+    "summary": "Asks a newcomer a few questions, then, reading only the sources they confirm, builds a guide to one project: how it is built across its main repositories, what is happening now, the shared code to reuse, the commands that run it, where the knowledge lives, which skills fit which task, and a first-week checklist.",
     "benefits": [
-      "Traces one real path through the system with file references instead of touring every directory",
+      "Starts with a short questionnaire on the reader, their first task, the main repositories and the systems they can open, and shapes the guide to the answers",
+      "Reads only the repositories, tracker projects and wiki spaces the person confirms, and keeps restricted content out of the shared guide",
+      "Traces one real path across the repositories with file references instead of touring every directory",
       "Finds the helpers, macros and fixtures the rest of the code goes through, each with a call site to copy",
-      "Takes setup, run and test commands from CI and says which were run and which only read",
-      "Finds the tracker, wiki and dashboards from references in the repository and proposes read-only connections for the ones the agent cannot reach",
+      "Summarises what is happening now and proposes read-only connections to the tracker and wiki the agent cannot reach yet",
       "Matches installed, catalog and personal skills to the project's recurring tasks",
-      "Ends with a checklist of actions that each have a visible result, and the open questions to take to the lead"
+      "Ends with a checklist of actions that each have a visible result, with commands taken from CI, and the open questions to take to the lead"
     ]
   }
 }

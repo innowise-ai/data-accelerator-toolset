@@ -1,6 +1,6 @@
 ---
 name: onboarding-guide-preparation
-description: Preparing an onboarding guide for one specific project - how the system is built, one path traced through it, the shared code to reuse, the commands that run it, where the tracker and documentation live and whether the agent can reach them, which skills fit which task, and a first-week checklist, each fact with its source. Use when someone joins a project, asks how the project is built or where to start, or when a team wants an onboarding guide for newcomers.
+description: Preparing an onboarding guide for one specific project - a short questionnaire first, then, with consent for each source, a read-only pass over the main repositories and the tracker and wiki - covering how the system is built, what is happening now, the shared code to reuse, the commands that run it, where the knowledge lives, which skills fit which task, and a first-week checklist, each fact with its source. Use when someone joins a project, asks how the project is built or where to start, or when a team wants an onboarding guide for newcomers.
 ---
 
 # Preparing an onboarding guide for a project
@@ -19,10 +19,14 @@ project the branch names point to. So the guide is assembled from what the proje
 contains, and every statement in it carries the place it came from. What could not
 be established becomes a question addressed to someone, not a guess.
 
-This skill reads and reports. It writes one document, and only where the user
-agrees it should go. It does not change agent settings, install skills or connect
-anything; where one of those would help, the guide says so and leaves the action
-to the person who owns it.
+This skill reads and reports. It reads only the sources the person agreed to, with
+the access they already have, and writes one document, only where they agree it
+should go. It does not change agent settings, install skills or connect anything;
+where one of those would help, the guide says so and leaves the action to the
+person who owns it.
+
+The order is fixed: ask, show what will be read, read, draft, and write only
+after confirmation.
 
 Two neighbours do related work. Durable architecture notes and decision records
 are the subject of [project-documentation](../PROJECT-DOCUMENTATION/SKILL.md); an
@@ -31,22 +35,80 @@ to the repository's paths and commands is
 [project-adaptation](../PROJECT-ADAPTATION/SKILL.md); this guide only tells the
 reader which skill to reach for.
 
-## Start from the reader and their first task
+## Ask first
 
-Ask who the guide is for and what they will work on first, if the conversation has
-not said. A data engineer about to change a dbt model, an analyst who will only
-read marts and a DevOps engineer taking over the deployment need three different
-depths of the same repository. If nobody knows yet, write for an engineer joining
-the team and say that at the top.
+Before reading anything beyond the repository the agent was opened in, ask a few
+questions in one message. Skip any the conversation has already answered, and
+accept "don't know" for any of them: an unknown is recorded in the guide's open
+questions, not guessed.
 
-The first task matters more than the role. A guide organised around "here is the
-path your first change will take" gets read; a uniform tour of every directory
-does not, because the reader cannot tell which tenth of it they need this week.
+1. **Who is the guide for, and how familiar are they with this kind of project?**
+   A data engineer about to change a dbt model, an analyst who will only read
+   marts and a DevOps engineer taking over the deployment need three different
+   depths of the same system. Someone early in their career needs the commands and
+   the traced path spelled out; an experienced engineer needs the decisions and the
+   exceptions. If the guide is for whoever joins next, write for an engineer
+   joining the team and say so at the top.
+2. **What is the first task?** A ticket key, or a sentence. This matters more than
+   the role. A guide organised around "here is the path your first change will
+   take" gets read; a uniform tour of every directory does not, because the reader
+   cannot tell which tenth of it they need this week.
+3. **Which repositories are the main ones?** The ones the first task and the
+   team's daily work touch, and where each is cloned locally, if it is. The one
+   the agent is in may be only a part of the system.
+4. **Which tracker project, wiki space and other systems can the person already
+   open?** Name them, for example the Jira project key and the Confluence space.
+   This is the boundary of what the skill reads. A system they have not been
+   given access to yet becomes a checklist item to request, never something to
+   reach some other way.
+5. **Who will read the guide besides them?** Only them, or the next newcomer and
+   the team too. This decides what may go into the shared half of the guide (see
+   [Where the guide goes](#where-the-guide-goes)).
 
-## Survey the repository
+Use the answers throughout: the reader and their experience set the depth, the
+first task chooses the path to trace and the tickets to read, the repository list
+sets the survey, and the systems list sets what may be read.
 
-Read in this order. It runs from what was written for a reader to what has to be
-inferred, and each step is checked against the next.
+## Agree what will be read
+
+A tracker and a wiki hold more than any one person should see in a guide:
+restricted tickets, client correspondence, other teams' spaces, HR and pricing
+pages. The agent reads them with the person's own credentials. "The agent can
+reach it" is therefore not the test for reading it. The test is "the person named
+it and agreed".
+
+Before the first read of anything outside the local repositories, show the plan
+and wait for confirmation:
+
+```text
+Read-only. Nothing is written to any of these.
+Repositories:  analytics-dbt (local), ingestion (local), infra (gh, read-only)
+Jira PROJ:     open epics; current sprint; PROJ-1234 and the tickets linked to it;
+               5 recently closed tickets labelled "dbt"
+Confluence DE: space home, "Architecture", "Runbooks" and their child pages
+Not read:      other Jira projects and Confluence spaces, attachments, Slack
+```
+
+Keep each read narrow: a query scoped to the named project, the pages under the
+named space, the tickets around the first task. Do not search the whole instance
+because it is cheaper than asking. A cross-project search is how a guide ends up
+quoting a ticket from a project the reader is not on.
+
+If a read is refused or comes back empty, report it and continue with the rest. A
+permission error is information for the checklist ("request access to …"), never a
+reason to try another route to the same content. If a source the person did not
+name turns up during the survey, add it to the guide as a found source and ask
+before reading it.
+
+## Survey the repositories
+
+Survey each repository the person named, starting with the one the first task
+lands in. A local clone is read directly. One that is not cloned can be read
+through the code host's CLI or API with the person's own access, or cloning it
+becomes a checklist item; ask which they prefer.
+
+In each repository, read in this order. It runs from what was written for a
+reader to what has to be inferred, and each step is checked against the next.
 
 1. **Instructions and documentation already there:** agent instruction files
    (`CLAUDE.md`, `AGENTS.md`, rules files), the README, the contributing guide,
@@ -115,15 +177,26 @@ worth more than a description: it shows the arguments people really pass. If the
 count shows two helpers doing the same job, report both and which one recent code
 uses. Do not pick a winner on the team's behalf.
 
+### How the repositories fit together
+
+With more than one repository, the boundaries between them are what a newcomer
+finds hardest, because no single README describes them. For each pair that
+interacts, find how: a package one publishes and the other imports, a table one
+writes and the other reads, a topic, an API, a Terraform output, a Docker image
+tag. Name the file on each side. A repository that nothing references and that
+has not changed in a year is probably not one of the main ones. Ask before
+leaving it in.
+
 ### One path, end to end
 
 Choose a single real path through the system, the one closest to the reader's first
-task, and follow it with file references: where a record enters, which job picks
-it up, which transformations it passes through, where it lands and what reads it
-there. Or a request, from the router to the query. A component diagram says what
-exists. A traced path says how to change something, and it surfaces the hops that
-live outside this repository, such as another team's topic or a scheduler defined
-elsewhere. Those are exactly the things a newcomer cannot find by searching.
+task, and follow it with file references across the repositories it crosses: where
+a record enters, which job picks it up, which transformations it passes through,
+where it lands and what reads it there. Or a request, from the router to the query.
+A component diagram says what exists. A traced path says how to change something,
+and it surfaces the hops that live outside the repositories surveyed, such as
+another team's topic or a scheduler defined elsewhere. Those are exactly the
+things a newcomer cannot find by searching.
 
 ## Find where the rest of the knowledge lives
 
@@ -147,8 +220,8 @@ README is where newcomers lose an afternoon.
 
 For each source, establish which of three states it is in:
 
-- **Connected:** the agent already has a tool for it in this session, and a
-  read-only call works.
+- **Connected:** the agent already has a tool for it in this session. Whether a
+  read-only call works is checked only for sources in the agreed plan.
 - **Declared by the project, not authorised for this person:** the repository's
   agent configuration names a connection (`.mcp.json`, `.cursor/mcp.json`,
   `.codex/config.toml`, `.vscode/mcp.json`), but this user has not signed in.
@@ -173,17 +246,27 @@ and on client projects whether a tracker or wiki may be connected to an agent at
 all is a decision somebody has already made or needs to make. Put that question in
 the guide where it is open.
 
-When a source is connected, read from it and write nothing. For onboarding the
-useful reads are few:
+When a source is connected and in the agreed plan, read from it and write nothing.
+For onboarding the useful reads are few:
 
 - from the tracker: the board and its statuses, the current sprint or the open
-  epics, tickets marked for newcomers, and three or four recently closed tickets in
-  the area of the first task, as examples of how work is described here;
+  epics, the first task's ticket and the tickets linked to it, tickets marked for
+  newcomers, and three or four recently closed tickets in the area of the first
+  task, as examples of how work is described here;
 - from the wiki: the space's home page, architecture and runbook pages, and any
   onboarding page, each with its last-edited date.
 
 Link these in the guide and summarise each in a line. Do not copy pages in, since
 the copy starts going stale the day it is made.
+
+### What is happening now
+
+A newcomer joins a project in motion, and the first conversations will assume they
+know what that motion is. From the tracker reads and the repositories' recent
+history, write a short account: the epics or goals in progress, what merged in the
+last two weeks and where, what is blocked and on what, and anything due soon. Date
+every line. It is the part of the guide that ages fastest, so keep it to what the
+first weeks need.
 
 When nothing is connected, the guide is still complete as a document. The section
 lists the sources, the traces that revealed them and what to ask for.
@@ -232,14 +315,19 @@ checklist. It links to details and does not contain them.
 
 ```markdown
 # Onboarding: <project>
-Built from commit <sha> on <date>, for <reader and first task>.
+Built on <date> from <repository>@<sha> (one per repository),
+for <reader and first task>.
+Sources read: <the agreed plan>.
 
 ## What this is
 Two or three sentences: what the system does and for whom.
 
+## What is happening now
+Dated: epics in progress, recent merges, blockers, what is due.
+
 ## How it is built
-Components with their paths, and how they connect (a text diagram if it helps).
-One path traced end to end, with file references.
+Repositories and components with their paths, and how they connect (a text
+diagram if it helps). One path traced end to end, with file references.
 
 ## Shared code to reuse
 | Name | Path | Use it for | Example call |
@@ -324,21 +412,34 @@ the file uncommitted for review.
 The personal half stays out of the repository: this reader's role and first task,
 which accesses they still lack, which connections they have authorised.
 
+What came from the tracker and the wiki needs one more check before it goes into
+the shared half. The next reader may not have the access this one had, and a
+committed document is read by everyone with the repository. Keep in the shared
+half only links and one-line summaries of what the whole team can see. Anything
+from a restricted ticket or page, a client's name or terms that the repository does
+not already contain, or a person's details beyond their role stays in the personal
+half or is left out.
+
 Do not edit agent instruction files, agent settings or installed skills as part of
 this. The guide may recommend such a change and say who would make it.
 
 ## Keeping it true
 
 An onboarding guide is the one document that gets a full test from an unbiased
-reader every time someone joins. Use that. The header records the commit and the
-date. On a later run, compare the guide with the repository as it is now and
+reader every time someone joins. Use that. The header records the commit of each
+repository and the date. On a later run, compare the guide with the repository as it is now and
 propose changes to the sections that drifted, leaving the rest alone. Ask each
 newcomer to mark the checklist items that failed or misled them, and treat every
 mark as a defect in the guide or, more often, in the project's own documentation.
 
 ## Before handing it over
 
-- The guide names its reader, their first task, and the commit it was built from.
+- The questionnaire was asked, or answered by the conversation, before anything
+  outside the local repositories was read.
+- Every external source read was in the plan the person confirmed; nothing was
+  searched beyond the named projects and spaces.
+- The guide names its reader, their first task, and the commit of each repository
+  it was built from.
 - Every command has a source and says whether it was run or only read.
 - The shared-code table came from counting references, and each row has a call
   site.
@@ -350,4 +451,5 @@ mark as a defect in the guide or, more often, in the project's own documentation
   task; project-scope additions are suggestions, not actions.
 - Checklist items are actions with a visible result, in dependency order.
 - Nothing was written to the repository, the tracker or the wiki without
-  confirmation, and no secret appears in the guide.
+  confirmation, no secret appears in the guide, and the shared half holds nothing
+  restricted.
