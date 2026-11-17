@@ -389,8 +389,8 @@ Upstream:  https://github.com/Unknown-333/awesome-data-engineering-skills (commi
 Licence:   Apache License 2.0, as modified by the upstream repository (see below)
 Copyright: Copyright 2026 awesome-data-engineering-skills contributors
 
-Three skills were adapted into artifacts in this catalog, one of them with one
-section of a reference file of a fourth skill used as an additional source.
+Four skills were adapted into artifacts in this catalog, one of them with one
+section of a reference file of a fifth skill used as an additional source.
 
 About the licence: the repository's LICENSE file is the Apache License 2.0 with
 parts removed, which is why GitHub reports it as NOASSERTION. Section 4(d), the
@@ -448,8 +448,28 @@ and the claims that can be run locally were run on PostgreSQL 17, DuckDB 1.4,
 Apache Spark 4.0 and Delta Lake 4.0, including the Spark checksum overflow and
 the MERGE behaviour on duplicate keys.
 
+BACKFILL-PLANNING: upstream's skill is a short workflow checklist, one shell
+loop and a list of pitfalls. The artifact keeps its steps: idempotency first, an
+exact window and partition unit, a one-partition dry run, bounded
+partition-by-partition execution, isolated compute, pinned code and the
+downstream models to refresh, rewritten as prose that explains why each one
+matters. Upstream's advice to run dbt `--full-refresh` over a bounded window was
+not carried over: `--full-refresh` always rebuilds the whole model from what the
+source holds now, and the artifact uses windowed incremental runs and
+`full_refresh: false` instead. Content was added that upstream does not contain,
+including the reason for the backfill and the predicted change, input retention,
+source rows changed since, dimensions joined as of today and snapshots that
+cannot be backfilled, a snapshot of the target before writing, downstream
+incremental models that a normal run does not repair, the Airflow 3 reprocess
+behaviour and bundle-version defaults, a three-question reconciliation, and the
+notice to the people who read the numbers. The dbt statements were run with
+dbt-core 1.10 and dbt-postgres 1.9 on PostgreSQL 17, and the Airflow statements
+were checked against the Airflow 2.10 and 3.1 command-line help and the Airflow
+3.1 source.
+
 Artifacts derived from this source:
 
+  BACKFILL-PLANNING          <- skills/designing-backfills-and-replays
   IDEMPOTENT-WRITE-DESIGN    <- skills/writing-idempotent-transformations
   MEDALLION-LAYER-BOUNDARIES <- skills/designing-medallion-architecture
   SPARK-JOB-TUNING <- skills/optimizing-pyspark-jobs

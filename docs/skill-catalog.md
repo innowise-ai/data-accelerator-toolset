@@ -5,8 +5,8 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-72 artifacts today: 34 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
-PostgreSQL extraction, idempotent writes, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
+73 artifacts today: 35 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow,
+PostgreSQL extraction, idempotent writes, backfills, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
 layering, job orchestration, streaming queries and metric definitions), 8 for Power BI, 8 for Tableau,
 5 for containers, local environments and Kubernetes, 2 for infrastructure as code, and 15
 general skills that apply to any stack. All are `on-demand` except
@@ -23,11 +23,12 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (34)
+## Data engineering (35)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
 | **Structure Airflow DAGs for safe, cheap imports** (`AIRFLOW-DAG-STRUCTURE`) | airflow | orchestration | Structures Airflow DAGs so nothing expensive or fragile runs at import time. |
+| **Plan and run a backfill that changes only what it should** (`BACKFILL-PLANNING`) | sql, python | orchestration, data-quality | Plans a backfill or replay of historical data so it rewrites only the intended window, can be paused, resumed and rolled back, and ends with a reconciliation of what changed and a notice to the people who read the numbers. |
 | **Trace wrong data when the pipeline succeeded** (`DATA-INCIDENT-TRACING`) | any | debugging, data-quality | Traces wrong data back to the code that produced it when the pipeline reported success. |
 | **Build data quality controls: quarantine, release diff, scorecards** (`DATA-QUALITY-CONTROLS`) | any | data-quality, ingestion | Builds the controls that keep invalid records out of published data, show what each publish changes, and score data quality per source and stage. |
 | **Design Databricks declarative pipelines: table types, expectations, CDC** (`DATABRICKS-DECLARATIVE-PIPELINE-DESIGN`) | databricks | ingestion, data-modeling, data-quality | Designs Lakeflow pipelines (formerly DLT): a streaming table or materialized view per dataset, expectations, AUTO CDC and Auto Loader ingestion, without a full refresh losing history. |
