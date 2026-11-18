@@ -30,7 +30,7 @@
   "artifacts": [
     {
       "id": "AIRFLOW-DAG-STRUCTURE",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "source_path": "artifacts/AIRFLOW-DAG-STRUCTURE",
       "applies_to": {
         "frameworks": ["airflow"]
@@ -68,7 +68,7 @@
           "Reads the task state and the log of the failed try before anyone edits the DAG",
           "Recognises tasks killed for memory, lost heartbeats and missing logs as platform problems, not code bugs",
           "Explains tasks stuck in scheduled, queued or deferred by pools, concurrency limits, workers and the triggerer",
-          "Finds why a run was never created: import errors, a paused DAG, the timetable, max_active_runs",
+          "Finds why a run was never created: import errors, a paused DAG, the timetable, catchup, max_active_runs",
           "Re-runs by clearing task instances in the same run, after checking the task is safe to repeat"
         ]
       }
@@ -157,7 +157,7 @@
     },
     {
       "id": "DATA-INCIDENT-TRACING",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source_path": "artifacts/DATA-INCIDENT-TRACING",
       "applies_to": {},
       "strength": "on-demand",
@@ -569,7 +569,7 @@
     },
     {
       "id": "ERROR-DIAGNOSIS",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source_path": "artifacts/ERROR-DIAGNOSIS",
       "applies_to": {},
       "strength": "on-demand",
@@ -648,7 +648,7 @@
     },
     {
       "id": "KUBERNETES-POD-LOG-TRIAGE",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/KUBERNETES-POD-LOG-TRIAGE",
       "applies_to": {
         "frameworks": ["kubernetes"]

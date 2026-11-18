@@ -1,6 +1,6 @@
 {
   "id": "DATA-INCIDENT-TRACING",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "source_path": "artifacts/DATA-INCIDENT-TRACING",
   "applies_to": {},
   "strength": "on-demand",

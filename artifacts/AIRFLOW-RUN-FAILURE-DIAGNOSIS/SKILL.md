@@ -70,9 +70,12 @@ If the log has no exception, ends mid-line, or does not exist, the task did not
 fail by itself. The signs:
 
 - **The process was killed.** On 2.x the log ends with "Task exited with return
-  code Negsignal.SIGKILL" or return code -9; elsewhere it simply stops. That is
-  nearly always the worker or pod hitting its memory limit, and the code that
-  ran out of memory is in the last lines before it.
+  code Negsignal.SIGKILL" or return code -9. On 3.x the supervisor process
+  outlives the task and logs "Process terminated by signal" with SIGKILL; from
+  3.1 the line adds that it was likely out of memory. If the whole pod was
+  killed, the log simply
+  stops. A SIGKILL is nearly always the worker or pod hitting its memory limit,
+  and the code that ran out of memory is in the last lines before it.
 - **The scheduler marked the task failed.** The scheduler log carries a
   message asking whether the task was killed externally, because the executor
   reported the task finished while Airflow still had it as queued or running.
@@ -100,8 +103,9 @@ not keep instead of concluding from their absence.
 A timeout looks like an error but has its own cause. `AirflowTaskTimeout` means
 the task ran longer than its `execution_timeout`; the question is why it was
 slower than usual (more data, a lock in the target, a slow source), and raising
-the timeout only hides that. A whole run marked failed with tasks still
-running points at `dagrun_timeout`.
+the timeout only hides that. A whole run marked failed, with every task that
+had not finished set to `skipped` and "has timed-out" in the scheduler log,
+hit its `dagrun_timeout`. Those skipped tasks are not a branching problem.
 
 ## Tasks that wait and never run
 
@@ -110,20 +114,24 @@ limits at once, and any one of them can be the full one:
 
 - the task's **pool** (`default_pool` unless the task names another), which
   other DAGs may be using up;
-- the DAG's **`max_active_tasks`** and the task's `max_active_tis_per_dag`;
-- the deployment-wide **`parallelism`**, which caps running tasks across all
-  DAGs per scheduler.
+- the DAG's **`max_active_tasks`**, and the task's `max_active_tis_per_dag`
+  and `max_active_tis_per_dagrun`, which matters for mapped tasks;
+- the deployment-wide **`parallelism`**, which caps queued plus running task
+  instances across all DAGs per scheduler.
 
 Before blaming any of them, look at what is holding the slots. Sensors in the
-default `poke` mode hold a worker slot for their whole wait, so a handful of
+default `poke` mode hold a worker slot, and with it a pool slot and a
+`parallelism` slot, for their whole wait, so a handful of
 long-waiting sensors can starve every other task in a small deployment;
 `mode="reschedule"` or a deferrable sensor releases the slot between checks.
 
 A task in `queued` has passed those limits and been handed to the executor, and
-no worker has started it. That is the worker side: Celery workers down or not
-consuming the queue the task was sent to, the broker unreachable, or on the
-Kubernetes executor a pod that is `Pending` because the cluster has no room or
-cannot pull the image. After `task_queued_timeout` (ten minutes by default) the
+no worker has started it. The executor runs inside the scheduler, so read the
+scheduler log first: an error sending the task to the broker, or creating its
+pod on the Kubernetes executor, is logged there. If the scheduler handed the
+task off cleanly, the cause is on the worker side: Celery workers down or not
+consuming the queue the task was sent to, the broker unreachable, or a task pod
+that is `Pending` because the cluster has no room or cannot pull the image. After `task_queued_timeout` (ten minutes by default) the
 scheduler gives up on a queued task and fails or retries it, so a task that
 "failed" with an empty log after exactly that long was never started.
 
@@ -148,6 +156,10 @@ scheduler reads the DAG:
   Monday starts at Tuesday midnight and there is no run "for today" yet. By
   default 3.x runs a cron schedule at the cron time instead. Read which
   timetable the DAG uses before calling a run missing.
+- **Catchup is off.** Without catchup, unpausing a DAG with an old
+  `start_date` creates only the latest interval's run, not the ones in
+  between. The default is on in 2.x and off in 3.x (`catchup_by_default`), so
+  a DAG that does not set `catchup` behaves differently after an upgrade.
 - **`max_active_runs` is reached.** An older run that is stuck, often on one of
   the waits above, blocks every newer one. The missing run is a symptom; the
   stuck one is the cause.
@@ -176,6 +188,14 @@ logical date (on 3.x it may have none at all), so the templated values change:
 it writes a different partition, writes the current one twice, or fails on a
 missing template value. Clearing only the failed tasks also leaves the tasks
 that already succeeded alone.
+
+Check which code the cleared task will run. On 2.x, and on bundles without
+versioning such as the default `LocalDagBundle`, it is the current code. On a
+versioned bundle such as `GitDagBundle`, Airflow 3.1 and later re-run the code
+the run was created with, so a fix merged since then does not reach the
+cleared task and it fails again the same way. To pick up the fix, clear with
+the option to run on the latest version (`run_on_latest_version` in the UI and
+the REST API; from 3.3 the default comes from `rerun_with_latest_version`).
 
 Clearing is still a write to production. Before suggesting it, check that the
 task is safe to run twice for the same interval: it overwrites or merges its

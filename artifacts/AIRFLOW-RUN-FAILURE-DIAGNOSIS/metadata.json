@@ -18,7 +18,7 @@
       "Reads the task state and the log of the failed try before anyone edits the DAG",
       "Recognises tasks killed for memory, lost heartbeats and missing logs as platform problems, not code bugs",
       "Explains tasks stuck in scheduled, queued or deferred by pools, concurrency limits, workers and the triggerer",
-      "Finds why a run was never created: import errors, a paused DAG, the timetable, max_active_runs",
+      "Finds why a run was never created: import errors, a paused DAG, the timetable, catchup, max_active_runs",
       "Re-runs by clearing task instances in the same run, after checking the task is safe to repeat"
     ]
   }

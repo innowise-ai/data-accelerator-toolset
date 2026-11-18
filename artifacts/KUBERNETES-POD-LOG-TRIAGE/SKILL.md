@@ -82,9 +82,13 @@ error.
 **Airflow (official Helm chart).** The long-running components carry
 `tier=airflow` and `component=` with `scheduler`, `webserver` or
 `api-server`, `triggerer`, `dag-processor` or `worker` (Celery workers), plus
-`release=<release name>`. A DAG that never appears, or tasks stuck in queued,
-is a scheduler or DAG processor question, so start there; an import error is
-logged when the DAG file is parsed, not when a task runs.
+`release=<release name>`. A DAG that never appears is a scheduler or DAG
+processor question, so start there; an import error is logged when the DAG
+file is parsed, not when a task runs. For tasks stuck in queued, start with the
+scheduler too, because the executor runs inside it and logs failures to hand a
+task off; if the hand-off was clean, look at the Celery workers or the task
+pod. Reading the task states that come before this is
+[airflow-run-failure-diagnosis](../AIRFLOW-RUN-FAILURE-DIAGNOSIS/SKILL.md).
 
 Task pods are found by their task. Pods started by the Kubernetes executor and
 by `KubernetesPodOperator` are labelled with `dag_id`, `task_id`, `run_id` and

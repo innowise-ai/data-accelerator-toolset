@@ -16,9 +16,9 @@ Sixty-eight artifacts are `project` scope. Four are `user` scope, personal tools
 index.json                      # catalog root — the only file fetched unconditionally
 artifacts/
   AIRFLOW-DAG-STRUCTURE/
-  AIRFLOW-RUN-FAILURE-DIAGNOSIS/
     SKILL.md
     metadata.json
+  AIRFLOW-RUN-FAILURE-DIAGNOSIS/
   CODE-CHANGE-REVIEW/
   CODE-COMMENT-WRITING/
   COMPLETION-VERIFICATION/

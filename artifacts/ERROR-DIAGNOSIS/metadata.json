@@ -1,6 +1,6 @@
 {
   "id": "ERROR-DIAGNOSIS",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "source_path": "artifacts/ERROR-DIAGNOSIS",
   "applies_to": {},
   "strength": "on-demand",

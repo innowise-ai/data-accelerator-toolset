@@ -428,8 +428,10 @@ platform notes for Microsoft Fabric, Databricks, plain Spark and dbt. Platform
 statements were checked against the Microsoft Fabric and Databricks documentation.
 
 AIRFLOW-RUN-FAILURE-DIAGNOSIS: upstream's skill is a short checklist of failure
-patterns and pitfalls. The artifact keeps its order (read the task log, check
-the state, localise, re-run by clearing) and its patterns for queued tasks,
+patterns and pitfalls. The artifact keeps its steps (read the task log, check
+the state, localise, re-run by clearing) but reverses the first two, reading
+the task state before the log because the state shows whether the cause is in
+the task at all. It keeps upstream's patterns for queued tasks,
 zombie tasks, runs that are not created and trigger rules after a branch,
 rewritten as prose that explains why each one points where it does. One
 statement was corrected rather than carried over: under the default trigger
@@ -440,7 +442,8 @@ its heartbeat rather than failing in its own code, missing logs and managed
 deployments, scheduled versus queued versus deferred waits, poke-mode sensors
 holding slots, task_queued_timeout, the Airflow 2 and 3 differences in
 timetables, logical dates and how tasks reach the metadata database, why
-clearing keeps the logical date while a new run does not, and what makes a task
+clearing keeps the logical date while a new run does not, which code a cleared
+task runs on a versioned DAG bundle, and what makes a task
 safe to clear. Defaults quoted in the artifact were checked against the Apache
 Airflow documentation.
 
