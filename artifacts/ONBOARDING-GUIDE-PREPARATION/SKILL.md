@@ -1,6 +1,6 @@
 ---
 name: onboarding-guide-preparation
-description: Preparing an onboarding guide for one specific project - a short questionnaire first, then, with consent for each source, a read-only pass over the main repositories and the tracker and wiki - covering how the system is built, what is happening now, the shared code to reuse, the commands that run it, where the knowledge lives, which skills fit which task, and a first-week checklist, each fact with its source. Use when someone joins a project, asks how the project is built or where to start, or when a team wants an onboarding guide for newcomers.
+description: Preparing an onboarding guide for one specific project - a short questionnaire first, then, with consent for each source, a read-only pass over the main repositories and the tracker and wiki - covering how the system is built, how it got here, what is happening now, the shared code to reuse, the commands that run it, where the knowledge lives, which skills fit which task, and a first-week checklist, each fact with its source. Use when someone joins a project, asks how the project is built or where to start, or when a team wants an onboarding guide for newcomers.
 ---
 
 # Preparing an onboarding guide for a project
@@ -86,8 +86,12 @@ and wait for confirmation:
 Read-only. Nothing is written to any of these.
 Repositories:  analytics-dbt (local), ingestion (local), infra (gh, read-only)
 Jira PROJ:     open epics; current sprint; PROJ-1234 and the tickets linked to it;
-               5 recently closed tickets labelled "dbt"
-Confluence DE: space home, "Architecture", "Runbooks" and their child pages
+               5 recently closed tickets labelled "dbt"; epics closed in the
+               last year, titles and dates only
+Confluence DE: space home, "Architecture", "Runbooks", "Release notes" and their
+               child pages
+Agent setup:   MCP servers in settings, .mcp.json and enabled plugins (names,
+               types and URLs only)
 Not read:      other Jira projects and Confluence spaces, attachments, Slack
 ```
 
@@ -236,22 +240,68 @@ For each source, establish which of three states it is in:
 
 - **Connected:** the agent already has a tool for it in this session. Whether a
   read-only call works is checked only for sources in the agreed plan.
-- **Declared by the project, not authorised for this person:** the repository's
-  agent configuration names a connection (`.mcp.json`, `.cursor/mcp.json`,
-  `.codex/config.toml`, `.vscode/mcp.json`), but this user has not signed in.
-- **Not set up.**
+- **Configured, not working for this person:** a server for it is declared
+  somewhere the agent loads from (see below), but this user has not signed in, has
+  not approved it, or it fails to connect. Record where it is declared, because
+  that decides who fixes it: the team for the project's file, the reader for their
+  own settings, the plugin's owner for a plugin.
+- **Not set up:** no server for it is declared anywhere.
 
-For the second and third, the guide proposes the connection. State what it would
-give, in terms of this project: "with the tracker connected, the agent can read the
-ticket behind a branch and the acceptance criteria before a change". Name the
-least access that achieves it, which for onboarding is read-only: browse the
+#### Finding every configured MCP server
+
+The project's own files show only part of what the agent can connect to. A server
+installed through a plugin lives in that plugin's directory, and a connector added
+to the person's account lives in the account, so neither appears in the
+repository's `.mcp.json` or settings. A survey that reads only the project's files
+marks such a source "not set up" while the reader already has a working server for
+it, and the guide then proposes installing a second one beside it: two servers for
+the same tracker, possibly with different access. So look in every place a server
+can be declared. For Claude Code these are:
+
+- **Project scope:** `.mcp.json` at the repository root, and in
+  `.claude/settings.json` and `.claude/settings.local.json` which of its servers
+  are approved or disabled (`enableAllProjectMcpServers`, `enabledMcpjsonServers`,
+  `disabledMcpjsonServers`). An unapproved server is configured but not connected.
+- **User and local scope:** `~/.claude.json`, where `mcpServers` at the top level
+  is the user scope and `projects["<path>"].mcpServers` is the local scope for this
+  repository only. `~/.claude/settings.json` holds the user's approvals.
+- **Plugins:** the plugins enabled in `enabledPlugins` in any of the three settings
+  files above. Look each up in `~/.claude/plugins/installed_plugins.json`, which
+  gives its install path, and read the `.mcp.json` at that path or the
+  `mcpServers` entry in its `.claude-plugin/plugin.json`, which is either the
+  servers themselves or a path to a file holding them. Read the installed path
+  only: the plugin cache keeps old versions beside it, and their servers are not
+  loaded. A plugin that is installed but not enabled contributes nothing.
+- **Managed settings** an administrator deploys, such as `managed-mcp.json`, which
+  the person cannot change and the guide reports as fixed.
+
+If `CLAUDE_CONFIG_DIR` is set, the user-level files are there instead of in
+`~/.claude`. Where the CLI is available, `claude mcp list` gives the merged result
+of all of these, plus account connectors, with each server's status. It starts each
+approved server to check its health, so run it with the person's agreement, and
+use it to confirm the file survey rather than replace it: it does not say where a
+server was declared. Other agents have the same layers under their own names, such
+as `.cursor/mcp.json` and `~/.cursor/mcp.json`, `.codex/config.toml` and
+`~/.codex/config.toml`, and `.vscode/mcp.json`.
+
+These files often hold tokens in `env` or `headers`. Read the server names, types,
+commands and URLs; never print or copy the values of environment variables or
+headers.
+
+For the second and third states, the guide proposes the connection. State what it
+would give, in terms of this project: "with the tracker connected, the agent can
+read the ticket behind a branch and the acceptance criteria before a change". Name
+the least access that achieves it, which for onboarding is read-only: browse the
 project, read pages. Then say how the connection is made for the agent in use, an
 MCP server or a connector, depending on the agent.
 
-Prefer what the project's configuration already declares, because the team has
-agreed to it. Next comes the server or connector published by the vendor of the
-source. Do not name a third-party package from memory. A newcomer follows an
-onboarding guide literally, so a wrong or look-alike package name in one is an
+Prefer a server that is already configured, in the project's files, the person's
+settings or an enabled plugin: fixing its sign-in is one step, and a second server
+for the same source is one more thing to keep apart. Among new ones, prefer what
+the project's configuration already declares, because the team has agreed to it.
+Next comes the server or connector published by the vendor of the source. Do not
+name a third-party package from memory. A newcomer follows an onboarding guide
+literally, so a wrong or look-alike package name in one is an
 installation waiting to happen. If the right one is not known, write "ask the team
 which integration is approved".
 
@@ -292,6 +342,39 @@ newer source agrees. Look out for three things while reading:
 When nothing is connected, the guide is still complete as a document. This section
 lists the sources, the traces that revealed them and what to ask for.
 
+### How it got here
+
+A newcomer also needs to know what was done before. Much of a project that looks
+odd on first reading is the remainder of an earlier decision: a second ingestion
+path left over from a migration, a directory kept for one client, a retry limit
+set after an incident. Without that history the reader either "fixes" something
+that was deliberate or proposes an approach the team already tried and reverted.
+
+Write a short history from the sources in the agreed plan only: the repositories'
+history, past epics and tickets, release notes and changelogs, decision records and
+docs, and chat history only for channels the person named. The repositories give
+the skeleton:
+
+```bash
+git tag --sort=creatordate --format='%(creatordate:short) %(refname:short)'
+git log --reverse --format='%ad %h %s' --date=short | head -5
+git log --diff-filter=D --name-only --format= | cut -d/ -f1-2 | sort | uniq -c | sort -rn | head -15
+git log -i --grep='^revert' --format='%ad %h %s' --date=short | head -20
+```
+
+These show the releases, when the project started, which areas were removed and
+what was tried and undone. Closed epics, release notes, changelogs and decision
+records then say what each step was for. Keep it to the five to ten milestones that
+explain the current state, each dated and with its source, and link to the longer
+records instead of retelling them.
+
+Where the reason for a change is not recorded in any of these, write that it is not
+recorded and add it to the open questions. Where no history source was available
+at all, for example a shallow clone and no tracker access, say so in one line
+instead of reconstructing a history from the code's current shape. A plausible
+story about why the project was split in two is exactly what a newcomer repeats as
+fact.
+
 ### What is happening now
 
 A newcomer joins a project in motion, and the first conversations will assume they
@@ -304,47 +387,41 @@ history alone and say so.
 
 ## Match skills to the work
 
-A list of every available skill is a catalog, and a newcomer handed one uses none
-of them. The guide instead starts from the tasks the survey found recurring in this
-project (adding a model, fixing a failed run, opening a pull request, updating the
-ticket) and names, for each, the skill that covers it and how it is called.
+A list of every available skill is an inventory, and a newcomer handed one uses
+none of them. The guide instead starts from the tasks the survey found recurring
+in this project (adding a model, fixing a failed run, opening a pull request,
+updating the ticket) and names, for each, the skill that covers it and how it is
+called.
 
-Skills come from three places, and the guide says which:
+Skills come from two places, and the guide says which:
 
 - **Installed in the project.** Read the project's skill directories for the agent
-  in use (`.claude/skills`, `.cursor/skills` and the like), the project's own
-  commands and rules files, and `.accelerator/registry.json` if it exists, which
-  records the skills the Accelerator installed. Read each candidate's description,
-  and its body where the description leaves it unclear what it does. A directory
-  name does not tell you that.
-- **In the Accelerator catalog but not installed.** `.accelerator/profile.json`
-  records the stack and what the team chose. Compare the catalog's `index.json`, at
-  the version the profile pins, with the stack the survey found: an entry whose
-  `applies_to` matches and whose card covers a recurring task is a candidate. Take
-  ids and descriptions from the index as read, not from memory, since the catalog
-  changes between versions. Recommend only entries in a released version; a skill
-  still in review is not something the reader can install. If the index is not
-  available, say so and point to the Accelerator setup. Do not list skills that may
-  not exist.
-- **Personal to the reader:** skills and plugins in their own agent setup.
+  in use (`.claude/skills`, `.cursor/skills` and the like) and the project's own
+  commands and rules files. Read each candidate's description, and its body where
+  the description leaves it unclear what it does. A directory name does not tell
+  you that.
+- **Personal to the reader:** skills in their own agent setup, including those
+  that come with the plugins they have enabled.
 
-When a project skill and a catalog skill cover the same task, recommend the
+Recommend only skills found in one of these. Do not list skills that may exist
+somewhere else.
+
+When a project skill and a personal skill cover the same task, recommend the
 project's. It encodes this repository's rules and the team already relies on it; a
-general skill beside it gives the reader two sets of advice to reconcile. Recommend
-a catalog skill only for a task no project skill covers.
+general skill beside it gives the reader two sets of advice to reconcile.
 
-Project and personal skills are decided by different people. Adding a
-project-scope skill changes what the whole team and CI get, so the guide records it
-as a suggestion for whoever maintains the selection, with the task it would cover.
-A user-scope skill, such as one that drafts a standup update, is the reader's own
-choice and can go straight into their checklist.
+Where a recurring task has no skill, say so in a line: it is a gap for the team to
+consider, not something the guide fills by naming a skill from memory.
 
-Check two more things about each recommended skill. If it declares requirements, a
+Do not mention the Accelerator anywhere in the guide: not as a source of skills,
+not as a setup step, not as a link or a description of how the skills arrived.
+The reader already knows it, and the guide is about this project; a paragraph on
+the tooling around it tells them nothing they need here and pushes the project
+facts further down.
+
+Check one more thing about each recommended skill. If it declares requirements, a
 CLI or an access grant, and the reader lacks one, that becomes a setup item. A
-skill recommended without it fails on first use and is not tried again. And if
-installed skills carry no `Project context` section, project adaptation has not
-been run. Note that for the team, because generic skills are noticeably less useful
-to someone who does not yet know the local paths.
+skill recommended without it fails on first use and is not tried again.
 
 ## Assemble the guide
 
@@ -367,6 +444,10 @@ Sources read: <the agreed plan>.
 ## What this is
 Two or three sentences: what the system does and for whom.
 
+## How it got here
+Five to ten dated milestones that explain the current state, each with its
+source, or one line saying no history source was available.
+
 ## What is happening now
 Dated: epics in progress, recent merges, blockers, what is due.
 
@@ -386,7 +467,7 @@ How work moves: ticket, branch name, pull request, review, release.
 | Source | What it holds | Seen in | Agent access | To connect |
 
 ## Skills for this project
-| When you... | Use | From (project, catalog, personal) | Needs |
+| When you... | Use | From (project, personal) | Needs |
 
 ## Checklist
 ## Open questions
@@ -490,13 +571,15 @@ mark as a defect in the guide or, more often, in the project's own documentation
 - The shared-code table came from counting references, and each row has a call
   site.
 - Each external source lists the trace that revealed it and one of the three
-  access states.
+  access states. MCP servers were looked for in every place they can be declared,
+  enabled plugins included, and no token or header value was copied.
+- The history comes only from sources in the plan, each milestone has a date and a
+  source, and a missing reason or a missing history source is stated, not guessed.
 - Proposed connections are read-only, name no unverified package, and are left for
   the reader or their lead to set up.
-- Every recommended skill exists where the guide says it does and is tied to a
-  task; project skills come before catalog skills for the same task, catalog skills
-  are from a released version, and project-scope additions are suggestions, not
-  actions.
+- Every recommended skill exists in the project or the reader's setup and is tied
+  to a task; project skills come before personal ones for the same task.
+- The guide does not mention the Accelerator.
 - Conflicts between sources, dead links and advice to send data to public tools are
   in the open questions, not in the checklist.
 - Checklist items are actions with a visible result, in dependency order.
