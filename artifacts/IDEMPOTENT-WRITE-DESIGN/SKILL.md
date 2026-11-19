@@ -257,14 +257,21 @@ error.
 - `materialized='incremental'` with no strategy and no `unique_key` appends on
   most adapters. Declare the strategy, and for `merge` the `unique_key`, and
   check that the key is unique in each batch.
-- `insert_overwrite` (BigQuery, Spark, Databricks) and `delete+insert` replace
-  the unit and are the overwrite pattern above. Read the compiled statements in
-  `target/run/` to see whether the adapter wraps them in a transaction on your
-  warehouse, rather than assuming it.
+- `insert_overwrite` (BigQuery, Spark, Databricks) replaces the unit and is the
+  overwrite pattern above. `delete+insert` is that pattern only when its
+  `unique_key` is the unit column, such as the day: dbt deletes the target rows
+  whose key appears in the new batch, so with a row id as the key, a row removed
+  from the source for that day is never deleted and stays, as with `merge`.
+  Without a `unique_key` it deletes nothing and only inserts. Read the compiled
+  statements in `target/run/` to see what is deleted and whether the adapter
+  wraps it in a transaction on your warehouse, rather than assuming it.
 - `microbatch` (dbt 1.9 and later) makes the unit explicit: each batch of the
-  model's `event_time` is replaced as one atomic unit with the adapter's
-  replacement mechanism, can be retried on its own with `dbt retry`, and is
-  backfilled with `--event-time-start` and `--event-time-end`.
+  model's `event_time` is written on its own, can be retried on its own with
+  `dbt retry`, and is backfilled with `--event-time-start` and
+  `--event-time-end`. How a batch is written depends on the adapter: on
+  dbt-postgres it is a merge on the `unique_key`, so a batch is not replaced and
+  rows removed from the source stay. Check the compiled statement before
+  relying on a batch being replaced.
 - `{{ run_started_at }}` and `current_timestamp` in a key or filter are the clock
   problem above.
 
