@@ -1,6 +1,6 @@
 ---
 name: airflow-run-failure-diagnosis
-description: Diagnosing an Airflow DAG run that failed, is stuck, or never started - reading the task state and the task log first, telling a bug in the task from a scheduler, worker or capacity problem, and re-running by clearing task instances only once the task is safe to repeat. Use when an Airflow task failed, sits in queued or scheduled, was killed without an error, or a DAG did not run when it should have.
+description: Diagnosing an Airflow DAG run that failed, is stuck, or never started - reading the task state and the task log first, telling a bug in the task from a scheduler, worker or capacity problem, and re-running by clearing task instances only once the task is safe to repeat. Use when an Airflow task failed, hangs in running, sits in queued or scheduled, was killed without an error, or a DAG did not run when it should have.
 ---
 
 # Diagnosing a failed or stuck Airflow run
@@ -33,6 +33,8 @@ view shows it per task and try; `airflow tasks states-for-dag-run <dag_id>
 | State | What it means | Where the cause is |
 |---|---|---|
 | `failed`, `up_for_retry` | The task ran and ended in an error, or was killed while running | The task log, then the worker if the log has no exception |
+| `running` far longer than usual | The task is alive and its heartbeat continues, but it is waiting on something | The task log's last lines, then what it waits on: a lock, a remote job, a hung connection. Without `execution_timeout` nothing ever fails it |
+| `up_for_reschedule` | A sensor in reschedule mode between pokes; it holds no slot | The sensor's condition and its `timeout`, not capacity |
 | `upstream_failed` | Never ran, because a task it depends on failed | The first failed task upstream, not this one |
 | `skipped` | Skipped by a branch, a short-circuit, or a skipped upstream under the default trigger rule | The branch decision and the trigger rules, below |
 | `scheduled` for a long time | Waiting for a slot | Pools and concurrency limits |
@@ -73,9 +75,10 @@ fail by itself. The signs:
   code Negsignal.SIGKILL" or return code -9. On 3.x the supervisor process
   outlives the task and logs "Process terminated by signal" with SIGKILL; from
   3.1 the line adds that it was likely out of memory. If the whole pod was
-  killed, the log simply
-  stops. A SIGKILL is nearly always the worker or pod hitting its memory limit,
-  and the code that ran out of memory is in the last lines before it.
+  killed, the supervisor dies with the task and may log nothing; the pod's
+  last state (`OOMKilled`, exit code 137) is the evidence, not the log. A
+  SIGKILL is nearly always the worker or pod hitting its memory limit, and the
+  code that ran out of memory is in the last lines before it.
 - **The scheduler marked the task failed.** The scheduler log carries a
   message asking whether the task was killed externally, because the executor
   reported the task finished while Airflow still had it as queued or running.
@@ -103,9 +106,15 @@ not keep instead of concluding from their absence.
 A timeout looks like an error but has its own cause. `AirflowTaskTimeout` means
 the task ran longer than its `execution_timeout`; the question is why it was
 slower than usual (more data, a lock in the target, a slow source), and raising
-the timeout only hides that. A whole run marked failed, with every task that
-had not finished set to `skipped` and "has timed-out" in the scheduler log,
-hit its `dagrun_timeout`. Those skipped tasks are not a branching problem.
+the timeout only hides that. The opposite case is worse: a task with no
+`execution_timeout` that hangs keeps its heartbeat, because the heartbeat
+comes from the process that supervises the task rather than from its code, so
+Airflow never fails it and it holds its slot until someone notices. That is
+the reason to set `execution_timeout` even where nobody expects it to fire.
+
+A whole run marked failed, with every task that had not finished set to
+`skipped` and "has timed-out" in the scheduler log, hit its `dagrun_timeout`.
+Those skipped tasks are not a branching problem.
 
 ## Tasks that wait and never run
 
@@ -121,9 +130,9 @@ limits at once, and any one of them can be the full one:
 
 Before blaming any of them, look at what is holding the slots. Sensors in the
 default `poke` mode hold a worker slot, and with it a pool slot and a
-`parallelism` slot, for their whole wait, so a handful of
-long-waiting sensors can starve every other task in a small deployment;
-`mode="reschedule"` or a deferrable sensor releases the slot between checks.
+`parallelism` slot, for their whole wait, so a handful of long-waiting sensors
+can starve every other task in a small deployment; `mode="reschedule"` or a
+deferrable sensor releases the slot between checks.
 
 A task in `queued` has passed those limits and been handed to the executor, and
 no worker has started it. The executor runs inside the scheduler, so read the
@@ -131,9 +140,10 @@ scheduler log first: an error sending the task to the broker, or creating its
 pod on the Kubernetes executor, is logged there. If the scheduler handed the
 task off cleanly, the cause is on the worker side: Celery workers down or not
 consuming the queue the task was sent to, the broker unreachable, or a task pod
-that is `Pending` because the cluster has no room or cannot pull the image. After `task_queued_timeout` (ten minutes by default) the
-scheduler gives up on a queued task and fails or retries it, so a task that
-"failed" with an empty log after exactly that long was never started.
+that is `Pending` because the cluster has no room or cannot pull the image.
+After `task_queued_timeout` (ten minutes by default) the scheduler gives up on
+a queued task and fails or retries it, so a task that "failed" with an empty
+log after exactly that long was never started.
 
 A task in `deferred` that never resumes is waiting on the triggerer. If the
 triggerer is not running, or is overloaded, deferrable operators wait
@@ -144,9 +154,11 @@ indefinitely and nothing in the task's own log explains it.
 When the run itself is missing, the cause is upstream of every task, in how the
 scheduler reads the DAG:
 
-- **The DAG does not import.** An import error removes the DAG, or its latest
-  version, from scheduling. `airflow dags list-import-errors` lists them, and so
-  does the banner in the UI. The fix is in the DAG file, usually work done at
+- **The DAG does not import.** On 2.x and 3.x alike the scheduler creates no
+  runs for a DAG whose file has an import error, including a DAG that parsed
+  before and broke since; it does not keep scheduling the old version.
+  `airflow dags list-import-errors` lists the errors, and so does the banner in
+  the UI. The fix is in the DAG file, usually work done at
   import time; see [airflow-dag-structure](../AIRFLOW-DAG-STRUCTURE/SKILL.md).
 - **The DAG is paused.** New DAGs start paused unless the deployment changed
   `dags_are_paused_at_creation`.
@@ -188,6 +200,14 @@ logical date (on 3.x it may have none at all), so the templated values change:
 it writes a different partition, writes the current one twice, or fails on a
 missing template value. Clearing only the failed tasks also leaves the tasks
 that already succeeded alone.
+
+Clear by run id, not by date range. `airflow tasks clear` selects task
+instances only by a date range and a task regex, and on 3.x a manual run may
+have no logical date to select it by. The REST API's
+`POST /dags/{dag_id}/clearTaskInstances` (under `/api/v1` on 2.x, `/api/v2` on
+3.x) takes `dag_run_id`, `task_ids`, `include_downstream` and `only_failed`,
+and with `dry_run: true`, the default, it only lists the task instances it
+would clear. Show that list with the proposal.
 
 Check which code the cleared task will run. On 2.x, and on bundles without
 versioning such as the default `LocalDagBundle`, it is the current code. On a
