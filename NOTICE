@@ -444,7 +444,9 @@ effects, concurrent runs of one window, applications to dbt, Airflow and Spark,
 three run-twice tests including a failure mid-write, a row-level comparison with
 multiplicity, and a table for reading the result. Engine statements were checked
 against the BigQuery, Snowflake, Apache Spark, PostgreSQL and dbt documentation,
-and the PostgreSQL queries were run on PostgreSQL 17.
+and the claims that can be run locally were run on PostgreSQL 17, DuckDB 1.4,
+Apache Spark 4.0 and Delta Lake 4.0, including the Spark checksum overflow and
+the MERGE behaviour on duplicate keys.
 
 Artifacts derived from this source:
 

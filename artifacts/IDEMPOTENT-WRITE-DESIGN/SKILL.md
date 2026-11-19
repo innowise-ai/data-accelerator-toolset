@@ -145,12 +145,20 @@ USING (
     WHERE rn = 1
 ) s
 ON t.order_id = s.order_id
-WHEN MATCHED THEN UPDATE SET
+WHEN MATCHED AND s.updated_at >= t.updated_at THEN UPDATE SET
     customer_id = s.customer_id, amount = s.amount,
     status = s.status, updated_at = s.updated_at
 WHEN NOT MATCHED THEN INSERT (order_id, customer_id, amount, status, updated_at)
     VALUES (s.order_id, s.customer_id, s.amount, s.status, s.updated_at);
 ```
+
+The condition on `WHEN MATCHED` is what makes the merge safe to replay out of
+order. Without it, re-running an older window after a newer one finds the rows
+the newer run updated and writes the older versions back over them, so the third
+run-twice test below fails, and a backfill is exactly that sequence. With `>=`
+rather than `>`, a re-run at the same timestamp still rewrites the row to the
+tiebreaker's winner. This is the same late-arriving-row problem that
+[dbt-incremental-strategy](../DBT-INCREMENTAL-STRATEGY/SKILL.md) discusses.
 
 The deduplication is not decoration. When two input rows carry a key that is
 already in the target, BigQuery, PostgreSQL and Delta Lake stop the `MERGE` with
@@ -242,11 +250,16 @@ rows twice, even though each run on its own is idempotent. A merge has the same
 race: both runs see the key as missing and both insert it.
 
 Serialise runs of the same unit rather than trying to make concurrent writes
-safe. In Airflow, `max_active_runs=1` on the DAG (or a pool of size one for the
-task) keeps a manual run from overlapping the scheduled one. On Databricks,
-`max_concurrent_runs` does the same for a job. In PostgreSQL,
+safe. In Airflow, `max_active_runs=1` on the DAG keeps a manual run from
+overlapping the scheduled one, but not an Airflow 3 backfill, whose own
+`--max-active-runs` applies independently of the DAG's; a pool of size one for
+the task covers both, since every task instance goes through the pool. On
+Databricks, `max_concurrent_runs` does the same for a job. In PostgreSQL,
 `SELECT pg_advisory_xact_lock(hashtext('fct_orders'))` at the start of the
-transaction makes a second run wait for the first. Where the engine enforces a
+transaction makes a second run wait for the first. That serialises every run of
+the table; hashing the table name together with the window start, as in
+`hashtext('fct_orders:' || :window_start)`, serialises only runs of the same
+unit and lets different windows load in parallel. Where the engine enforces a
 unique constraint on the key, keep it as a backstop that turns a race into an
 error.
 
@@ -257,8 +270,13 @@ error.
 - `materialized='incremental'` with no strategy and no `unique_key` appends on
   most adapters. Declare the strategy, and for `merge` the `unique_key`, and
   check that the key is unique in each batch.
-- `insert_overwrite` (BigQuery, Spark, Databricks) replaces the unit and is the
-  overwrite pattern above. `delete+insert` is that pattern only when its
+- `insert_overwrite` (BigQuery, Spark, Databricks) replaces each partition
+  present in the batch, so it is the overwrite pattern above when the unit is
+  one or more whole partitions. A window narrower than the partition replaces
+  the whole partition with the window's rows; a partition with no rows left in
+  the source is not in the batch and is not replaced (static `partitions` on
+  BigQuery avoids that); and on Spark and Databricks without `partition_by` it
+  replaces the whole table. `delete+insert` is that pattern only when its
   `unique_key` is the unit column, such as the day: dbt deletes the target rows
   whose key appears in the new batch, so with a row id as the key, a row removed
   from the source for that day is never deleted and stays, as with `merge`.

@@ -167,6 +167,7 @@ HAVING count(*) > 1;
 |---|---|---|---|
 | Same | Same | None | The re-run changed nothing in this window |
 | Higher | Different | Found | The write appends; replace the append with overwrite or merge |
+| Higher | Different | None | Rows were added under new keys: a moving input, or a delete narrower than the insert |
 | Same | Different | None | Values changed: non-determinism, a moving input, or an unrounded float |
 | Lower | Different | None | The re-run lost rows: a delete wider than the insert, or a failed non-atomic overwrite |
 | Same | Same | Found | The re-run changed nothing, but the window was already duplicated before it; find the earlier run or path that wrote twice |
