@@ -48,10 +48,10 @@ Planning is read-only: reading code, orchestration, lineage and the current
 state of the tables. The run itself rewrites production history, so do not
 start it without the user's go-ahead on the written plan, even when the request
 says "backfill prod": the request names the goal, and the plan is what the user
-has not seen yet. The dry run is different. Run it into a scratch schema or a
-clone before presenting the plan, without asking separately, so the plan carries
-measured numbers instead of predictions; it needs no more than the user's usual
-permission to build there. Never point the dry run at a production table.
+has not seen yet. The plan therefore carries predicted numbers, and its first
+approved step is the one-unit dry run into a scratch schema or a clone, never a
+production table. Report the measured numbers from that unit and wait for the
+go-ahead again before the full run when they differ from the prediction.
 
 ## First: say what the backfill is for
 
@@ -137,9 +137,14 @@ names them.
 
 ## Snapshot before you write
 
-Take a copy of every target's window, or of the whole table when it is small,
-before the first write. It is the rollback, and it is the "before" side of the
-reconciliation. Without it, the only way to answer "what did this number used to
+Take a copy of every target's window plus one unit on each side of it, or of the
+whole table when it is small, before the first write. It is the rollback, and it
+is the "before" side of the reconciliation, whose first question compares the
+units just outside the window, so a copy of the window alone cannot answer it.
+Time travel, clones and table versions cover the whole table; a copy you make
+yourself has to include those neighbours, and when the table is too large for
+even that, record the row count and checksum of every unit in the table before
+the first write as the baseline. Without it, the only way to answer "what did this number used to
 be?" is a report someone exported.
 
 - **Snowflake**: a zero-copy `CREATE TABLE ... CLONE`, or `AT (TIMESTAMP => ...)`
@@ -150,7 +155,7 @@ be?" is a report someone exported.
   (Delta) or a rollback to the snapshot (Iceberg) returns to it, as long as
   `VACUUM` or snapshot expiry has not removed the files.
 - **PostgreSQL and others without time travel**: `CREATE TABLE ... AS SELECT` of
-  the window into a backup schema.
+  the window and one unit either side into a backup schema.
 
 Record where the snapshot is and when it can be dropped.
 
@@ -252,8 +257,12 @@ logic produced this history?".
   {% endif %}
   ```
 
-  With `delete+insert` or `insert_overwrite`, the window is replaced; with
-  `merge`, rows removed from the source for that window stay in the target.
+  With `insert_overwrite`, or `delete+insert` whose `unique_key` is the window
+  column (the day), the window is replaced. dbt's `delete+insert` deletes only
+  target rows whose key appears in the new batch, so keyed on a row id it
+  behaves like `merge`: rows removed from the source for that window stay in the
+  target. Even keyed on the day, a day with no rows left in the source is not
+  deleted. `incremental_predicates` only narrow that delete and do not help.
 - **Downstream**: `dbt run --select <model>+` after a windowed run of the base
   model rebuilds the `table` and `view` models below it, but an incremental mart
   whose filter reads only rows newer than its own maximum picks up nothing, and
@@ -269,9 +278,10 @@ logic produced this history?".
   processes 2026-03-01.
 - **Airflow 3**: `airflow backfill create --dag-id <dag> --from-date 2026-03-01
   --to-date 2026-05-31` creates the runs, which the scheduler then executes like
-  any other; the same is available from the UI. `--dry-run` lists the dates
-  without creating anything. `--max-active-runs` bounds how many backfill runs
-  run at once, independently of the DAG's own `max_active_runs`, so it does not
+  any other. `--to-date` is inclusive, unlike dbt's `--event-time-end`, so the
+  same three months end on 05-31 here and on 06-01 there. The same is available
+  from the UI. `--dry-run` lists the dates without creating anything.
+  `--max-active-runs` bounds how many backfill runs run at once, independently of the DAG's own `max_active_runs`, so it does not
   stop a scheduled run from overlapping a backfill run.
 - **Dates that already have a run are skipped by default.** `--reprocess-behavior`
   is `none` unless set, which creates runs only for missing dates: a logic-fix
@@ -314,7 +324,8 @@ When the last unit is done, compare the snapshot with the result, window by
 window and target by target. Three questions, in this order:
 
 1. **Did anything outside the window change?** Row counts and checksums of the
-   partitions just before and after the window must be identical to the snapshot.
+   units just before and after the window must be identical to the snapshot or
+   the recorded baseline.
    A difference here is a write that reached past its window, and is a defect
    whatever else is true.
 2. **Did the window change as predicted?** Compare row counts and checksums per
@@ -362,9 +373,12 @@ The plan, before the run:
 - whether the input still covers the window and still means the same, and what
   was done where it does not;
 - the window, the unit, the targets and the downstream models to rebuild;
-- the snapshot, the dry-run result for one unit, the parallelism and compute,
-  the pinned commit, and how the schedule is held;
+- the snapshot, which unit the dry run will use and what it should show, the
+  parallelism and compute, the pinned commit, and how the schedule is held;
 - the command or the runs that will execute it, for the user to approve.
+
+After the dry run: the measured duration, counts and checksums for that unit,
+compared with the prediction, before the full run starts.
 
 After the run:
 
