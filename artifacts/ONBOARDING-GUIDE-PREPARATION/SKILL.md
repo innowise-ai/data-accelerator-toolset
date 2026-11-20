@@ -175,7 +175,8 @@ git branch -r --sort=-committerdate | head -20
 ```
 
 Who works in each area is worked out separately for the knowledge base, because a
-raw count of commits misleads; see [Who to ask about what](#who-to-ask-about-what).
+raw count of commits misleads; see
+[references/who-to-ask.md](references/who-to-ask.md).
 
 The same care as anywhere else applies to configuration: `.env`, `profiles.yml`,
 `airflow.cfg` and connection settings can hold credentials. Read them for the keys
@@ -259,74 +260,21 @@ For each source, establish which of three states it is in:
 - **Connected:** the agent already has a tool for it in this session. Whether a
   read-only call works is checked only for sources in the agreed plan.
 - **Configured, not working for this person:** a server for it is declared
-  somewhere the agent loads from (see below), but this user has not signed in, has
-  not approved it, or it fails to connect. Record where it is declared, because
+  somewhere the agent loads from (see the reference below), but this user has
+  not signed in, has not approved it, or it fails to connect. Record where it is declared, because
   that decides who fixes it: the team for the project's file, the reader for their
   own settings, the plugin's owner for a plugin.
 - **Not set up:** no server for it is declared anywhere.
 
-#### Finding every configured MCP server
-
-The project's own files show only part of what the agent can connect to. A server
-installed through a plugin lives in that plugin's directory, and a connector added
-to the person's account lives in the account, so neither appears in the
-repository's `.mcp.json` or settings. A survey that reads only the project's files
-marks such a source "not set up" while the reader already has a working server for
-it, and the guide then proposes installing a second one beside it: two servers for
-the same tracker, possibly with different access. So look in every place a server
-can be declared. For Claude Code these are:
-
-- **Project scope:** `.mcp.json` at the repository root, and in
-  `.claude/settings.json` and `.claude/settings.local.json` which of its servers
-  are approved or disabled (`enableAllProjectMcpServers`, `enabledMcpjsonServers`,
-  `disabledMcpjsonServers`). An unapproved server is configured but not connected.
-- **User and local scope:** `~/.claude.json`, where `mcpServers` at the top level
-  is the user scope and `projects["<path>"].mcpServers` is the local scope for this
-  repository only. `~/.claude/settings.json` holds the user's approvals.
-- **Plugins:** the plugins enabled in `enabledPlugins` in any of the three settings
-  files above. Look each up in `~/.claude/plugins/installed_plugins.json`, which
-  gives its install path, and read the `.mcp.json` at that path or the
-  `mcpServers` entry in its `.claude-plugin/plugin.json`, which is either the
-  servers themselves or a path to a file holding them. Read the installed path
-  only: the plugin cache keeps old versions beside it, and their servers are not
-  loaded. A plugin that is installed but not enabled contributes nothing.
-- **Managed settings** an administrator deploys, such as `managed-mcp.json`, which
-  the person cannot change and the guide reports as fixed.
-
-If `CLAUDE_CONFIG_DIR` is set, the user-level files are there instead of in
-`~/.claude`. Where the CLI is available, `claude mcp list` gives the merged result
-of all of these, plus account connectors, with each server's status. It starts each
-approved server to check its health, so run it with the person's agreement, and
-use it to confirm the file survey rather than replace it: it does not say where a
-server was declared. Other agents have the same layers under their own names, such
-as `.cursor/mcp.json` and `~/.cursor/mcp.json`, `.codex/config.toml` and
-`~/.codex/config.toml`, and `.vscode/mcp.json`.
-
-These files often hold tokens in `env` or `headers`. Read the server names, types,
-commands and URLs; never print or copy the values of environment variables or
-headers.
-
-For the second and third states, the guide proposes the connection. State what it
-would give, in terms of this project: "with the tracker connected, the agent can
-read the ticket behind a branch and the acceptance criteria before a change". Name
-the least access that achieves it, which for onboarding is read-only: browse the
-project, read pages. Then say how the connection is made for the agent in use, an
-MCP server or a connector, depending on the agent.
-
-Prefer a server that is already configured, in the project's files, the person's
-settings or an enabled plugin: fixing its sign-in is one step, and a second server
-for the same source is one more thing to keep apart. Among new ones, prefer what
-the project's configuration already declares, because the team has agreed to it.
-Next comes the server or connector published by the vendor of the source. Do not
-name a third-party package from memory. A newcomer follows an onboarding guide
-literally, so a wrong or look-alike package name in one is an
-installation waiting to happen. If the right one is not known, write "ask the team
-which integration is approved".
-
-Setting it up is the reader's action, sometimes their lead's. Tokens are personal,
-and on client projects whether a tracker or wiki may be connected to an agent at
-all is a decision somebody has already made or needs to make. Put that question in
-the guide where it is open.
+Before marking any source "not set up", and before the guide proposes a
+connection, read [references/mcp-connections.md](references/mcp-connections.md).
+The project's own files show only part of what the agent can connect to: servers
+that come with a plugin or the person's account appear in none of them, and a
+survey that reads only those files ends up proposing a second server beside a
+working one. The reference lists every place a server can be declared, how to
+read them without copying a token, and how to propose a connection: the least
+access, an existing server first, no package named from memory, and the setup
+left to the reader or their lead.
 
 When a source is connected and in the agreed plan, read from it and write nothing.
 For onboarding the useful reads are few:
@@ -371,182 +319,30 @@ answers a question, the section says so in one line and the question goes to the
 gaps. A knowledge base that fills a gap with a guess is trusted exactly as much as
 one that does not, which is the problem with it.
 
-### What the project is for
+How to build each section, the template and how the knowledge base is kept
+current are in [references/knowledge-base.md](references/knowledge-base.md). Read
+it before drafting this part, and before refreshing a knowledge base that already
+exists. The sections, and why each is there:
 
-State the goal in two or three sentences: what the system does, for whom, and how
-success is judged if a source says so. Take it from what was written for that
-purpose: the opening of the README, a project charter or vision page, the
-description of the tracker project or its top-level epics, the wiki space's home
-page. Paraphrase closely and cite. Do not derive the goal from the code. Code
-shows what the system does, not what it is for: a pipeline that loads twelve
-sources does not say which of them the business depends on. Where sources
-disagree, such as a README that still describes the pilot's scope, give both with
-their dates.
-
-### How it is built
-
-List the main modules: the repositories, and inside each the components a change
-would be made in, such as a dbt project's layers, the DAG folder, a service or a
-shared library. For each, give its path, one sentence on what it does, and what it
-connects to and how, as found in [How the repositories fit
-together](#how-the-repositories-fit-together). A text diagram helps once there are
-more than four or five.
-
-The build and dependency files are the most reliable source here: workspace and
-package manifests, `dbt_project.yml` and `packages.yml`, Compose services,
-infrastructure code, CI jobs. They say what is actually built and wired together.
-Architecture documents and diagrams say why, and are more often out of date. The
-layout and the import graph fill in the rest. Mark each statement as documented,
-with the document, or inferred from code, with the paths it was inferred from. The
-reader needs the difference: a documented boundary is one the team agreed to,
-while an inferred one may be an accident the team is about to fix. Where a diagram
-and the build files disagree, give both and add the conflict to the gaps.
-
-### Who to ask about what
-
-What a newcomer cannot find by reading is who knows a part of the system. The
-repository's history gives a good first answer: the people who changed an area most
-in recent months are usually the ones who can explain it. It is a first answer, not
-ownership, which is why the section is written as "who to ask about X" and not as
-"owner".
-
-Work it out for each module from [How it is built](#how-it-is-built), over a
-recent window: six months by default, or since the module last changed shape if
-that is shorter. A window keeps the people who left two years ago from heading the
-list.
-
-```bash
-# commits per person in the window, merge commits excluded
-git shortlog -sn --no-merges --since='6 months ago' HEAD -- <module path>
-# each person's latest change in the window (log is newest first)
-git log --no-merges --since='6 months ago' --format='%an|%ad' --date=short -- <module path> \
-  | awk -F'|' '!seen[$1]++'
-# who started the module, often the one who knows why it is shaped this way
-git log --reverse --no-merges --format='%ad %an' --date=short -- <module path> | head -3
-```
-
-Then correct for what the counts get wrong, and say in the section which
-corrections were made:
-
-- **Merges and squashes.** `--no-merges` drops merge commits, whose author is
-  whoever merged. Count authors (`%an`), not committers: with squash or rebase
-  merging the committer is the code host or the person who pressed the button.
-  Where the team lands other people's work, `Co-authored-by` trailers name the
-  rest.
-- **Bots.** Dependency updaters, release and formatting bots and CI accounts commit
-  often and can answer nothing. Leave out authors whose names end in `[bot]` or
-  that are plainly automation.
-- **Mass changes.** One commit that reformats, renames or moves a whole module
-  makes its author look like the module's expert. If the repository has
-  `.git-blame-ignore-revs`, leave out the commits it lists. Otherwise look at the
-  largest commits in the window (`git log --no-merges --since='6 months ago'
-  --shortstat --format='%h %an %s' -- <module path>`) and leave out those that only
-  reformat, rename or move, naming them.
-- **One person, several identities.** People commit under more than one name or
-  address. `git shortlog -sne HEAD` shows the addresses so the identities can be
-  merged, and `.mailmap` may already merge them. Use the addresses to merge, and
-  never copy them into the guide.
-- **People who have left.** History cannot tell who is still on the project. Give
-  each person's latest change in the window, so a name whose last commit was five
-  months ago reads as such, and have the lead confirm the table before it is
-  shared (see [Where the guide goes](#where-the-guide-goes)).
-- **A count is not expertise.** Twenty small fixes and one redesign are not
-  comparable, and someone who reviews every change to a module may know it best
-  with no commits in it. Where the code host is in the plan, add who reviewed the
-  merged pull requests that touched the module, for example from
-  `gh pr list --state merged --search 'merged:>=<date>' --json number,author,reviews,files`.
-
-`CODEOWNERS` is the team's own declaration and comes first where it exists. When it
-and the history disagree, show both: a `CODEOWNERS` file nobody has updated since
-the team changed is common, and worth reporting as a gap. A shallow clone has
-almost no history to count (`git rev-parse --is-shallow-repository` prints
-`true`); say so rather than ranking the few commits it holds.
-
-For each module, name two or three people with what to ask them about, taken from
-what their commits changed: "ask about the incremental models in
-`models/marts/finance/`", not "finance owner". Write names only. Above the table,
-state the window and what was left out, so the reader knows what the order means.
-
-### Decisions and where they landed
-
-A newcomer's most expensive mistake is undoing a decision they did not know about.
-List the decisions that shaped the current system, each with its date, where it is
-recorded and where it landed in the code, so the reader sees both the reason and
-the result. Look for them in:
-
-- decision records and design documents in the repositories (`docs/adr/`,
-  `docs/decisions/`, `rfcs/` and the like) and on the wiki pages in the plan;
-- merged pull requests whose descriptions argue for an approach, when the code
-  host is in the plan;
-- tickets and epics that record a choice, from the tracker project in the plan;
-- commits whose message records one:
-
-```bash
-git log --no-merges -i -E --grep='decid|instead of|switch(ed)? to|replac|migrat|deprecat' \
-  --format='%ad %h %s' --date=short | head -40
-```
-
-For each, link where it landed: the commit or pull request that carried it out and
-the path where it lives now. A record whose implementation cannot be found, or that
-the code now contradicts, stays in the list with that finding. Either the decision
-was reversed without a new record or it was never carried out, and only the team
-knows which. Give the status the record itself states, such as accepted or
-superseded, and do not judge whether the decision still holds.
-
-Keep each to one line and a link. The record holds the reasoning, and a summary
-that drops its rejected alternatives is how a rejected option gets proposed again.
-Where an important part of the design has no record at all, say so in the gaps.
-Writing that record is work for project-documentation, not something to
-reconstruct here.
-
-### Business rules, where documented
-
-How the project computes what the business cares about, such as what counts as an
-active customer, when revenue is recognised or how late-arriving data is treated,
-is what newcomers most need and most often get wrong. Include it only where it is
-written down: model and column descriptions, metric or semantic-layer definitions,
-a glossary, wiki pages, the acceptance criteria of tickets in the plan. Link each
-with a one-line summary.
-
-Do not read a business rule out of the code and present it as the rule. The code
-shows what is computed; it cannot show whether that is what was intended. A
-newcomer told that "active means a login in the last 30 days" will defend it in
-review, even where that line is the bug. Where a rule exists only in code, write
-"only in code: `<path>`; the intended rule is not documented" and add it to the
-gaps. Where nothing is documented, one line says so.
-
-### How it got here
-
-A newcomer also needs to know what was done before. Much of a project that looks
-odd on first reading is the remainder of an earlier decision: a second ingestion
-path left over from a migration, a directory kept for one client, a retry limit
-set after an incident. Without that history the reader either "fixes" something
-that was deliberate or proposes an approach the team already tried and reverted.
-
-Write a short history from the sources in the agreed plan only: the repositories'
-history, past epics and tickets, release notes and changelogs, decision records and
-docs, and chat history only for channels the person named. The repositories give
-the skeleton:
-
-```bash
-git tag --sort=creatordate --format='%(creatordate:short) %(refname:short)'
-git log --reverse --format='%ad %h %s' --date=short | head -5
-git log --diff-filter=D --name-only --format= | cut -d/ -f1-2 | sort | uniq -c | sort -rn | head -15
-git log -i --grep='^revert' --format='%ad %h %s' --date=short | head -20
-```
-
-These show the releases, when the project started, which areas were removed and
-what was tried and undone. Closed epics, release notes, changelogs and decision
-records then say what each step was for. Keep it to the five to ten milestones that
-explain the current state, each dated and with its source, and link to the longer
-records instead of retelling them.
-
-Where the reason for a change is not recorded in any of these, write that it is not
-recorded and add it to the gaps. Where no history source was available
-at all, for example a shallow clone and no tracker access, say so in one line
-instead of reconstructing a history from the code's current shape. A plausible
-story about why the project was split in two is exactly what a newcomer repeats as
-fact.
+- **What the project is for**, from documents written for that purpose and never
+  derived from the code, which shows what the system does but not what it is for.
+- **How it is built:** the modules and how they connect, each statement marked
+  documented or inferred from code. A documented boundary is one the team agreed
+  to; an inferred one may be an accident they are about to fix.
+- **Who to ask about what**, from each module's recent git history. Read
+  [references/who-to-ask.md](references/who-to-ask.md) before naming anyone: a
+  raw count of commits puts bots, mergers and whoever reformatted a module at the
+  top, and the table sends every newcomer to the people it names.
+- **Decisions and where they landed**, each linked to its record and to the code
+  that carried it out, because a newcomer's most expensive mistake is undoing a
+  decision they did not know about.
+- **Business rules**, only where documented. Code shows what is computed, not
+  whether that is what was intended.
+- **How it got here:** five to ten dated milestones, because much of a project
+  that looks odd is the remainder of an earlier decision.
+- **Shared code to reuse, working here and where knowledge lives**, from the
+  survey above.
+- **Gaps:** what the project's own documentation lacks or contradicts.
 
 ## What is happening now
 
@@ -614,53 +410,8 @@ it conflicts with something. It earns a paragraph of its own only if it replaces
 something in the main sections. A guide that has doubled since the first draft has
 started copying its sources.
 
-The knowledge base:
-
-```markdown
-# <project>: project knowledge base
-Built on <date> from <repository>@<sha> (one per repository).
-Who-to-ask window: <since> to <date>.
-Sources read: <the part of the agreed plan the whole team can see>.
-Regenerate: on each newcomer's run, and after <structural changes>; see the
-dates above.
-
-## What the project is for
-Two or three sentences, each with its source, or one line saying no source
-states it.
-
-## How it is built
-Modules with their paths, what each does and how they connect (a text diagram
-if it helps). Each marked documented (<document>) or inferred (<paths>).
-
-## Who to ask about what
-Window, and what was left out (merges, bots, named mass changes).
-| Module | Path | Ask about | Who (latest change) | CODEOWNERS | Reviewers |
-
-## Decisions and where they landed
-| Decision | Date | Record | Landed in | Status |
-
-## Business rules
-Documented rules, each linked with a one-line summary; rules found only in code
-marked as such; or one line saying none are documented.
-
-## How it got here
-Five to ten dated milestones that explain the current state, each with its
-source, or one line saying no history source was available.
-
-## Shared code to reuse
-| Name | Path | Use it for | Example call |
-
-## Working here
-Setup, run, test: exact commands, working directory, source of each
-(CI file, Makefile), and whether it was run or only read.
-How work moves: ticket, branch name, pull request, review, release.
-
-## Where knowledge lives
-| Source | What it holds | Seen in |
-
-## Gaps
-What the sources do not say or contradict, each with what was found.
-```
+The knowledge base follows [the template in
+references/knowledge-base.md](references/knowledge-base.md#the-template).
 
 The reader's start:
 
@@ -780,20 +531,11 @@ this. The guide may recommend such a change and say who would make it.
 
 ## Keeping it true
 
-The two parts age at different rates, so they are kept differently.
-
-The knowledge base's header records the date, the commit of each repository and
-the who-to-ask window, so a reader can see how old it is before trusting it. On
-each newcomer's run, compare it with the repositories as they are now and propose
-changes to the sections that drifted, leaving the rest alone. Most of it still
-holds, which is what makes the second run cheap. "Who to ask about what" is the
-exception: it is relative to its window, so rebuild it every run with the window
-ending that day, and have the lead check it again. Between newcomers, regenerate "How it is built" and the decisions
-after a structural change: a module added or removed, a new decision record, a
-migration finished. Decisions are appended and marked superseded, never rewritten,
-for the same reason decision records are immutable.
-
-The reader's start is not kept. It is built again for the next person.
+The two parts age at different rates, so they are kept differently. The knowledge
+base is refreshed rather than rewritten on each newcomer's run, and its "Who to ask
+about what" is rebuilt every time; when and how is in [Keeping it
+current](references/knowledge-base.md#keeping-it-current). The reader's start is
+not kept. It is built again for the next person.
 
 An onboarding guide is the one document that gets a full test from an unbiased
 reader every time someone joins. Use that. Ask each newcomer to mark the checklist
