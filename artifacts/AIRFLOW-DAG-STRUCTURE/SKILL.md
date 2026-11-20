@@ -14,6 +14,9 @@ Where the two majors behave differently, the text says so. On 3.x the core opera
 import from `airflow.providers.standard.operators.*`; the old `airflow.operators.*`
 paths still import but raise a deprecation warning.
 
+For a DAG run that already failed, is stuck or never started, see
+[airflow-run-failure-diagnosis](../AIRFLOW-RUN-FAILURE-DIAGNOSIS/SKILL.md).
+
 ## The import-time rule
 
 **Nothing expensive at module level.** The scheduler re-parses each DAG file every

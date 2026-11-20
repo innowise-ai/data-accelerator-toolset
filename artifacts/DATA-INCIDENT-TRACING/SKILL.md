@@ -8,7 +8,9 @@ description: Investigating wrong data when the pipeline reported success - traci
 The pipeline is green and the numbers are wrong. That is a different problem from a
 failed run: nothing threw, so there is no stack trace and no failing task to start
 from. See [dbt-build-failure-diagnosis](../DBT-BUILD-FAILURE-DIAGNOSIS/SKILL.md) for the case where
-a build actually broke.
+a build actually broke, and
+[airflow-run-failure-diagnosis](../AIRFLOW-RUN-FAILURE-DIAGNOSIS/SKILL.md) for an Airflow run
+that failed or never ran.
 
 The symptoms this covers: a total that does not match the source, duplicate rows
 that were not there yesterday, records missing from an output, a status that never

@@ -79,6 +79,10 @@
   "Data engineering",
   "Airflow"
  ],
+ "AIRFLOW-RUN-FAILURE-DIAGNOSIS": [
+  "Data engineering",
+  "Airflow"
+ ],
  "POSTGRES-SOURCE-EXTRACTION": [
   "Data engineering",
   "PostgreSQL"
@@ -165,6 +169,14 @@
   ["Tableau", "Metrics"]
  ],
  "MEDALLION-LAYER-BOUNDARIES": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
+ "IDEMPOTENT-WRITE-DESIGN": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
+ "BACKFILL-PLANNING": [
   "Data engineering",
   "Pipelines, SQL and data safety"
  ],

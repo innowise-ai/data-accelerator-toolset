@@ -14,7 +14,9 @@ Diagnosis ends when you can explain every symptom. Not when the error stops
 appearing.
 
 For a dbt build that failed, see
-[dbt-build-failure-diagnosis](../DBT-BUILD-FAILURE-DIAGNOSIS/SKILL.md). For wrong data produced by a
+[dbt-build-failure-diagnosis](../DBT-BUILD-FAILURE-DIAGNOSIS/SKILL.md). For an Airflow run that
+failed, is stuck or never started, see
+[airflow-run-failure-diagnosis](../AIRFLOW-RUN-FAILURE-DIAGNOSIS/SKILL.md). For wrong data produced by a
 pipeline that reported success, see
 [data-incident-tracing](../DATA-INCIDENT-TRACING/SKILL.md). This covers the
 general case.

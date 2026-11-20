@@ -1,12 +1,12 @@
 # Skill catalog
 
 Human-readable index of every artifact in this catalog, generated from
-[`index.json`](../index.json) (`toolset_ref: refs/tags/v1.6.0`, schema version 2).
+[`index.json`](../index.json) (`toolset_ref: refs/tags/v1.6.1`, schema version 2).
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-79 artifacts today: 35 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow, connectors that feed pipelines,
-PostgreSQL extraction, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
+82 artifacts today: 38 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow, connectors that feed pipelines,
+PostgreSQL extraction, idempotent writes, backfills, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
 layering, job orchestration, streaming queries and metric definitions), 8 for Power BI, 8 for Tableau,
 5 for containers, local environments and Kubernetes, 2 for infrastructure as code, and 21
 general skills, three of them for Go modules and the rest for any stack. All are `on-demand` except
@@ -23,11 +23,13 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (35)
+## Data engineering (38)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
 | **Structure Airflow DAGs for safe, cheap imports** (`AIRFLOW-DAG-STRUCTURE`) | airflow | orchestration | Structures Airflow DAGs so nothing expensive or fragile runs at import time. |
+| **Diagnose a failed or stuck Airflow run before changing the DAG** (`AIRFLOW-RUN-FAILURE-DIAGNOSIS`) | airflow | debugging | Sorts a failed, stuck or missing Airflow run into a bug in the task or a scheduler, worker or capacity problem, from task states and logs, and says how to re-run it safely. |
+| **Plan and run a backfill that changes only what it should** (`BACKFILL-PLANNING`) | sql, python | orchestration, data-quality | Plans a backfill or replay of historical data so it rewrites only the intended window, can be paused, resumed and rolled back, and ends with a reconciliation of what changed and a notice to the people who read the numbers. |
 | **Keep a configuration form in step with the code that reads it** (`CONFIG-FORM-SCHEMA-ALIGNMENT`) | any | code-review | Checks that a component's config type, its JSON Schema and its UI schema describe the same fields, so a setting saved in the form is the setting that runs. |
 | **Harden a scheduled connector against silently dropped connections** (`CONNECTOR-CONNECTION-HARDENING`) | any | ingestion, code-review | Makes a connector that runs on a schedule survive connections that die while it is idle, and fail fast instead of hanging when they do. |
 | **Trace wrong data when the pipeline succeeded** (`DATA-INCIDENT-TRACING`) | any | debugging, data-quality | Traces wrong data back to the code that produced it when the pipeline reported success. |
@@ -45,6 +47,7 @@ one project gets.
 | **Refactor a dbt model and prove output is unchanged** (`DBT-MODEL-REFACTORING`) | dbt | refactoring | Restructures a dbt model while proving its output did not change. |
 | **Pick dbt schema tests for each column role** (`DBT-MODEL-TESTING`) | dbt | testing, data-quality | Picks dbt schema tests that catch real defects for each column role. |
 | **Split a monolithic ETL function into testable units** (`ETL-DECOMPOSITION`) | python | refactoring, orchestration | Splits a monolithic extract-transform-load function into testable units with I/O at the edges. |
+| **Make a pipeline write safe to re-run, and prove it** (`IDEMPOTENT-WRITE-DESIGN`) | sql, python | ingestion, orchestration, data-quality | Designs loads and transformations so that a retry, repair or backfill of the same window leaves the same result, and proves it by running the window twice. |
 | **Turn a requested metric into a definition that can be implemented twice** (`KPI-DEFINITION-BUILDING`) | any | data-modeling | Turns a metric requested in words into a specification precise enough that two independent implementations produce the same number. |
 | **Define what belongs in each medallion layer, on any platform** (`MEDALLION-LAYER-BOUNDARIES`) | any | data-modeling, ingestion | Sets what bronze, silver and gold each hold and must not hold, how data moves between them safely, and where quality checks sit, for Fabric, Databricks, plain Spark or dbt. |
 | **Reconcile migrated data with the legacy warehouse, column by column** (`MIGRATION-DATA-RECONCILIATION`) | any | data-quality | Compares data moved from a legacy warehouse (SAP BW, Teradata, Oracle) with its lakehouse copy, separates format differences from real ones, and reports only the real ones. |

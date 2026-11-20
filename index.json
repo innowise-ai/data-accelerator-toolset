@@ -1,6 +1,6 @@
 {
   "schema_version": "2",
-  "toolset_ref": "refs/tags/v1.6.0",
+  "toolset_ref": "refs/tags/v1.6.1",
   "vocabulary": {
     "languages": ["typescript", "javascript", "python", "csharp", "go", "sql"],
     "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "kubernetes", "terraform", "terragrunt", "dataform", "bigquery", "power-bi", "tableau", "postgres"],
@@ -30,7 +30,7 @@
   "artifacts": [
     {
       "id": "AIRFLOW-DAG-STRUCTURE",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "source_path": "artifacts/AIRFLOW-DAG-STRUCTURE",
       "applies_to": {
         "frameworks": ["airflow"]
@@ -45,6 +45,55 @@
           "Keeps connections and queries out of module scope, where the scheduler re-runs them",
           "Applies consistent default_args, retries and scheduling across DAGs",
           "Flags import-time work that makes the scheduler slow or unstable"
+        ]
+      }
+    },
+    {
+      "id": "AIRFLOW-RUN-FAILURE-DIAGNOSIS",
+      "version": "0.1.0",
+      "source_path": "artifacts/AIRFLOW-RUN-FAILURE-DIAGNOSIS",
+      "applies_to": {
+        "frameworks": ["airflow"]
+      },
+      "strength": "on-demand",
+      "topics": ["debugging"],
+      "scope": "project",
+      "requires": {
+        "access": ["Read access to the Airflow deployment's UI, REST API or CLI, including task logs, and to its scheduler and worker logs"]
+      },
+      "presentation": {
+        "name": "Diagnose a failed or stuck Airflow run before changing the DAG",
+        "summary": "Sorts a failed, stuck or missing Airflow run into a bug in the task or a scheduler, worker or capacity problem, from task states and logs, and says how to re-run it safely.",
+        "benefits": [
+          "Reads the task state and the log of the failed try before anyone edits the DAG",
+          "Recognises tasks killed for memory, lost heartbeats and missing logs as platform problems, not code bugs",
+          "Explains tasks stuck in scheduled, queued or deferred by pools, concurrency limits, workers and the triggerer",
+          "Finds why a run was never created: import errors, a paused DAG, the timetable, catchup, max_active_runs",
+          "Re-runs by clearing task instances in the same run, after checking the task is safe to repeat"
+        ]
+      }
+    },
+    {
+      "id": "BACKFILL-PLANNING",
+      "version": "0.1.0",
+      "source_path": "artifacts/BACKFILL-PLANNING",
+      "applies_to": {
+        "languages": ["sql", "python"]
+      },
+      "strength": "on-demand",
+      "topics": ["orchestration", "data-quality"],
+      "scope": "project",
+      "requires": {
+        "access": ["A scratch schema or a clone the agent may write to for the one-unit dry run; writes to production history only after the user approves the plan"]
+      },
+      "presentation": {
+        "name": "Plan and run a backfill that changes only what it should",
+        "summary": "Plans a backfill or replay of historical data so it rewrites only the intended window, can be paused, resumed and rolled back, and ends with a reconciliation of what changed and a notice to the people who read the numbers.",
+        "benefits": [
+          "Checks that the input still covers the window and still means what it did, before any history is overwritten",
+          "Snapshots the target and dry-runs one unit, so the change is predicted before it is made",
+          "Runs unit by unit on isolated compute with pinned code, and rebuilds the downstream models that a normal run would miss",
+          "Reconciles before against after and drafts the notice of what changed"
         ]
       }
     },
@@ -132,7 +181,7 @@
     },
     {
       "id": "DATA-INCIDENT-TRACING",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source_path": "artifacts/DATA-INCIDENT-TRACING",
       "applies_to": {},
       "strength": "on-demand",
@@ -544,7 +593,7 @@
     },
     {
       "id": "ERROR-DIAGNOSIS",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source_path": "artifacts/ERROR-DIAGNOSIS",
       "applies_to": {},
       "strength": "on-demand",
@@ -578,6 +627,30 @@
           "Isolates the transform so it can be tested without network or database",
           "Puts fetch and write behind thin I/O modules",
           "Says when a function is small enough to leave alone"
+        ]
+      }
+    },
+    {
+      "id": "IDEMPOTENT-WRITE-DESIGN",
+      "version": "0.1.0",
+      "source_path": "artifacts/IDEMPOTENT-WRITE-DESIGN",
+      "applies_to": {
+        "languages": ["sql", "python"]
+      },
+      "strength": "on-demand",
+      "topics": ["ingestion", "orchestration", "data-quality"],
+      "scope": "project",
+      "requires": {
+        "access": ["A non-production target the agent may write to, with a frozen copy of the input, to run the same window twice and compare"]
+      },
+      "presentation": {
+        "name": "Make a pipeline write safe to re-run, and prove it",
+        "summary": "Designs loads and transformations so that a retry, repair or backfill of the same window leaves the same result, and proves it by running the window twice.",
+        "benefits": [
+          "Replaces blind appends with an overwrite of the run's window or a merge on a deterministic key",
+          "Keeps delete+insert atomic on each engine, so a failed run never leaves a window empty",
+          "Finds generated keys, clock-based windows and untied ROW_NUMBER() that make two runs differ",
+          "Proves the write with three run-twice tests and an overflow-free checksum per engine"
         ]
       }
     },
@@ -623,7 +696,7 @@
     },
     {
       "id": "KUBERNETES-POD-LOG-TRIAGE",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source_path": "artifacts/KUBERNETES-POD-LOG-TRIAGE",
       "applies_to": {
         "frameworks": ["kubernetes"]
