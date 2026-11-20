@@ -1,6 +1,6 @@
 {
   "id": "AIRFLOW-DAG-STRUCTURE",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "source_path": "artifacts/AIRFLOW-DAG-STRUCTURE",
   "applies_to": {
     "frameworks": ["airflow"]
