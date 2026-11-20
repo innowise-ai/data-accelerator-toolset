@@ -107,6 +107,8 @@ Jira PROJ:     open epics; current sprint; PROJ-1234 and the tickets linked to i
                last year, titles and dates only
 Confluence DE: space home, "Architecture", "Runbooks", "Release notes" and their
                child pages
+GitHub:        merged pull requests in analytics-dbt and ingestion from the last
+               6 months: titles, descriptions, authors and reviewers
 Agent setup:   MCP servers in settings, .mcp.json and enabled plugins (names,
                types and URLs only)
 Not read:      other Jira projects and Confluence spaces, attachments, Slack
@@ -168,14 +170,12 @@ reader to what has to be inferred, and each step is checked against the next.
 
 ```bash
 git log --since='3 months ago' --name-only --format= | sort | uniq -c | sort -rn | head -30
-git log --since='3 months ago' --format='%an' -- <path> | sort | uniq -c | sort -rn
 git log -15 --format='%h %ad %s' --date=short
 git branch -r --sort=-committerdate | head -20
 ```
 
-The second command shows who has recently worked in an area. Present those people
-as "recent committers to this area", the ones likely to answer a question about
-it. Git does not show ownership; `CODEOWNERS` or the team does.
+Who works in each area is worked out separately for the knowledge base, because a
+raw count of commits misleads; see [Who to ask about what](#who-to-ask-about-what).
 
 The same care as anywhere else applies to configuration: `.env`, `profiles.yml`,
 `airflow.cfg` and connection settings can hold credentials. Read them for the keys
@@ -402,6 +402,71 @@ reader needs the difference: a documented boundary is one the team agreed to,
 while an inferred one may be an accident the team is about to fix. Where a diagram
 and the build files disagree, give both and add the conflict to the gaps.
 
+### Who to ask about what
+
+What a newcomer cannot find by reading is who knows a part of the system. The
+repository's history gives a good first answer: the people who changed an area most
+in recent months are usually the ones who can explain it. It is a first answer, not
+ownership, which is why the section is written as "who to ask about X" and not as
+"owner".
+
+Work it out for each module from [How it is built](#how-it-is-built), over a
+recent window: six months by default, or since the module last changed shape if
+that is shorter. A window keeps the people who left two years ago from heading the
+list.
+
+```bash
+# commits per person in the window, merge commits excluded
+git shortlog -sn --no-merges --since='6 months ago' HEAD -- <module path>
+# each person's latest change in the window (log is newest first)
+git log --no-merges --since='6 months ago' --format='%an|%ad' --date=short -- <module path> \
+  | awk -F'|' '!seen[$1]++'
+# who started the module, often the one who knows why it is shaped this way
+git log --reverse --no-merges --format='%ad %an' --date=short -- <module path> | head -3
+```
+
+Then correct for what the counts get wrong, and say in the section which
+corrections were made:
+
+- **Merges and squashes.** `--no-merges` drops merge commits, whose author is
+  whoever merged. Count authors (`%an`), not committers: with squash or rebase
+  merging the committer is the code host or the person who pressed the button.
+  Where the team lands other people's work, `Co-authored-by` trailers name the
+  rest.
+- **Bots.** Dependency updaters, release and formatting bots and CI accounts commit
+  often and can answer nothing. Leave out authors whose names end in `[bot]` or
+  that are plainly automation.
+- **Mass changes.** One commit that reformats, renames or moves a whole module
+  makes its author look like the module's expert. If the repository has
+  `.git-blame-ignore-revs`, leave out the commits it lists. Otherwise look at the
+  largest commits in the window (`git log --no-merges --since='6 months ago'
+  --shortstat --format='%h %an %s' -- <module path>`) and leave out those that only
+  reformat, rename or move, naming them.
+- **One person, several identities.** People commit under more than one name or
+  address. `git shortlog -sne HEAD` shows the addresses so the identities can be
+  merged, and `.mailmap` may already merge them. Use the addresses to merge, and
+  never copy them into the guide.
+- **People who have left.** History cannot tell who is still on the project. Give
+  each person's latest change in the window, so a name whose last commit was five
+  months ago reads as such, and have the lead confirm the table before it is
+  shared (see [Where the guide goes](#where-the-guide-goes)).
+- **A count is not expertise.** Twenty small fixes and one redesign are not
+  comparable, and someone who reviews every change to a module may know it best
+  with no commits in it. Where the code host is in the plan, add who reviewed the
+  merged pull requests that touched the module, for example from
+  `gh pr list --state merged --search 'merged:>=<date>' --json number,author,reviews,files`.
+
+`CODEOWNERS` is the team's own declaration and comes first where it exists. When it
+and the history disagree, show both: a `CODEOWNERS` file nobody has updated since
+the team changed is common, and worth reporting as a gap. A shallow clone has
+almost no history to count (`git rev-parse --is-shallow-repository` prints
+`true`); say so rather than ranking the few commits it holds.
+
+For each module, name two or three people with what to ask them about, taken from
+what their commits changed: "ask about the incremental models in
+`models/marts/finance/`", not "finance owner". Write names only. Above the table,
+state the window and what was left out, so the reader knows what the order means.
+
 ### Decisions and where they landed
 
 A newcomer's most expensive mistake is undoing a decision they did not know about.
@@ -554,6 +619,7 @@ The knowledge base:
 ```markdown
 # <project>: project knowledge base
 Built on <date> from <repository>@<sha> (one per repository).
+Who-to-ask window: <since> to <date>.
 Sources read: <the part of the agreed plan the whole team can see>.
 Regenerate: on each newcomer's run, and after <structural changes>; see the
 dates above.
@@ -565,6 +631,10 @@ states it.
 ## How it is built
 Modules with their paths, what each does and how they connect (a text diagram
 if it helps). Each marked documented (<document>) or inferred (<paths>).
+
+## Who to ask about what
+Window, and what was left out (merges, bots, named mass changes).
+| Module | Path | Ask about | Who (latest change) | CODEOWNERS | Reviewers |
 
 ## Decisions and where they landed
 | Decision | Date | Record | Landed in | Status |
@@ -686,6 +756,13 @@ to reconcile. If there is none, suggest a location that matches the existing
 documentation layout, such as next to the architecture notes, and write only after
 confirmation. Leave the file uncommitted for review.
 
+Before the "Who to ask about what" table goes in, have the lead check it. The
+agent cannot tell who has left, moved to another team or should not be the first
+person every newcomer asks, and a committed table sends every newcomer to whoever
+it names. People appear in it by name and with the areas they know, which the
+repository's history already shows to anyone who can read it. Their email
+addresses, which git also records, are left out, as is anything else about them.
+
 The reader's start stays out of the repository: this reader's role and first task,
 what is happening around it this month, which accesses they still lack, which
 connections they have authorised.
@@ -705,11 +782,13 @@ this. The guide may recommend such a change and say who would make it.
 
 The two parts age at different rates, so they are kept differently.
 
-The knowledge base's header records the date and the commit of each repository, so
-a reader can see how old it is before trusting it. On each newcomer's run, compare
-it with the repositories as they are now and propose changes to the sections that
-drifted, leaving the rest alone. Most of it still holds, which is what makes the
-second run cheap. Between newcomers, regenerate "How it is built" and the decisions
+The knowledge base's header records the date, the commit of each repository and
+the who-to-ask window, so a reader can see how old it is before trusting it. On
+each newcomer's run, compare it with the repositories as they are now and propose
+changes to the sections that drifted, leaving the rest alone. Most of it still
+holds, which is what makes the second run cheap. "Who to ask about what" is the
+exception: it is relative to its window, so rebuild it every run with the window
+ending that day, and have the lead check it again. Between newcomers, regenerate "How it is built" and the decisions
 after a structural change: a module added or removed, a new decision record, a
 migration finished. Decisions are appended and marked superseded, never rewritten,
 for the same reason decision records are immutable.
@@ -733,6 +812,10 @@ or, more often, in the project's own documentation.
 - The goal and the business rules come from documents and cite them; neither was
   read out of the code. Each statement about the architecture is marked
   documented or inferred.
+- "Who to ask about what" states its window, excludes merges, bots and the mass
+  changes it names, gives each person's latest change, puts `CODEOWNERS` first
+  where it exists, holds no email address, and was checked by the lead before
+  being shared.
 - Each decision links to its record and to where it landed, or says the
   implementation could not be found.
 - Every command has a source and says whether it was run or only read.
