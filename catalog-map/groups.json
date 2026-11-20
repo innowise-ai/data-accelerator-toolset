@@ -295,5 +295,15 @@
  "RECENT-DISCUSSION-RESEARCH": [
   "General",
   "Research"
+ ],
+ "ONBOARDING-GUIDE-PREPARATION": [
+  [
+   "General",
+   "Development process"
+  ],
+  [
+   "General",
+   "Docs and writing"
+  ]
  ]
 }
