@@ -74,6 +74,30 @@
       }
     },
     {
+      "id": "BACKFILL-PLANNING",
+      "version": "0.1.0",
+      "source_path": "artifacts/BACKFILL-PLANNING",
+      "applies_to": {
+        "languages": ["sql", "python"]
+      },
+      "strength": "on-demand",
+      "topics": ["orchestration", "data-quality"],
+      "scope": "project",
+      "requires": {
+        "access": ["A scratch schema or a clone the agent may write to for the one-unit dry run; writes to production history only after the user approves the plan"]
+      },
+      "presentation": {
+        "name": "Plan and run a backfill that changes only what it should",
+        "summary": "Plans a backfill or replay of historical data so it rewrites only the intended window, can be paused, resumed and rolled back, and ends with a reconciliation of what changed and a notice to the people who read the numbers.",
+        "benefits": [
+          "Checks that the input still covers the window and still means what it did, before any history is overwritten",
+          "Snapshots the target and dry-runs one unit, so the change is predicted before it is made",
+          "Runs unit by unit on isolated compute with pinned code, and rebuilds the downstream models that a normal run would miss",
+          "Reconciles before against after and drafts the notice of what changed"
+        ]
+      }
+    },
+    {
       "id": "CODE-CHANGE-REVIEW",
       "version": "0.2.1",
       "source_path": "artifacts/CODE-CHANGE-REVIEW",
@@ -603,6 +627,30 @@
           "Isolates the transform so it can be tested without network or database",
           "Puts fetch and write behind thin I/O modules",
           "Says when a function is small enough to leave alone"
+        ]
+      }
+    },
+    {
+      "id": "IDEMPOTENT-WRITE-DESIGN",
+      "version": "0.1.0",
+      "source_path": "artifacts/IDEMPOTENT-WRITE-DESIGN",
+      "applies_to": {
+        "languages": ["sql", "python"]
+      },
+      "strength": "on-demand",
+      "topics": ["ingestion", "orchestration", "data-quality"],
+      "scope": "project",
+      "requires": {
+        "access": ["A non-production target the agent may write to, with a frozen copy of the input, to run the same window twice and compare"]
+      },
+      "presentation": {
+        "name": "Make a pipeline write safe to re-run, and prove it",
+        "summary": "Designs loads and transformations so that a retry, repair or backfill of the same window leaves the same result, and proves it by running the window twice.",
+        "benefits": [
+          "Replaces blind appends with an overwrite of the run's window or a merge on a deterministic key",
+          "Keeps delete+insert atomic on each engine, so a failed run never leaves a window empty",
+          "Finds generated keys, clock-based windows and untied ROW_NUMBER() that make two runs differ",
+          "Proves the write with three run-twice tests and an overflow-free checksum per engine"
         ]
       }
     },
