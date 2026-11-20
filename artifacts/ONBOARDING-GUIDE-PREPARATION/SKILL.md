@@ -1,6 +1,6 @@
 ---
 name: onboarding-guide-preparation
-description: Preparing an onboarding guide for one specific project - a short questionnaire first, then, with consent for each source, a read-only pass over the main repositories and the tracker and wiki - covering how the system is built, how it got here, what is happening now, the shared code to reuse, the commands that run it, where the knowledge lives, which skills fit which task, and a first-week checklist, each fact with its source. Use when someone joins a project, asks how the project is built or where to start, or when a team wants an onboarding guide for newcomers.
+description: Preparing an onboarding guide for one specific project in two parts - a project knowledge base that is the same for every newcomer (what the project is for, its modules and how they connect, who to ask about each part, the decisions and where they landed in the code, documented business rules, how it got here, the shared code and the commands) and a start fitted to one reader's role and first task (what is happening now, one path traced through the code, which skills fit, a first-week checklist) - built after a short questionnaire from a read-only pass over the repositories, tracker and wiki the person confirms, each fact with its source. Use when someone joins a project, asks how the project is built or where to start, or when a team wants an onboarding guide or a project knowledge base for newcomers.
 ---
 
 # Preparing an onboarding guide for a project
@@ -25,13 +25,25 @@ should go. It does not change agent settings, install skills or connect anything
 where one of those would help, the guide says so and leaves the action to the
 person who owns it.
 
+The guide has two parts, because a newcomer needs two different things from it.
+The first is a **project knowledge base**: what the project is for, how it is
+built, who to ask about each part, which decisions shaped it and where they
+landed in the code. That is the same for every newcomer, holds for months, and
+belongs with the team, so the next person to join starts from it instead of from
+nothing. The second is **this reader's start**: what is happening this month, the
+path their first task takes through the code, the skills for their work and a
+checklist. That differs per person and ages in weeks. Kept apart, each can live
+as long as it stays true and with the people who own it, and a later run
+refreshes the first part and writes only the second.
+
 The order is fixed: ask, show what will be read, read, draft, and write only
 after confirmation.
 
 Two neighbours do related work. Durable architecture notes and decision records
-are the subject of [project-documentation](../PROJECT-DOCUMENTATION/SKILL.md); an
-onboarding guide links to them and does not restate them. Binding installed skills
-to the repository's paths and commands is
+are written with [project-documentation](../PROJECT-DOCUMENTATION/SKILL.md). The
+knowledge base points to the ones that exist, links each to the code it
+describes and lists what is missing, but it does not restate them or write new
+ones. Binding installed skills to the repository's paths and commands is
 [project-adaptation](../PROJECT-ADAPTATION/SKILL.md); this guide only tells the
 reader which skill to reach for.
 
@@ -64,12 +76,17 @@ questions, not guessed.
    anyone knows: the most useful pages are often linked from a glossary or a team
    home page and from nothing in the repository.
 5. **Who will read the guide besides them?** Only them, or the next newcomer and
-   the team too. This decides what may go into the shared half of the guide (see
-   [Where the guide goes](#where-the-guide-goes)).
+   the team too. This decides what may go into the knowledge base, which the team
+   shares (see [Where the guide goes](#where-the-guide-goes)). Ask also whether a
+   project knowledge base already exists, from an earlier run of this skill or
+   kept by the team: refreshing one is much cheaper than building it, and a second
+   one beside it gives the next reader two to reconcile.
 
-Use the answers throughout: the reader and their experience set the depth, the
-first task chooses the path to trace and the tickets to read, the repository list
-sets the survey, and the systems list sets what may be read.
+Use the answers throughout: the reader and their experience set the depth of
+their start, the first task chooses the path to trace and the tickets to read, the
+repository list sets the survey, and the systems list sets what may be read. The
+knowledge base does not change with the reader; only what the reader's start
+picks out of it does.
 
 ## Agree what will be read
 
@@ -127,8 +144,9 @@ reader to what has to be inferred, and each step is checked against the next.
    (`CLAUDE.md`, `AGENTS.md`, rules files), knowledge or explainer files written
    for agents and newcomers (`knowledge.md`, `ARCHITECTURE.md`, a repository's own
    onboarding or explain skill), the README, the contributing guide, `docs/`,
-   decision records, any existing onboarding page. A maintained knowledge file is
-   often the best single source in the repository; when one exists, the guide
+   decision records and design documents, any existing onboarding page or project
+   knowledge base. A maintained knowledge file is often the best single source in
+   the repository; when one exists, the guide
    points to it and adds what it lacks rather than restating it. Note the date each
    was last changed, and any count or fact in it the repository no longer bears
    out. These are the cheapest source and the one most likely to be
@@ -332,8 +350,8 @@ newer source agrees. Look out for three things while reading:
   commit when the repository's commit format has no place for it. Report both and
   ask which applies; do not pick one.
 - **Dead ends.** A link that no longer resolves, a page that is only an outline, or
-  a "Coding Standards" link that opens a different page. These go to the open
-  questions, because the next newcomer will hit them too.
+  a "Coding Standards" link that opens a different page. These go to the
+  knowledge base's gaps, because the next newcomer will hit them too.
 - **Tools that send data outside the company.** A page that recommends pasting
   logs, payloads or credentials into a public website. Do not repeat such advice as
   a checklist step. Put it in the open questions and ask whether an approved
@@ -341,6 +359,96 @@ newer source agrees. Look out for three things while reading:
 
 When nothing is connected, the guide is still complete as a document. This section
 lists the sources, the traces that revealed them and what to ask for.
+
+## Build the project knowledge base
+
+The first part of the guide answers the questions everyone who joins asks in their
+first weeks, whatever their task: what is this for, how is it built, who do I ask,
+and why is it like this. The survey above has gathered most of the material; this
+part arranges it so a reader can open it and find each answer in one place. Every
+answer comes from a source in the agreed plan and cites it. Where no source
+answers a question, the section says so in one line and the question goes to the
+gaps. A knowledge base that fills a gap with a guess is trusted exactly as much as
+one that does not, which is the problem with it.
+
+### What the project is for
+
+State the goal in two or three sentences: what the system does, for whom, and how
+success is judged if a source says so. Take it from what was written for that
+purpose: the opening of the README, a project charter or vision page, the
+description of the tracker project or its top-level epics, the wiki space's home
+page. Paraphrase closely and cite. Do not derive the goal from the code. Code
+shows what the system does, not what it is for: a pipeline that loads twelve
+sources does not say which of them the business depends on. Where sources
+disagree, such as a README that still describes the pilot's scope, give both with
+their dates.
+
+### How it is built
+
+List the main modules: the repositories, and inside each the components a change
+would be made in, such as a dbt project's layers, the DAG folder, a service or a
+shared library. For each, give its path, one sentence on what it does, and what it
+connects to and how, as found in [How the repositories fit
+together](#how-the-repositories-fit-together). A text diagram helps once there are
+more than four or five.
+
+The build and dependency files are the most reliable source here: workspace and
+package manifests, `dbt_project.yml` and `packages.yml`, Compose services,
+infrastructure code, CI jobs. They say what is actually built and wired together.
+Architecture documents and diagrams say why, and are more often out of date. The
+layout and the import graph fill in the rest. Mark each statement as documented,
+with the document, or inferred from code, with the paths it was inferred from. The
+reader needs the difference: a documented boundary is one the team agreed to,
+while an inferred one may be an accident the team is about to fix. Where a diagram
+and the build files disagree, give both and add the conflict to the gaps.
+
+### Decisions and where they landed
+
+A newcomer's most expensive mistake is undoing a decision they did not know about.
+List the decisions that shaped the current system, each with its date, where it is
+recorded and where it landed in the code, so the reader sees both the reason and
+the result. Look for them in:
+
+- decision records and design documents in the repositories (`docs/adr/`,
+  `docs/decisions/`, `rfcs/` and the like) and on the wiki pages in the plan;
+- merged pull requests whose descriptions argue for an approach, when the code
+  host is in the plan;
+- tickets and epics that record a choice, from the tracker project in the plan;
+- commits whose message records one:
+
+```bash
+git log --no-merges -i -E --grep='decid|instead of|switch(ed)? to|replac|migrat|deprecat' \
+  --format='%ad %h %s' --date=short | head -40
+```
+
+For each, link where it landed: the commit or pull request that carried it out and
+the path where it lives now. A record whose implementation cannot be found, or that
+the code now contradicts, stays in the list with that finding. Either the decision
+was reversed without a new record or it was never carried out, and only the team
+knows which. Give the status the record itself states, such as accepted or
+superseded, and do not judge whether the decision still holds.
+
+Keep each to one line and a link. The record holds the reasoning, and a summary
+that drops its rejected alternatives is how a rejected option gets proposed again.
+Where an important part of the design has no record at all, say so in the gaps.
+Writing that record is work for project-documentation, not something to
+reconstruct here.
+
+### Business rules, where documented
+
+How the project computes what the business cares about, such as what counts as an
+active customer, when revenue is recognised or how late-arriving data is treated,
+is what newcomers most need and most often get wrong. Include it only where it is
+written down: model and column descriptions, metric or semantic-layer definitions,
+a glossary, wiki pages, the acceptance criteria of tickets in the plan. Link each
+with a one-line summary.
+
+Do not read a business rule out of the code and present it as the rule. The code
+shows what is computed; it cannot show whether that is what was intended. A
+newcomer told that "active means a login in the last 30 days" will defend it in
+review, even where that line is the bug. Where a rule exists only in code, write
+"only in code: `<path>`; the intended rule is not documented" and add it to the
+gaps. Where nothing is documented, one line says so.
 
 ### How it got here
 
@@ -369,19 +477,23 @@ explain the current state, each dated and with its source, and link to the longe
 records instead of retelling them.
 
 Where the reason for a change is not recorded in any of these, write that it is not
-recorded and add it to the open questions. Where no history source was available
+recorded and add it to the gaps. Where no history source was available
 at all, for example a shallow clone and no tracker access, say so in one line
 instead of reconstructing a history from the code's current shape. A plausible
 story about why the project was split in two is exactly what a newcomer repeats as
 fact.
 
-### What is happening now
+## What is happening now
+
+The second part of the guide starts here. Everything in it is chosen for this
+reader, or ages too fast to be kept with the team.
 
 A newcomer joins a project in motion, and the first conversations will assume they
 know what that motion is. From the tracker reads and the repositories' recent
 history, write a short account: the epics or goals in progress, what merged in the
 last two weeks and where, what is blocked and on what, and anything due soon. Date
-every line. It is the part of the guide that ages fastest, so keep it to what the
+every line. It is the part of the guide that ages fastest, which is why it belongs
+to the reader's start and not the knowledge base, and why it is kept to what the
 first weeks need. With no tracker connected, write it from the repositories'
 history alone and say so.
 
@@ -425,35 +537,45 @@ skill recommended without it fails on first use and is not tried again.
 
 ## Assemble the guide
 
-Keep it short enough to read in one sitting, roughly two pages before the
-checklist. It links to details and does not contain them.
+Write the two parts as two documents, or as one with a clear break between them,
+since they will be stored in different places. Keep each short enough to read in
+one sitting: the knowledge base roughly three pages, the reader's start roughly one
+before the checklist. Both link to details and do not contain them.
 
 The length grows one source at a time, so hold the line each time the person adds
 one. A source read after the first draft earns a row in "Where knowledge lives", a
-checklist step if it changes what the reader does, and an open question if it
-conflicts with something. It earns a paragraph of its own only if it replaces
+checklist step if it changes what the reader does, and a gap or an open question if
+it conflicts with something. It earns a paragraph of its own only if it replaces
 something in the main sections. A guide that has doubled since the first draft has
 started copying its sources.
 
-```markdown
-# Onboarding: <project>
-Built on <date> from <repository>@<sha> (one per repository),
-for <reader and first task>.
-Sources read: <the agreed plan>.
+The knowledge base:
 
-## What this is
-Two or three sentences: what the system does and for whom.
+```markdown
+# <project>: project knowledge base
+Built on <date> from <repository>@<sha> (one per repository).
+Sources read: <the part of the agreed plan the whole team can see>.
+Regenerate: on each newcomer's run, and after <structural changes>; see the
+dates above.
+
+## What the project is for
+Two or three sentences, each with its source, or one line saying no source
+states it.
+
+## How it is built
+Modules with their paths, what each does and how they connect (a text diagram
+if it helps). Each marked documented (<document>) or inferred (<paths>).
+
+## Decisions and where they landed
+| Decision | Date | Record | Landed in | Status |
+
+## Business rules
+Documented rules, each linked with a one-line summary; rules found only in code
+marked as such; or one line saying none are documented.
 
 ## How it got here
 Five to ten dated milestones that explain the current state, each with its
 source, or one line saying no history source was available.
-
-## What is happening now
-Dated: epics in progress, recent merges, blockers, what is due.
-
-## How it is built
-Repositories and components with their paths, and how they connect (a text
-diagram if it helps). One path traced end to end, with file references.
 
 ## Shared code to reuse
 | Name | Path | Use it for | Example call |
@@ -464,9 +586,28 @@ Setup, run, test: exact commands, working directory, source of each
 How work moves: ticket, branch name, pull request, review, release.
 
 ## Where knowledge lives
-| Source | What it holds | Seen in | Agent access | To connect |
+| Source | What it holds | Seen in |
 
-## Skills for this project
+## Gaps
+What the sources do not say or contradict, each with what was found.
+```
+
+The reader's start:
+
+```markdown
+# Onboarding: <reader>, <first task>
+Built on <date>, with the knowledge base of <date>.
+
+## What is happening now
+Dated: epics in progress, recent merges, blockers, what is due.
+
+## Your first task through the code
+One path traced end to end, with file references.
+
+## Your access
+| Source | Agent access | To connect |
+
+## Skills for your work
 | When you... | Use | From (project, personal) | Needs |
 
 ## Checklist
@@ -503,6 +644,7 @@ Agent
 Understanding
 - [ ] Follow the traced path once in the code: <file> -> <file> -> <file>.
 - [ ] Open two of the example call sites under "Shared code to reuse".
+- [ ] Read the decision records listed for the modules your first task touches.
 
 First change
 - [ ] Take <starter ticket>; branch as `feature/PROJ-<n>-<slug>` (convention from
@@ -514,50 +656,70 @@ First change
 is done. "Run the tests and see them pass" is. The example shows the form; every
 line in a real checklist comes from the survey.
 
-### Open questions
+### Gaps and open questions
 
-Everything the survey could not settle goes here, each with what was found and who
-is likely to know: a command in the README that CI does not run, two wiki spaces
+Everything the survey could not settle is written down, each with what was found
+and who is likely to know. Where it goes depends on whom it concerns.
+
+What is missing from or contradicted in the project's own documentation goes to the
+knowledge base's gaps, because every newcomer will meet it: no stated goal, a
+decision with no record, a business rule found only in code, a diagram the build
+files contradict, a command in the README that CI does not run, two wiki spaces
 with the same page, a directory with no commits in a year that something still
-imports. For a newcomer this list is a ready agenda for their first conversation
-with the lead. For the team it is an inventory of what the documentation is
+imports. For the team this list is an inventory of what the documentation is
 missing, and material for the project documentation skill.
+
+What this reader needs settled goes to their open questions: which of two
+conflicting rules applies to their work, access they cannot request themselves,
+anything about their first task the ticket does not say. For a newcomer this list
+is a ready agenda for their first conversation with the lead.
 
 ## Where the guide goes
 
-Show the guide in the conversation first. Then ask where it should live, because
-the two halves have different owners.
+Show both parts in the conversation first. Then ask where each should live,
+because they have different owners.
 
-The project facts (the build, the shared code, the commands, the sources) are the
-same for every newcomer and belong with the team. If an onboarding document
-already exists, propose changes to it as a diff; a second guide beside the first
-gives the next newcomer two to reconcile. If there is none, suggest a location that
-matches the existing documentation layout and write only after confirmation. Leave
-the file uncommitted for review.
+The knowledge base is the same for every newcomer and belongs with the team. If
+one already exists, or an onboarding document that covers the same ground, propose
+changes to it as a diff; a second one beside the first gives the next newcomer two
+to reconcile. If there is none, suggest a location that matches the existing
+documentation layout, such as next to the architecture notes, and write only after
+confirmation. Leave the file uncommitted for review.
 
-The personal half stays out of the repository: this reader's role and first task,
-which accesses they still lack, which connections they have authorised.
+The reader's start stays out of the repository: this reader's role and first task,
+what is happening around it this month, which accesses they still lack, which
+connections they have authorised.
 
 What came from the tracker and the wiki needs one more check before it goes into
-the shared half. The next reader may not have the access this one had, and a
-committed document is read by everyone with the repository. Keep in the shared
-half only links and one-line summaries of what the whole team can see. Anything
+the knowledge base. The next reader may not have the access this one had, and a
+committed document is read by everyone with the repository. Keep in the knowledge
+base only links and one-line summaries of what the whole team can see. Anything
 from a restricted ticket or page, a client's name or terms that the repository does
-not already contain, or a person's details beyond their role stays in the personal
-half or is left out.
+not already contain, or a person's details beyond their role stays in the reader's
+start or is left out.
 
 Do not edit agent instruction files, agent settings or installed skills as part of
 this. The guide may recommend such a change and say who would make it.
 
 ## Keeping it true
 
+The two parts age at different rates, so they are kept differently.
+
+The knowledge base's header records the date and the commit of each repository, so
+a reader can see how old it is before trusting it. On each newcomer's run, compare
+it with the repositories as they are now and propose changes to the sections that
+drifted, leaving the rest alone. Most of it still holds, which is what makes the
+second run cheap. Between newcomers, regenerate "How it is built" and the decisions
+after a structural change: a module added or removed, a new decision record, a
+migration finished. Decisions are appended and marked superseded, never rewritten,
+for the same reason decision records are immutable.
+
+The reader's start is not kept. It is built again for the next person.
+
 An onboarding guide is the one document that gets a full test from an unbiased
-reader every time someone joins. Use that. The header records the commit of each
-repository and the date. On a later run, compare the guide with the repositories
-as they are now and propose changes to the sections that drifted, leaving the rest
-alone. Ask each
-newcomer to mark the checklist items that failed or misled them, and treat every
-mark as a defect in the guide or, more often, in the project's own documentation.
+reader every time someone joins. Use that. Ask each newcomer to mark the checklist
+items that failed or misled them, and treat every mark as a defect in the guide
+or, more often, in the project's own documentation.
 
 ## Before handing it over
 
@@ -565,8 +727,14 @@ mark as a defect in the guide or, more often, in the project's own documentation
   outside the local repositories was read.
 - Every external source read was in the plan the person confirmed; nothing was
   searched beyond the named projects and spaces.
-- The guide names its reader, their first task, and the commit of each repository
-  it was built from.
+- The guide is in two parts. The knowledge base holds only what is the same for
+  every newcomer and shows its date and the commit of each repository; the
+  reader's start names its reader and their first task.
+- The goal and the business rules come from documents and cite them; neither was
+  read out of the code. Each statement about the architecture is marked
+  documented or inferred.
+- Each decision links to its record and to where it landed, or says the
+  implementation could not be found.
 - Every command has a source and says whether it was run or only read.
 - The shared-code table came from counting references, and each row has a call
   site.
@@ -580,9 +748,10 @@ mark as a defect in the guide or, more often, in the project's own documentation
 - Every recommended skill exists in the project or the reader's setup and is tied
   to a task; project skills come before personal ones for the same task.
 - The guide does not mention the Accelerator.
-- Conflicts between sources, dead links and advice to send data to public tools are
-  in the open questions, not in the checklist.
+- Gaps in the project's documentation are in the knowledge base; conflicts that
+  affect this reader and advice to send data to public tools are in their open
+  questions; none of these is in the checklist.
 - Checklist items are actions with a visible result, in dependency order.
 - Nothing was written to the repository, the tracker or the wiki without
-  confirmation, no secret appears in the guide, and the shared half holds nothing
-  restricted.
+  confirmation, no secret appears in the guide, and the knowledge base holds
+  nothing restricted.
