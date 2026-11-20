@@ -19,7 +19,8 @@ how to prove it with a test rather than an argument.
 Idempotent is not the same as reproducible. Idempotency promises that re-running
 a window *with the same input* changes nothing. Whether re-running last March
 today gives what last March's run gave depends on whether the input is still what
-it was then. That is the backfill question, and it starts where this one ends.
+it was then. That is the backfill question, and it starts where this one ends:
+[backfill-planning](../BACKFILL-PLANNING/SKILL.md).
 
 Neighbours:
 
