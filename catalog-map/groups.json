@@ -295,5 +295,37 @@
  "RECENT-DISCUSSION-RESEARCH": [
   "General",
   "Research"
+ ],
+ "JIRA-TICKET-STATUS-UPDATE": [
+  "General",
+  "Development process"
+ ],
+ "DEVOPS-TICKET-DRAFTING": [
+  "General",
+  "Development process"
+ ],
+ "RELEASE-NOTES-PREPARATION": [
+  "General",
+  "Docs and writing"
+ ],
+ "CONNECTOR-CONNECTION-HARDENING": [
+  "Data engineering",
+  "Connectors and plugins"
+ ],
+ "CONFIG-FORM-SCHEMA-ALIGNMENT": [
+  "Data engineering",
+  "Connectors and plugins"
+ ],
+ "GO-MODULE-RELEASE-GATES": [
+  "General",
+  "Go"
+ ],
+ "GO-BENCHMARK-REGRESSION-CHECK": [
+  "General",
+  "Go"
+ ],
+ "GO-VULNERABILITY-REMEDIATION": [
+  "General",
+  "Go"
  ]
 }
