@@ -296,10 +296,6 @@
   "General",
   "Docs and writing"
  ],
- "XFUZE-INTEGRATION-DESIGN": [
-  "Data engineering",
-  "xFuze"
- ],
  "CONNECTOR-CONNECTION-HARDENING": [
   "Data engineering",
   "Connectors and plugins"

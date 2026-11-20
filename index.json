@@ -3,7 +3,7 @@
   "toolset_ref": "refs/tags/v1.6.0",
   "vocabulary": {
     "languages": ["typescript", "javascript", "python", "csharp", "go", "sql"],
-    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "kubernetes", "terraform", "terragrunt", "dataform", "bigquery", "power-bi", "tableau", "postgres", "xfuze"],
+    "frameworks": ["nestjs", "react", "django", "aspnet", "airflow", "dbt", "duckdb", "spark", "trino", "snowflake", "databricks", "docker", "kubernetes", "terraform", "terragrunt", "dataform", "bigquery", "power-bi", "tableau", "postgres"],
     "layout": ["monorepo", "single"],
     "agents": ["claude-code", "codex", "cursor"],
     "topics": [
@@ -1659,28 +1659,6 @@
           "Puts required actions first and rewrites each change as what the user gets",
           "Matches the heading to the released version and keeps the entry within the announcement channel's length limit",
           "Lists what was left out and why, so omissions can be reviewed"
-        ]
-      }
-    },
-    {
-      "id": "XFUZE-INTEGRATION-DESIGN",
-      "version": "0.1.0",
-      "source_path": "artifacts/XFUZE-INTEGRATION-DESIGN",
-      "applies_to": {
-        "frameworks": ["xfuze"]
-      },
-      "strength": "on-demand",
-      "topics": ["ingestion", "orchestration"],
-      "scope": "project",
-      "presentation": {
-        "name": "Design an xFuze integration before configuring it",
-        "summary": "Designs an integration on the xFuze platform: which connector stage, workflow step, egress or task does what, and how it fails, replays, scales and rolls out.",
-        "benefits": [
-          "Places each responsibility in a reader, mapper, validator, workflow step, egress or task, reusing existing plugins first",
-          "Sets what one event is, so failure and replay work per business record and stay within plugin memory limits",
-          "Decides what belongs on a connection and what in plugin configuration",
-          "Lists every failure with where it becomes visible, whether it alerts and whether replay is safe",
-          "Plans rollout and rollback as version selections per environment, with network access requested up front"
         ]
       }
     },

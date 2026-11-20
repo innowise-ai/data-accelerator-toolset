@@ -5,7 +5,7 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-80 artifacts today: 36 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow, xFuze, connectors that feed pipelines,
+79 artifacts today: 35 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow, connectors that feed pipelines,
 PostgreSQL extraction, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
 layering, job orchestration, streaming queries and metric definitions), 8 for Power BI, 8 for Tableau,
 5 for containers, local environments and Kubernetes, 2 for infrastructure as code, and 21
@@ -23,7 +23,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (36)
+## Data engineering (35)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -62,7 +62,6 @@ one project gets.
 | **Repair Snowflake semantic view drift** (`SNOWFLAKE-SEMANTIC-VIEW-DRIFT`) | snowflake | data-modeling, data-quality | Finds where a semantic view no longer matches its tables and repairs it without losing hand-written descriptions. |
 | **Tune a slow Spark job from its Spark UI evidence** (`SPARK-JOB-TUNING`) | spark, databricks | performance, debugging | Finds the stage and the cause that dominate a slow or memory-failing Spark job, fixes that cause and measures the result. |
 | **Design Spark streaming queries that restart without loss or duplicates** (`SPARK-STREAMING-QUERY-DESIGN`) | spark, databricks | ingestion | Designs Structured Streaming queries outside declarative pipelines so that restarts, code changes and failures neither skip nor repeat data, and state stays bounded. |
-| **Design an xFuze integration before configuring it** (`XFUZE-INTEGRATION-DESIGN`) | xfuze | ingestion, orchestration | Designs an integration on the xFuze platform: which connector stage, workflow step, egress or task does what, and how it fails, replays, scales and rolls out. |
 
 ## Power BI (8)
 
