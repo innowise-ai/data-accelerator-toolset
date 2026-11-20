@@ -11,15 +11,16 @@ question in a comment and usually a day's wait for the answer. A vague ticket co
 more than time, though: it gets tested against the wrong thing, and the answer that
 comes back is confident and useless.
 
-A typical case. A scheduled job starts timing out on calls to a third-party API. The
-ticket asks whether the worker has outbound HTTPS to that host. The DevOps engineer
-tests from a general-purpose troubleshooting pod, where the request fails for an
-unrelated reason, a missing CA bundle. They test again from the right pod with a
-quick read request, which succeeds, and conclude the network is fine and the fault
-is in configuration. The failing call was a write, timing out after ten seconds
-while waiting for response headers. Every step was reasonable, and three days went
-by, because the ticket named a host and asked a general question. It did not say
-which request fails, from where, and how to repeat it.
+A typical case. A nightly job that uploads files to a partner's SFTP server starts
+failing in production with a connection timeout, while the same job in staging
+still works. The ticket asks whether production is allowed to reach the partner's
+host. The DevOps engineer finds the firewall rule for that hostname in place, opens
+a connection from their own workstation, which succeeds, and closes the ticket. The
+job fails for another week. Production leaves through a NAT gateway whose public
+address the partner never added to its allowlist. Every step was reasonable, and the
+week was lost because the ticket named a host and asked a general question. It did
+not say from which environment the connection fails, on which port, and how to
+repeat it.
 
 So the standard for the ticket is this: **someone with no context can repeat the
 observation, or perform the change, from the ticket alone.**
@@ -79,20 +80,20 @@ ambiguous to anyone running a cluster with forty workloads.
 
 ## The tracker's own fields
 
-Projects add required fields to DevOps tickets: an issue type, a request type, a
-client or tenant, a priority. Their values are a closed list that belongs to the
-team. Read them from the team's guide for raising DevOps requests, or from the
-tracker's create screen. If a value is not obvious, ask. A wrong request type routes
-the ticket to the wrong queue, where it waits unseen.
+A tracker usually asks a DevOps ticket for more than a description: the queue or
+category it belongs to, the team or tenant it affects, how urgent it is. The allowed
+values are set by whoever runs the queue, not by the author. Take them from the
+create form or from the team's written process, and ask when one is unclear. A
+ticket filed under the wrong category lands in a queue its owners do not watch.
 
-Teams usually have a pattern for the summary too. Follow it if one exists; if none
-does, lead with the kind and include the tool or component, the tenant and the
-environment, so the ticket can be found from a list:
+If the team has a convention for titles, follow it. If not, start with the kind,
+then name the component and the environment, so the ticket can be found from a
+list:
 
 ```text
-Access Request: BigQuery, internal analytics, UAT
-Change: raise memory limit for product-hierarchy function, acme, PROD
-Fault: orders worker cannot reach service desk API, acme, TEST
+Access: Grafana editor for the payments dashboards, STAGING
+Change: raise connection pool for invoice-api, PROD
+Fault: nightly-export cannot reach partner SFTP, PROD
 ```
 
 ## A change ticket
@@ -116,10 +117,10 @@ Verification
   <what will be checked afterwards, and by whom>
 ```
 
-Give the current value next to the new one ("memory limit 1 GB to 4 GB, CPU request
-200m to 1000m"). A reviewer judges a change by its size, and "increase the limit"
-has none. Give the evidence for the number as well: the size of the input that hit
-the limit, or the log line where the process was terminated.
+Give the current value next to the new one ("connection pool 20 to 50, database
+`max_connections` 200 to 300"). A reviewer judges a change by its size, and
+"increase the pool" has none. Give the evidence for the number as well: the metric
+that shows requests waiting for a connection, or the log line where they timed out.
 
 Say plainly what is being asked for. "Please review" leaves it open whether the
 DevOps engineer is expected to apply something or only to agree. If approval from
@@ -150,45 +151,44 @@ and delayed, and it is also the one that should be.
 Keep three things apart, in this order, because the reader weighs them differently:
 
 **What was observed.** The exact error text, copied, not paraphrased. "Timeout" and
-`context deadline exceeded (Client.Timeout exceeded while awaiting headers)` after
-about ten seconds are different findings: the second says the connection opened and
-the server did not answer in time. Add when it happened, how often, and since when.
+`dial tcp 203.0.113.25:22: i/o timeout` after thirty seconds are different findings:
+the second says the TCP connection never opened, so packets are dropped somewhere on
+the path. Add when it happened, how often, and since when.
 
 **What works, and what was ruled out.** Comparisons narrow a fault faster than
 anything else, so state each one with its source:
 
-- the same URL, called from another component, returns 201;
-- the same URL from a laptop returns 200;
-- the same run reaches a different external host without error.
+- the same host and port answer from staging;
+- the same production run uploads to another partner's server without error;
+- the partner's logs show no connection attempt from production.
 
 Each line removes a class of causes. Say also what could not be checked.
 
 **What you think, and what you ask.** A hypothesis is welcome when it is labelled as
-one. The ask is separate, and specific enough to be answered: "Does the
-`orders-worker` deployment in namespace `acme-test` have an egress rule allowing
-`servicedesk.example.com:443`?" can be answered yes or no. "Can you check
-connectivity?" cannot.
+one. The ask is separate, and specific enough to be answered: "Is the public
+address that production traffic to `sftp.partner.example:22` leaves from one of the
+two addresses on the partner's allowlist (attached)?" can be answered yes or no.
+"Can you check connectivity?" cannot.
 
 ### Make it repeatable
 
-Give a command that repeats the failing request, and say where to run it:
+Give a command that repeats the failing connection, and say where to run it:
 
 ```bash
-# from a pod of deployment orders-worker, namespace acme-test
-curl -sS -m 10 -X POST "https://servicedesk.example.com/api/incidents" \
-  -H "Authorization: $API_KEY" -H "Content-Type: application/json" \
-  -d '{"summary":"connectivity test"}' -o /dev/null -w '%{http_code} %{time_total}s\n'
+# from a pod of the nightly-export job, namespace exports-prod
+nc -vz -w 30 sftp.partner.example 22             # does the TCP connection open?
+curl -sS -m 10 https://checkip.example.com/      # the address the partner sees
 ```
 
 A reproduction proves something only if it matches the failure in the ways that
-matter: the same source workload, the same method and path, the same timeout. A
-read that succeeds says little about a write that times out, and a test from another
-pod says nothing about this pod's network rules or installed certificates. If the
-test would create real data on the target, say so and offer a harmless variant.
+matter: the same source workload and environment, the same host and port, the same
+timeout. A connection from a workstation or from staging says nothing about the path
+production takes or the address it leaves from. If the test would create real data
+on the target, say so and offer a harmless variant.
 
-State what each result would mean: "a 2xx within ten seconds means the network path
-is fine and the fault is in the job's own configuration; a timeout means it is not."
-Then the answer settles something whichever way it comes out.
+State what each result would mean: "a connection within thirty seconds means the
+path is open and the fault is in the job's credentials or configuration; a timeout
+means it is not." Then the answer settles something whichever way it comes out.
 
 ## Priority
 
@@ -203,16 +203,18 @@ Paste errors and commands as text. Text can be searched and copied; a screenshot
 cannot, so it is a useful addition and a poor substitute.
 
 Keep credentials out: no API keys, tokens, passwords or connection strings, in the
-text or in a screenshot. Write a variable name where the value would go, as in the
-command above. Remove personal and customer data from payloads, leaving the field
-names and the shape. A ticket is read by more people than the repository, is copied
-into email, and keeps its history after an edit.
+text or in a screenshot. Write a variable name where the value would go, such as
+`-H "Authorization: $API_TOKEN"` in a curl command. Remove personal and customer
+data from payloads, leaving the field names and the shape. A ticket is read by more
+people than the repository, is copied into email, and keeps its history after an
+edit.
 
 ## After it is raised
 
 When a reply reports a test that differs from the failing case, answer with the
-specific difference ("that request was a GET from the troubleshooting pod; the
-failure is a POST from the worker") and the command again. When a missing fact turns
+specific difference ("that test ran from a workstation in the office; the failure
+is from the production job, which leaves through a different address") and the
+command again. When a missing fact turns
 up, put it in the description as well as the comment thread. The next person to
 pick the ticket up reads the description first.
 
