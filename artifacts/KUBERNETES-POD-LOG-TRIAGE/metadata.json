@@ -1,6 +1,6 @@
 {
   "id": "KUBERNETES-POD-LOG-TRIAGE",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "source_path": "artifacts/KUBERNETES-POD-LOG-TRIAGE",
   "applies_to": {
     "frameworks": ["kubernetes"]

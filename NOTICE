@@ -389,8 +389,8 @@ Upstream:  https://github.com/Unknown-333/awesome-data-engineering-skills (commi
 Licence:   Apache License 2.0, as modified by the upstream repository (see below)
 Copyright: Copyright 2026 awesome-data-engineering-skills contributors
 
-Four skills were adapted into artifacts in this catalog, one of them with one
-section of a reference file of a fifth skill used as an additional source.
+Five skills were adapted into artifacts in this catalog, one of them with one
+section of a reference file of a sixth skill used as an additional source.
 
 About the licence: the repository's LICENSE file is the Apache License 2.0 with
 parts removed, which is why GitHub reports it as NOASSERTION. Section 4(d), the
@@ -426,6 +426,26 @@ for silver deduplication, how MERGE handles duplicate source keys, the
 whole-table trap of static partition overwrite, when fewer layers are enough, and
 platform notes for Microsoft Fabric, Databricks, plain Spark and dbt. Platform
 statements were checked against the Microsoft Fabric and Databricks documentation.
+
+AIRFLOW-RUN-FAILURE-DIAGNOSIS: upstream's skill is a short checklist of failure
+patterns and pitfalls. The artifact keeps its steps (read the task log, check
+the state, localise, re-run by clearing) but reverses the first two, reading
+the task state before the log because the state shows whether the cause is in
+the task at all. It keeps upstream's patterns for queued tasks,
+zombie tasks, runs that are not created and trigger rules after a branch,
+rewritten as prose that explains why each one points where it does. One
+statement was corrected rather than carried over: under the default trigger
+rule a task downstream of a skipped branch is skipped, not left with no status.
+Content was added that upstream does not contain, including a table of task
+states and where each one's cause is, the signs that a task was killed or lost
+its heartbeat rather than failing in its own code, missing logs and managed
+deployments, scheduled versus queued versus deferred waits, poke-mode sensors
+holding slots, task_queued_timeout, the Airflow 2 and 3 differences in
+timetables, logical dates and how tasks reach the metadata database, why
+clearing keeps the logical date while a new run does not, which code a cleared
+task runs on a versioned DAG bundle, and what makes a task
+safe to clear. Defaults quoted in the artifact were checked against the Apache
+Airflow documentation.
 
 IDEMPOTENT-WRITE-DESIGN: upstream's skill is a short workflow with four SQL
 patterns and a list of pitfalls, and its reference file is a checklist with a
@@ -469,6 +489,7 @@ were checked against the Airflow 2.10 and 3.1 command-line help and the Airflow
 
 Artifacts derived from this source:
 
+  AIRFLOW-RUN-FAILURE-DIAGNOSIS <- skills/debugging-airflow-pipelines
   BACKFILL-PLANNING          <- skills/designing-backfills-and-replays
   IDEMPOTENT-WRITE-DESIGN    <- skills/writing-idempotent-transformations
   MEDALLION-LAYER-BOUNDARIES <- skills/designing-medallion-architecture
