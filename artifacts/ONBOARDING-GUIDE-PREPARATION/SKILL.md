@@ -565,7 +565,8 @@ or, more often, in the project's own documentation.
   site.
 - Each external source lists the trace that revealed it and one of the three
   access states. MCP servers were looked for in every place they can be declared,
-  enabled plugins included, and no token or header value was copied.
+  enabled plugins included, nothing was marked "not set up" from the file survey
+  alone, and no token or header value was copied.
 - The history comes only from sources in the plan, each milestone has a date and a
   source, and a missing reason or a missing history source is stated, not guessed.
 - Proposed connections are read-only, name no unverified package, and are left for

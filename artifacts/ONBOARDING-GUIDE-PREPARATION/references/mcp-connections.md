@@ -16,30 +16,52 @@ it, and the guide then proposes installing a second one beside it: two servers f
 the same tracker, possibly with different access. So look in every place a server
 can be declared. For Claude Code these are:
 
-- **Project scope:** `.mcp.json` at the repository root, and in
-  `.claude/settings.json` and `.claude/settings.local.json` which of its servers
-  are approved or disabled (`enableAllProjectMcpServers`, `enabledMcpjsonServers`,
-  `disabledMcpjsonServers`). An unapproved server is configured but not connected.
+- **Project scope:** `.mcp.json` at the repository root. Whether each of its
+  servers is approved is decided in several places, not only the project's own
+  settings: `enableAllProjectMcpServers`, `enabledMcpjsonServers` and
+  `disabledMcpjsonServers` in `.claude/settings.json`,
+  `.claude/settings.local.json`, the user's `~/.claude/settings.json`, managed
+  settings and a file passed with `--settings`, and the choices the person made
+  for this repository, kept in `~/.claude.json` under `projects["<path>"]`
+  (`enabledMcpjsonServers`, `disabledMcpjsonServers`, and `disabledMcpServers`
+  for servers turned off). A `disabledMcpjsonServers` entry in any settings file
+  rejects the server. In an interactive session an unapproved server is
+  configured but not connected; `claude -p` runs and Agent SDK sessions load
+  project-scoped servers without asking, so there it is loaded.
 - **User and local scope:** `~/.claude.json`, where `mcpServers` at the top level
   is the user scope and `projects["<path>"].mcpServers` is the local scope for this
-  repository only. `~/.claude/settings.json` holds the user's approvals.
-- **Plugins:** the plugins enabled in `enabledPlugins` in any of the three settings
-  files above. Look each up in `~/.claude/plugins/installed_plugins.json`, which
+  repository only.
+- **Plugins:** the plugins enabled in `enabledPlugins`, which can be set in six
+  places: the user, project and local settings files above, managed settings, a
+  file passed with `--settings`, and the settings of a directory added with
+  `--add-dir`. Look each up in `~/.claude/plugins/installed_plugins.json`, which
   gives its install path, and read the `.mcp.json` at that path or the
   `mcpServers` entry in its `.claude-plugin/plugin.json`, which is either the
   servers themselves or a path to a file holding them. Read the installed path
   only: the plugin cache keeps old versions beside it, and their servers are not
-  loaded. A plugin that is installed but not enabled contributes nothing.
-- **Managed settings** an administrator deploys, such as `managed-mcp.json`, which
-  the person cannot change and the guide reports as fixed.
+  loaded. A plugin that is installed but not enabled contributes nothing. Plugins
+  that come with the person's claude.ai account load as `<name>@synced` and have
+  no entry in `installed_plugins.json`, so their servers cannot be found this way.
+- **Managed settings** an administrator deploys, such as `managed-mcp.json`
+  (`/Library/Application Support/ClaudeCode/` on macOS, `/etc/claude-code/` on
+  Linux and WSL, `C:\Program Files\ClaudeCode\` on Windows), which the person
+  cannot change and the guide reports as fixed.
 
 If `CLAUDE_CONFIG_DIR` is set, the user-level files are there instead of in
-`~/.claude`. Where the CLI is available, `claude mcp list` gives the merged result
-of all of these, plus account connectors, with each server's status. It starts each
-approved server to check its health, so run it with the person's agreement, and
-use it to confirm the file survey rather than replace it: it does not say where a
-server was declared. Other agents have the same layers under their own names, such
-as `.cursor/mcp.json` and `~/.cursor/mcp.json`, `.codex/config.toml` and
+`~/.claude`, and so is `.claude.json`, which is then not at `~/.claude.json`.
+
+Even with all of these read, the file survey can miss a server: account
+connectors and synced plugins are not in any file the agent reads, and the
+approval rules above have more inputs than a survey can be sure it saw. So before
+marking any source "not set up" or "not approved", check against what Claude Code
+itself reports. Where the CLI is available, `claude mcp list` gives the merged
+result with each server's status, such as connected, needs authentication or
+pending approval. It connects to each approved server to check its health, so
+run it with the person's agreement. Where the person does not agree, write the
+source as "not found in the configuration files" rather than "not set up". The
+list does not say where a server was declared, which is what the file survey is
+for. Other agents have the same layers under their own names, such as
+`.cursor/mcp.json` and `~/.cursor/mcp.json`, `.codex/config.toml` and
 `~/.codex/config.toml`, and `.vscode/mcp.json`.
 
 These files often hold tokens in `env` or `headers`. Read the server names, types,

@@ -53,7 +53,11 @@ corrections were made:
   comparable, and someone who reviews every change to a module may know it best
   with no commits in it. Where the code host is in the plan, add who reviewed the
   merged pull requests that touched the module, for example from
-  `gh pr list --state merged --search 'merged:>=<date>' --json number,author,reviews,files`.
+  `gh pr list --state merged --search 'merged:>=<date>' --limit 1000 --json number,author,reviews,files`.
+  Without `--limit`, `gh pr list` returns only the newest 30, and the reviewers
+  would come from those alone. A search returns at most 1,000 results, so if
+  exactly 1,000 come back, split the window into shorter date ranges and run it
+  once per range.
 
 `CODEOWNERS` is the team's own declaration and comes first where it exists. When it
 and the history disagree, show both: a `CODEOWNERS` file nobody has updated since
