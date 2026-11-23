@@ -1669,6 +1669,32 @@
       }
     },
     {
+      "id": "ONBOARDING-GUIDE-PREPARATION",
+      "version": "0.1.2",
+      "source_path": "artifacts/ONBOARDING-GUIDE-PREPARATION",
+      "applies_to": {},
+      "strength": "on-demand",
+      "topics": ["documentation", "development-process"],
+      "scope": "project",
+      "requires": {
+        "tools": ["git"],
+        "access": ["Optional: read access for the agent to the project's tracker and wiki (Jira, Confluence or similar) through an MCP server or connector; without it the guide is built from the repository and lists those sources with what to ask for"]
+      },
+      "presentation": {
+        "name": "Prepare an onboarding guide from what the project actually contains",
+        "summary": "Asks a newcomer a few questions, then, reading only the sources they confirm, builds a guide to one project in two parts: a project knowledge base that is the same for everyone (what the project is for, how its modules connect, who to ask about each, the decisions and where they landed, documented business rules, how it got here, the shared code and the commands) and a start fitted to the reader's first task, with what is happening now, which skills fit and a first-week checklist.",
+        "benefits": [
+          "Starts with a short questionnaire on the reader, their first task, the main repositories and the systems they can open, then reads only the sources the person confirms and keeps restricted content out of the shared part",
+          "Builds a project knowledge base the team keeps and refreshes: the project's goal, its modules and how they connect, the decisions and where they landed in the code, and documented business rules, each with its source and marked where inferred from code",
+          "Names who to ask about each module from recent git history, leaving out merges, bots and mass reformatting, with CODEOWNERS first and no email addresses",
+          "Summarises how the project got here and what is happening now, dated and taken only from confirmed sources",
+          "Finds the helpers, macros and fixtures the rest of the code goes through, each with a call site to copy, and traces one real path for the reader's first task",
+          "Looks for MCP servers everywhere they can be configured, plugins included, and proposes read-only connections only where none exists yet",
+          "Matches the project's and the reader's own skills to recurring tasks, and ends with a checklist of actions that each have a visible result and the open questions to take to the lead"
+        ]
+      }
+    },
+    {
       "id": "JIRA-TICKET-STATUS-UPDATE",
       "version": "0.1.0",
       "source_path": "artifacts/JIRA-TICKET-STATUS-UPDATE",
