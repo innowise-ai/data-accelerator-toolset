@@ -1,0 +1,25 @@
+{
+  "id": "GO-BENCHMARK-REGRESSION-CHECK",
+  "version": "0.1.0",
+  "source_path": "artifacts/GO-BENCHMARK-REGRESSION-CHECK",
+  "applies_to": {
+    "languages": ["go"]
+  },
+  "strength": "on-demand",
+  "topics": ["performance"],
+  "scope": "project",
+  "requires": {
+    "tools": ["Go toolchain", "benchstat (go install golang.org/x/perf/cmd/benchstat@latest)"]
+  },
+  "presentation": {
+    "name": "Catch Go hot-path regressions with benchmarks and benchstat",
+    "summary": "Benchmarks the code a component runs once per record on a realistic input, and compares before and after a change so slowdowns and extra allocations are caught.",
+    "benefits": [
+      "Benchmarks the per-record entry point as configured in production, not a helper",
+      "Uses realistic payloads, where toy inputs hide the costs that grow with data",
+      "Compares base and branch with benchstat instead of a single noisy run",
+      "Treats allocations per operation as the stable signal and time as the noisy one",
+      "Records figures with date and CPU so the next comparison means something"
+    ]
+  }
+}

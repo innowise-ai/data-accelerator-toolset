@@ -1,0 +1,23 @@
+{
+  "id": "RELEASE-NOTES-PREPARATION",
+  "version": "0.1.0",
+  "source_path": "artifacts/RELEASE-NOTES-PREPARATION",
+  "applies_to": {},
+  "strength": "on-demand",
+  "topics": ["writing", "documentation"],
+  "scope": "project",
+  "requires": {
+    "tools": ["git", "GitHub CLI (gh), signed in, for merged pull requests and their descriptions; without it the notes are built from the commit log alone"]
+  },
+  "presentation": {
+    "name": "Prepare release notes from what actually shipped",
+    "summary": "Builds release notes from the commits, pull requests and tickets in the release range, rewritten for the people who use the product.",
+    "benefits": [
+      "Takes the version and the range from the repository, scoped to the component being released",
+      "Drops reverted, already announced and switched-off changes before they reach the notes",
+      "Puts required actions first and rewrites each change as what the user gets",
+      "Matches the heading to the released version and keeps the entry within the announcement channel's length limit",
+      "Lists what was left out and why, so omissions can be reviewed"
+    ]
+  }
+}
