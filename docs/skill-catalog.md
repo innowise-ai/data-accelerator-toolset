@@ -5,8 +5,8 @@ Human-readable index of every artifact in this catalog, generated from
 Regenerate this file whenever artifacts are added, removed or re-described in
 the index — it is a rendering of `index.json`, not a second source of truth.
 
-83 artifacts today: 38 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow, connectors that feed pipelines,
-PostgreSQL extraction, idempotent writes, backfills, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
+84 artifacts today: 39 data-engineering specific (dbt, Snowflake, Spark, Databricks, Airflow, connectors that feed pipelines,
+PostgreSQL extraction, idempotent writes, backfills, schema changes, Python pipeline code, sensitive data handling, stack-agnostic pipeline quality, lakehouse
 layering, job orchestration, streaming queries and metric definitions), 8 for Power BI, 8 for Tableau,
 5 for containers, local environments and Kubernetes, 2 for infrastructure as code, and 22
 general skills, three of them for Go modules and the rest for any stack. All are `on-demand` except
@@ -23,7 +23,7 @@ An artifact is only installed into a project if `accelerator-setup`'s
 questionnaire and scan match it — this list is the full menu, not what any
 one project gets.
 
-## Data engineering (38)
+## Data engineering (39)
 
 | Skill | Applies to | Topic(s) | What it does |
 |---|---|---|---|
@@ -57,6 +57,7 @@ one project gets.
 | **Extract from PostgreSQL incrementally without straining the production database** (`POSTGRES-SOURCE-EXTRACTION`) | postgres | ingestion, performance | Reads a PostgreSQL source in batches by (updated_at, id) that neither skip nor repeat rows, keeps each batch on an index, and keeps the job's transactions, timeouts and connections from hurting the application that owns the database. |
 | **Test pipeline code with pytest, mocking I/O** (`PYTEST-DATA-PIPELINES`) | python | testing | Tests data pipeline code with pytest, mocking at the I/O boundary. |
 | **Implement SCD Type 2 with correct validity intervals** (`SCD2-IMPLEMENTATION`) | sql | data-modeling | Implements Slowly Changing Dimension Type 2 in SQL with correct validity intervals. |
+| **Change a shared schema without breaking its readers** (`SCHEMA-CHANGE-ROLLOUT`) | sql, python | data-modeling, data-quality | Plans a column add, rename, drop or type change on a table or event schema that others read: finds the readers, classifies the change, and rolls a breaking one out in steps so every reader keeps working, with the specifics of Avro, Delta Lake, Iceberg, Parquet and the main warehouses. |
 | **Decide what personal data a model may carry** (`SENSITIVE-DATA-HANDLING`) | any | security | Decides what personal data a model may carry, and keeps deletion possible later. |
 | **Find Snowflake queries worth optimising** (`SNOWFLAKE-COST-HOTSPOTS`) | snowflake | performance, database-administration | Finds the Snowflake queries actually worth optimising and reads the metrics that point at a fix. |
 | **Restore grants after Snowflake objects are recreated** (`SNOWFLAKE-GRANT-RESTORE`) | snowflake | data-quality | Restores access after Snowflake objects are recreated, without guessing at roles. |
