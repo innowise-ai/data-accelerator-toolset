@@ -487,7 +487,7 @@ dbt-core 1.10 and dbt-postgres 1.9 on PostgreSQL 17, and the Airflow statements
 were checked against the Airflow 2.10 and 3.1 command-line help and the Airflow
 3.1 source.
 
-SCHEMA-CHANGE-ROLLOUT: upstream's skill is a short checklist of the
+SCHEMA-EVOLUTION-PLANNING: upstream's skill is a short checklist of the
 compatibility model, a five-step workflow, one format-specific line each for
 Avro, Delta, Iceberg and Parquet, and a list of pitfalls. The artifact keeps the
 classification of additive and breaking changes, the stepwise rollout of a
@@ -520,7 +520,7 @@ Artifacts derived from this source:
   BACKFILL-PLANNING          <- skills/designing-backfills-and-replays
   IDEMPOTENT-WRITE-DESIGN    <- skills/writing-idempotent-transformations
   MEDALLION-LAYER-BOUNDARIES <- skills/designing-medallion-architecture
-  SCHEMA-CHANGE-ROLLOUT      <- skills/handling-schema-evolution
+  SCHEMA-EVOLUTION-PLANNING  <- skills/handling-schema-evolution
   SPARK-JOB-TUNING <- skills/optimizing-pyspark-jobs
                       skills/optimizing-sql-queries/references/ENGINES.md
                       (the "Spark SQL / Databricks" section only)

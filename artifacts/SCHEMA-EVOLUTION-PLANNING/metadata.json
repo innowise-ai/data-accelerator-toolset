@@ -1,7 +1,7 @@
 {
-  "id": "SCHEMA-CHANGE-ROLLOUT",
+  "id": "SCHEMA-EVOLUTION-PLANNING",
   "version": "0.1.0",
-  "source_path": "artifacts/SCHEMA-CHANGE-ROLLOUT",
+  "source_path": "artifacts/SCHEMA-EVOLUTION-PLANNING",
   "applies_to": {
     "languages": ["sql", "python"]
   },

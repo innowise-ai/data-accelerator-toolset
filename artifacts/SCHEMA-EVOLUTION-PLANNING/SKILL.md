@@ -1,5 +1,5 @@
 ---
-name: schema-change-rollout
+name: schema-evolution-planning
 description: Changing the schema of a table, file set or event stream that other people read - adding, renaming, dropping or retyping a column, or tightening nullability - without breaking a reader. Covers finding the readers, which compatibility direction a change needs, telling additive from breaking changes, rolling a breaking change out in steps (add, backfill, dual-write, move readers, drop after a deprecation window), adding a NOT NULL column, reading by name rather than position, and how Avro with a schema registry, Delta Lake, Iceberg, raw Parquet and the main warehouses evolve. Use when asked to add, rename, drop or retype a column in a shared table or event schema, to enable schema evolution or mergeSchema, or when a schema change has broken a downstream reader.
 ---
 

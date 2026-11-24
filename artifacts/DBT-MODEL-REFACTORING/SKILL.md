@@ -128,7 +128,7 @@ is confidently wrong.
 When some consumers are outside the project (another team's models, a dashboard,
 an extract) one commit cannot reach them. Then the change is rolled out in steps
 that keep the old column until they have moved:
-[schema-change-rollout](../SCHEMA-CHANGE-ROLLOUT/SKILL.md).
+[schema-evolution-planning](../SCHEMA-EVOLUTION-PLANNING/SKILL.md).
 
 ## Anti-patterns
 
