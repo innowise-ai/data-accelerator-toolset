@@ -1,0 +1,24 @@
+{
+  "id": "SCHEMA-EVOLUTION-PLANNING",
+  "version": "0.1.0",
+  "source_path": "artifacts/SCHEMA-EVOLUTION-PLANNING",
+  "applies_to": {
+    "languages": ["sql", "python"]
+  },
+  "strength": "on-demand",
+  "topics": ["data-modeling", "data-quality"],
+  "scope": "project",
+  "requires": {
+    "access": ["A role that may alter the shared table, used only for the steps the user approves; read access to query history to find the table's readers"]
+  },
+  "presentation": {
+    "name": "Change a shared schema without breaking its readers",
+    "summary": "Plans a column add, rename, drop or type change on a table or event schema that others read: finds the readers, classifies the change, and rolls a breaking one out in steps so every reader keeps working, with the specifics of Avro, Delta Lake, Iceberg, Parquet and the main warehouses.",
+    "benefits": [
+      "Lists the table's readers from lineage and query history before anything changes",
+      "Tells additive changes from breaking ones, including a change of meaning that no schema check catches",
+      "Rolls a rename, drop or type change out as add, dual-write, backfill, move readers, then drop",
+      "Warns where a format setting breaks readers, such as Delta column mapping or blind mergeSchema"
+    ]
+  }
+}

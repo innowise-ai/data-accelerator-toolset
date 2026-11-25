@@ -125,6 +125,11 @@ broken intermediate state, and update the `schema.yml` descriptions and tests al
 with it. Documentation left pointing at the old column name is worse than none: it
 is confidently wrong.
 
+When some consumers are outside the project (another team's models, a dashboard,
+an extract) one commit cannot reach them. Then the change is rolled out in steps
+that keep the old column until they have moved:
+[schema-evolution-planning](../SCHEMA-EVOLUTION-PLANNING/SKILL.md).
+
 ## Anti-patterns
 
 - Changing a model before knowing what consumes it

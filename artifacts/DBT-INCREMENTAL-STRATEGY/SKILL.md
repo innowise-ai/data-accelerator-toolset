@@ -125,8 +125,13 @@ and someone notices weeks later.
 | `sync_all_columns` | Target matches source, including drops and type changes |
 | `fail` | The run errors on any schema difference |
 
-`append_new_columns` is the usual choice. Set it explicitly even when you want the
-default, so the next reader knows it was decided rather than inherited.
+`append_new_columns` is the usual choice for a model that keeps whatever arrives.
+For a model whose columns are an interface that readers outside the team depend
+on, `fail` is safer: an unexpected upstream column, a typo included, stops the run
+instead of reaching those readers. See
+[schema-evolution-planning](../SCHEMA-EVOLUTION-PLANNING/SKILL.md#schema-evolution-on-write-choose-where-it-happens).
+Set it explicitly even when you want the default, so the next reader knows it was
+decided rather than inherited.
 
 ## Schedule a periodic full refresh
 

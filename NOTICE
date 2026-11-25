@@ -389,8 +389,8 @@ Upstream:  https://github.com/Unknown-333/awesome-data-engineering-skills (commi
 Licence:   Apache License 2.0, as modified by the upstream repository (see below)
 Copyright: Copyright 2026 awesome-data-engineering-skills contributors
 
-Five skills were adapted into artifacts in this catalog, one of them with one
-section of a reference file of a sixth skill used as an additional source.
+Six skills were adapted into artifacts in this catalog, one of them with one
+section of a reference file of a seventh skill used as an additional source.
 
 About the licence: the repository's LICENSE file is the Apache License 2.0 with
 parts removed, which is why GitHub reports it as NOASSERTION. Section 4(d), the
@@ -487,12 +487,40 @@ dbt-core 1.10 and dbt-postgres 1.9 on PostgreSQL 17, and the Airflow statements
 were checked against the Airflow 2.10 and 3.1 command-line help and the Airflow
 3.1 source.
 
+SCHEMA-EVOLUTION-PLANNING: upstream's skill is a short checklist of the
+compatibility model, a five-step workflow, one format-specific line each for
+Avro, Delta, Iceberg and Parquet, and a list of pitfalls. The artifact keeps the
+classification of additive and breaking changes, the stepwise rollout of a
+breaking change (add, dual-write, backfill, move readers, drop), adding a NOT
+NULL column nullable first, reading by name rather than position, the risk of
+blind mergeSchema and the format-specific behaviour, rewritten as prose that
+explains why each one matters. Two statements were corrected rather than carried
+over. Upstream says that most warehouse evolution targets backward
+compatibility, new readers reading old data; for a shared table the readers
+that exist when a change is applied are old readers of new data, so the artifact
+explains both directions and which one each case needs. Upstream says that
+under the registry's BACKWARD type required fields are never removed; BACKWARD
+allows deleting fields, and the artifact gives the allowed changes and the
+upgrade order of each compatibility type instead. Content was added that
+upstream does not contain, including finding the readers from lineage and query
+history, a change of meaning under the same name, the order of backfill and
+dual-write, a deprecation window ended by query history rather than a date, a
+view as a shorter path, positional INSERT and insertInto, where automatic
+evolution belongs, Delta column mapping breaking readers that do not support it
+and streaming reads after a rename, transitive registry compatibility for
+replayed topics, the PostgreSQL, Snowflake and BigQuery limits, and dbt model
+versions. Format and engine statements were checked against the Delta Lake,
+Apache Iceberg, Apache Avro, Confluent Schema Registry, Apache Spark, Trino, dbt,
+PostgreSQL, Snowflake and BigQuery documentation, and INSERT BY NAME was run on
+DuckDB 1.4.
+
 Artifacts derived from this source:
 
   AIRFLOW-RUN-FAILURE-DIAGNOSIS <- skills/debugging-airflow-pipelines
   BACKFILL-PLANNING          <- skills/designing-backfills-and-replays
   IDEMPOTENT-WRITE-DESIGN    <- skills/writing-idempotent-transformations
   MEDALLION-LAYER-BOUNDARIES <- skills/designing-medallion-architecture
+  SCHEMA-EVOLUTION-PLANNING  <- skills/handling-schema-evolution
   SPARK-JOB-TUNING <- skills/optimizing-pyspark-jobs
                       skills/optimizing-sql-queries/references/ENGINES.md
                       (the "Spark SQL / Databricks" section only)

@@ -163,6 +163,10 @@
   "Data engineering",
   "Pipelines, SQL and data safety"
  ],
+ "SCHEMA-EVOLUTION-PLANNING": [
+  "Data engineering",
+  "Pipelines, SQL and data safety"
+ ],
  "KPI-DEFINITION-BUILDING": [
   ["Data engineering", "Pipelines, SQL and data safety"],
   ["Power BI", "Metrics"],
