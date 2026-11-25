@@ -17,7 +17,7 @@
     "benefits": [
       "Lists the table's readers from lineage and query history before anything changes",
       "Tells additive changes from breaking ones, including a change of meaning that no schema check catches",
-      "Rolls a rename, drop or type change out as add, backfill, dual-write, move readers, then drop",
+      "Rolls a rename, drop or type change out as add, dual-write, backfill, move readers, then drop",
       "Warns where a format setting breaks readers, such as Delta column mapping or blind mergeSchema"
     ]
   }

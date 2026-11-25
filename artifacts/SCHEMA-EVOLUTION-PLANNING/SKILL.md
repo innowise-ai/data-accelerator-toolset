@@ -1,6 +1,6 @@
 ---
 name: schema-evolution-planning
-description: Changing the schema of a table, file set or event stream that other people read - adding, renaming, dropping or retyping a column, or tightening nullability - without breaking a reader. Covers finding the readers, which compatibility direction a change needs, telling additive from breaking changes, rolling a breaking change out in steps (add, backfill, dual-write, move readers, drop after a deprecation window), adding a NOT NULL column, reading by name rather than position, and how Avro with a schema registry, Delta Lake, Iceberg, raw Parquet and the main warehouses evolve. Use when asked to add, rename, drop or retype a column in a shared table or event schema, to enable schema evolution or mergeSchema, or when a schema change has broken a downstream reader.
+description: Changing the schema of a table, file set or event stream that other people read - adding, renaming, dropping or retyping a column, or tightening nullability - without breaking a reader. Covers finding the readers, which compatibility direction a change needs, telling additive from breaking changes, rolling a breaking change out in steps (add, dual-write, backfill, move readers, drop after a deprecation window), adding a NOT NULL column, reading by name rather than position, and how Avro with a schema registry, Delta Lake, Iceberg, raw Parquet and the main warehouses evolve. Use when asked to add, rename, drop or retype a column in a shared table or event schema, to enable schema evolution or mergeSchema, or when a schema change has broken a downstream reader.
 ---
 
 # Rolling out a schema change
@@ -42,8 +42,8 @@ Neighbours:
 
 Planning is read-only: reading code, table metadata, lineage and query history.
 The steps themselves alter shared tables, and some of them cannot be undone
-without a restore (a dropped column, a protocol upgrade on a Delta table, a
-tightened constraint that a writer then fails on). Write the plan first, with
+without a restore or a rewrite (a dropped column, a protocol upgrade on a Delta
+table, a tightened constraint that a writer then fails on). Write the plan first, with
 each step's statement, and run each step only after the user has approved it.
 Run the steps against a copy or a development schema first when one exists. The
 role that runs them needs to alter the table; it does not need to own the
@@ -137,14 +137,15 @@ the schema first grows to hold both forms, readers move, then it shrinks.
 
 1. **Add the new column** beside the old one, nullable. Nothing reads it yet, so
    nothing can break.
-2. **Backfill it** from the old column for existing rows. For a large or
-   partitioned table this is a backfill in its own right, done in units and
-   reconciled; see [backfill-planning](../BACKFILL-PLANNING/SKILL.md).
-3. **Dual-write**: change every writer to fill both columns, from the same
-   expression in the same statement, so the two cannot disagree. Do this before
-   or together with the backfill, not after it; rows written between a backfill
-   and the start of dual-writing have only the old column. Then check that the
-   two columns agree on every row, with a query that counts mismatches, nulls
+2. **Dual-write**: change every writer to fill both columns, from the same
+   expression in the same statement, so the two cannot disagree. This comes
+   before the backfill, not after it: rows written between a backfill and the
+   start of dual-writing would have only the old column.
+3. **Backfill** the new column from the old one for the rows written before
+   dual-writing started. For a large or partitioned table this is a backfill in
+   its own right, done in units and reconciled; see
+   [backfill-planning](../BACKFILL-PLANNING/SKILL.md). Then check that the two
+   columns agree on every row, with a query that counts mismatches, nulls
    included.
 4. **Move the readers** to the new column, one by one, from the inventory. Tell
    each owner what changed, what the new column holds, and the date the old one
@@ -153,20 +154,35 @@ the schema first grows to hold both forms, readers move, then it shrinks.
    old column during it. The window has to cover the slowest reader's cycle:
    month-end and quarter-end jobs read a table a handful of times a year, and a
    window shorter than that removes the column from under them. Mark the old
-   column deprecated where readers will see it: its description, the dbt
-   `deprecation_date`, the data catalog.
-6. **Drop the old column** once query history shows no reads of it, and stop
-   dual-writing in the same change.
+   column deprecated where readers will see it: its description (in dbt, the
+   column's `description` or `meta`) and the data catalog. dbt's
+   `deprecation_date` belongs to a whole model or model version, not to a column;
+   see [dbt](#dbt).
+6. **Stop writing the old column** once query history shows no reads of it:
+   change every writer to fill only the new one, and check in query history that
+   no statement writes the old column any more.
+7. **Drop the old column.** Dropping it while a writer still fills it makes every
+   one of that writer's statements fail, and the DDL and the writers' deploys
+   cannot happen at the same instant, so the drop comes after the last writer has
+   stopped.
 
 Each step is reversible until the last, which is why the last waits for
 evidence rather than a date alone.
 
 **A view can shorten this.** When every reader goes through a view rather than
-the table, rename the column in the table and keep the old name in the view
-(`new_name AS old_name`). Readers move to a new view, or to the new name in the
-same view, on their own schedule, and the old name is removed from the view
-after the window. This works only when nobody reads the table directly, and the
-inventory is what says so.
+the table, the view can keep the old name while the table changes
+(`new_name AS old_name`). Readers move to the new name, in the same view or a
+new one, on their own schedule, and the old name is removed from the view after
+the window. The table change and the view change must reach readers together,
+and engines differ there. A PostgreSQL view refers to the table's columns by
+number, so it keeps working through `RENAME COLUMN` and keeps showing the old
+name without being redefined. Snowflake and BigQuery resolve a view's column
+names when it is queried, so between the rename and the `CREATE OR REPLACE VIEW`
+every reader of the view fails, and Snowflake commits each DDL statement on its
+own. There, add the new column under the view instead of renaming (steps 1 to 3),
+point the view's old name at it, and drop the old column at the end. Either way
+this works only when nobody reads the table directly, and the inventory is what
+says so.
 
 **Some engines rename in metadata only**, so the rename itself is cheap and
 instant: Iceberg, Delta with column mapping, Snowflake, BigQuery, PostgreSQL.
@@ -267,17 +283,22 @@ window.
 - **Adding columns** is an `ALTER TABLE ... ADD COLUMNS`, or `mergeSchema` on a
   write (`.option("mergeSchema", "true")`), which adds the columns the DataFrame
   has and the table lacks. Columns the DataFrame lacks stay in the table and are
-  written as null. For `MERGE`, schema evolution is switched on by the session
-  setting `spark.databricks.delta.schema.autoMerge.enabled`, which applies to
-  every merge in the session; prefer setting it around the one statement that
-  needs it.
+  written as null. For `MERGE`, Databricks Runtime 15.4 LTS and later switch
+  schema evolution on for one statement with `MERGE WITH SCHEMA EVOLUTION INTO`.
+  Elsewhere it takes the session setting
+  `spark.databricks.delta.schema.autoMerge.enabled`, which applies to every
+  write in the session, not only the merge; set it around the one statement
+  that needs it, in a session that runs nothing else meanwhile.
 - **Renaming and dropping** need column mapping, enabled with
   `ALTER TABLE t SET TBLPROPERTIES ('delta.columnMapping.mode' = 'name')`. It
-  upgrades the table's protocol (reader version 2, writer version 5), which
-  cannot be undone: the table can then be read only by Delta Lake 1.2 or later,
-  or by an engine that supports column mapping. Check the inventory for engines
-  and older runtimes that read it before enabling it; this is the one step in
-  this skill that can break readers who never use the column. With column
+  upgrades the table's protocol (reader version 2, writer version 5): the table
+  can then be read only by Delta Lake 1.2 or later, or by an engine that
+  supports column mapping. Check the inventory for engines and older runtimes
+  that read it before enabling it; this is the one step in this skill that can
+  break readers who never use the column. Undoing it is not a property change:
+  `ALTER TABLE t DROP FEATURE columnMapping` removes it and downgrades the
+  protocol from Delta Lake 3.3 and Databricks Runtime 15.4 LTS, by rewriting
+  the data files. On older versions the upgrade is permanent. With column
   mapping on, a rename or drop changes metadata only; a dropped column's data
   stays in the Parquet files until they are rewritten.
 - **Streaming readers** of a table that had a column renamed or dropped are
@@ -336,7 +357,8 @@ step costs and which changes it refuses.
   lock; on a large table, add a `CHECK (col IS NOT NULL) NOT VALID` constraint,
   run `VALIDATE CONSTRAINT` (which takes a lock that does not block writes), and
   `SET NOT NULL` then skips the scan because the valid constraint already proves
-  there are no nulls.
+  there are no nulls. That skip exists from PostgreSQL 12; on 11 and earlier
+  `SET NOT NULL` scans anyway.
 - **Snowflake**: an existing column's type can change only within limits, such
   as a longer `VARCHAR` or a larger `NUMBER` precision with the same scale;
   anything else is a new column. `SET NOT NULL` fails while the column holds a
@@ -380,7 +402,8 @@ The plan, before any change:
 - the reader inventory, with owners, and how each one was found;
 - for an additive change, which readers could still be affected and why not;
 - for a breaking change, the steps with their statements, the check that ends
-  each step (backfill complete, columns agree, no reads of the old column), and
+  each step (backfill complete, columns agree, no reads of the old column, no
+  writes to it), and
   the deprecation window with its end date;
 - format-specific consequences: a protocol upgrade, a streaming restart, a
   rewrite, a lock;

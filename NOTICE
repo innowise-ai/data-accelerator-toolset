@@ -491,7 +491,7 @@ SCHEMA-EVOLUTION-PLANNING: upstream's skill is a short checklist of the
 compatibility model, a five-step workflow, one format-specific line each for
 Avro, Delta, Iceberg and Parquet, and a list of pitfalls. The artifact keeps the
 classification of additive and breaking changes, the stepwise rollout of a
-breaking change (add, backfill, dual-write, move readers, drop), adding a NOT
+breaking change (add, dual-write, backfill, move readers, drop), adding a NOT
 NULL column nullable first, reading by name rather than position, the risk of
 blind mergeSchema and the format-specific behaviour, rewritten as prose that
 explains why each one matters. Two statements were corrected rather than carried
